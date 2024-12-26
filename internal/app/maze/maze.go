@@ -1,7 +1,7 @@
 package maze
 
 import (
-	"math/rand"
+	"math/rand/v2"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -18,7 +18,7 @@ type model struct {
 }
 
 func initialModel() tea.Model {
-	maze := mazes[rand.Intn(len(mazes))]
+	maze := mazes[rand.IntN(len(mazes))]
 
 	startpos := vector{}
 	endpos := vector{}

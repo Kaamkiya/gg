@@ -2,7 +2,7 @@ package dodger
 
 import (
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -61,7 +61,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case spawnBlockMsg:
-		m.blocks = append(m.blocks, vector{rand.Intn(m.size.x), 0})
+		m.blocks = append(m.blocks, vector{rand.IntN(m.size.x), 0})
 	case moveBlockMsg:
 		m.moveBlocks()
 	}

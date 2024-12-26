@@ -1,7 +1,7 @@
 package hangman
 
 import (
-	"math/rand"
+	"math/rand/v2"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -15,7 +15,7 @@ type model struct {
 }
 
 func initialModel() tea.Model {
-	word := wordlist[rand.Intn(len(wordlist))]
+	word := wordlist[rand.IntN(len(wordlist))]
 
 	showWord := []rune{}
 	for range word {

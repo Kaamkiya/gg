@@ -1,7 +1,7 @@
 package twenty48
 
 import (
-	"math/rand"
+	"math/rand/v2"
 	"strconv"
 	"time"
 
@@ -192,12 +192,15 @@ func (m *model) AddTile() bool {
 		return false
 	}
 
-	rndSrc := rand.NewSource(time.Now().UnixNano())
+	rndSrc := rand.NewPCG(
+		uint64(time.Now().UnixNano()),
+		uint64(time.Now().UnixMilli()),
+	)
 	rnd := rand.New(rndSrc)
 
-	cell := empty[rnd.Intn(len(empty))]
+	cell := empty[rnd.IntN(len(empty))]
 
-	if rnd.Intn(10) < 9 {
+	if rnd.IntN(10) < 9 {
 		m.grid[cell/len(m.grid)][cell%len(m.grid)] = 2
 	} else {
 		m.grid[cell/len(m.grid)][cell%len(m.grid)] = 4
