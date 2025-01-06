@@ -1,8 +1,7 @@
 package maze
 
 import (
-	"math/rand/v2"
-
+	"github.com/Kaamkiya/gg/internal/app/maze/mazegenerator"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -18,18 +17,19 @@ type model struct {
 }
 
 func initialModel() tea.Model {
-	maze := mazes[rand.IntN(len(mazes))]
+	// maze := mazes[rand.IntN(len(mazes))]
+	maze := mazegenerator.GenerateMaze(20, 20, "prim")
 
 	startpos := vector{}
 	endpos := vector{}
 
-	for y := range maze {
-		for x := range maze[y] {
-			if maze[y][x] == 'S' {
+	for y := range maze.Grid {
+		for x := range maze.Grid[y] {
+			if maze.Get(x, y) == 'S' {
 				startpos.x = y
 				startpos.y = x
 			}
-			if maze[y][x] == 'E' {
+			if maze.Get(x, y) == 'E' {
 				endpos.x = y
 				endpos.y = x
 			}
@@ -37,7 +37,7 @@ func initialModel() tea.Model {
 	}
 
 	return model{
-		maze:   maze,
+		maze:   maze.Grid,
 		pos:    startpos,
 		endpos: endpos,
 	}
@@ -121,7 +121,8 @@ func (m *model) MovePlayer(dir string) {
 }
 
 func Run() {
-	p := tea.NewProgram(initialModel())
+	// TODO: Testing
+	p := tea.NewProgram(mazegenerator.GetModel())
 
 	if _, err := p.Run(); err != nil {
 		panic(err)
