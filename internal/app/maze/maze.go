@@ -17,8 +17,7 @@ type model struct {
 }
 
 func initialModel() tea.Model {
-	// maze := mazes[rand.IntN(len(mazes))]
-	maze := mazegenerator.GenerateMaze(20, 20, "prim")
+	maze := mazegenerator.GenerateMaze(25, 15, "prim")
 
 	startpos := vector{}
 	endpos := vector{}
@@ -121,8 +120,7 @@ func (m *model) MovePlayer(dir string) {
 }
 
 func Run() {
-	// TODO: Testing
-	p := tea.NewProgram(mazegenerator.GetModel())
+	p := tea.NewProgram(initialModel())
 
 	if _, err := p.Run(); err != nil {
 		panic(err)

@@ -6,8 +6,14 @@ type MazeModel struct {
 	maze *Maze
 }
 
+const (
+	width  = 30
+	height = 20
+	algo   = "prim"
+)
+
 func GetModel() tea.Model {
-	maze := GenerateMaze(30, 20, "prim")
+	maze := GenerateMaze(width, height, algo)
 
 	return MazeModel{
 		maze,
@@ -58,5 +64,5 @@ func (m MazeModel) View() string {
 }
 
 func (m *MazeModel) generate() {
-	m.maze = GenerateMaze(30, 20, "prim")
+	m.maze = GenerateMaze(width, height, algo)
 }

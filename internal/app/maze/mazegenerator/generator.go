@@ -22,16 +22,18 @@ type PrimGenerator struct {
 
 func (p *PrimGenerator) Generate(maze *Maze) {
 	startX, startY := maze.GetStartPos()
+	start := Cell{startX, startY}
+	curr := start
 
-	walls := maze.GetNeighbors(startX, startY, true)
-
-	curr := Cell{startX, startY}
+	walls := maze.GetFrontiers(startX, startY, true)
+	visited := make(map[Cell]bool)
+	for _, wall := range walls {
+		visited[wall] = true
+	}
 
 	for len(walls) > 0 {
-		// Choose a random wall
+		// Pop random wall
 		randIdx := rand.Intn(len(walls))
-
-		// Pop the wall
 		wall := walls[randIdx]
 		walls = append(walls[:randIdx], walls[randIdx+1:]...)
 
@@ -39,29 +41,34 @@ func (p *PrimGenerator) Generate(maze *Maze) {
 			continue
 		}
 
-		paths := maze.GetNeighbors(wall.x, wall.y, false)
-		if len(paths) >= 2 || len(paths) == 0 {
+		paths := maze.GetFrontiers(wall.x, wall.y, false)
+		if len(paths) == 0 {
 			continue
 		}
 		path := paths[rand.Intn(len(paths))]
 
-		// Get opposite cell of the path
-		nextX, nextY := wall.x+(wall.x-path.x), wall.y+(wall.y-path.y)
-		next := Cell{nextX, nextY}
-		maze.MakePath(wall)
+		// skip special case: last wall before boundary
+		if wall.Diff(path) != 1 {
+			// Connect wall and path
+			x, y := (wall.x+path.x)/2, (wall.y+path.y)/2
+			between := Cell{x, y}
+			maze.MakePath(between)
+		}
 
-		if maze.IsInner(next.x, next.y) {
-			maze.MakePath(next)
-			// Add walls
-			walls = append(walls, maze.GetNeighbors(next.x, next.y, true)...)
-		} else {
-			walls = append(walls, maze.GetNeighbors(wall.x, wall.y, true)...)
-			// find the longest path on the boundary
-			if next.Diff(curr) > curr.Diff(curr) {
-				curr = next
+		maze.MakePath(wall)
+		// Add walls
+		neighbors := maze.GetFrontiers(wall.x, wall.y, true)
+		for _, neighbor := range neighbors {
+			if !visited[neighbor] {
+				visited[neighbor] = true
+				walls = append(walls, neighbor)
 			}
 		}
 
+		// find the longest point
+		if maze.IsBoundary(wall.x, wall.y) && wall.Diff(start) > curr.Diff(start) {
+			curr = wall
+		}
 	}
 
 	maze.SetEnd(curr.x, curr.y)

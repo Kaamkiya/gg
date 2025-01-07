@@ -19,7 +19,9 @@ type Cell struct {
 var DIRS = []Cell{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}
 
 func (c Cell) Diff(other Cell) int {
-	return (c.x-other.x)*(c.x-other.x) + (c.y-other.y)*(c.y-other.y)
+	dx := c.x - other.x
+	dy := c.y - other.y
+	return dx*dx + dy*dy
 }
 
 type Maze struct {
@@ -76,27 +78,39 @@ func (m Maze) IsInner(x, y int) bool {
 	return x > 0 && x < m.Width-1 && y > 0 && y < m.Height-1
 }
 
+func (m Maze) IsBoundary(x, y int) bool {
+	vertical := (x == 0 || x == m.Width-1) && y >= 0 && y <= m.Height-1
+	horizontal := (y == 0 || y == m.Height-1) && x >= 0 && x <= m.Width-1
+
+	return vertical || horizontal
+}
+
 func (m Maze) IsWall(x, y int) bool {
 	return m.Grid[y][x] == WALL
 }
 
-func (m Maze) GetNeighbors(x, y int, findWall bool) []Cell {
-	var neighbors []Cell
+func (m Maze) GetFrontiers(x, y int, findWall bool) []Cell {
+	var frontiers []Cell
 	for _, dir := range DIRS {
-		dx, dy := x+dir.x, y+dir.y
+		dx, dy := x+2*dir.x, y+2*dir.y
 		if !m.IsInner(dx, dy) {
+			if findWall && m.IsBoundary(dx, dy) {
+				frontiers = append(frontiers, Cell{dx, dy})
+			}
 			continue
 		}
-		if findWall == m.IsWall(dx, dy) {
-			neighbors = append(neighbors, Cell{dx, dy})
+		if m.IsWall(dx, dy) == findWall && m.IsWall(x+dir.x, y+dir.y) {
+			frontiers = append(frontiers, Cell{dx, dy})
 		}
 	}
 
-	return neighbors
+	return frontiers
 }
 
 func (m *Maze) MakePath(cell Cell) {
-	m.Set(cell.x, cell.y, PATH)
+	if m.IsInner(cell.x, cell.y) {
+		m.Set(cell.x, cell.y, PATH)
+	}
 }
 
 func (m Maze) Print() {
