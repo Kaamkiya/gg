@@ -108,9 +108,11 @@ func (m Maze) GetFrontiers(x, y int, findWall bool) []Cell {
 }
 
 func (m *Maze) MakePath(cell Cell) {
-	if m.IsInner(cell.x, cell.y) {
-		m.Set(cell.x, cell.y, PATH)
+	if !m.IsInner(cell.x, cell.y) || !m.IsWall(cell.x, cell.y) {
+		return
 	}
+	m.Set(cell.x, cell.y, PATH)
+
 }
 
 func (m Maze) Print() {

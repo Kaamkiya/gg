@@ -1,14 +1,18 @@
 package mazegenerator
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"fmt"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 type MazeModel struct {
 	maze *Maze
 }
 
 const (
-	width  = 30
-	height = 20
+	width  = 25
+	height = 15
 	algo   = "prim"
 )
 
@@ -42,12 +46,13 @@ func (m MazeModel) View() string {
 	s := "\n"
 
 	startX, startY := m.maze.GetStartPos()
+	endX, endY := m.maze.GetEndPos()
 
 	for i, row := range m.maze.Grid {
 		for j := range m.maze.Grid[i] {
-			if i == startX && j == startY {
+			if i == startY && j == startX {
 				s += "@"
-			} else if row[j] == 'E' {
+			} else if i == endY && j == endX {
 				s += "X"
 			} else if row[j] == '#' {
 				s += string(rune(9608))
@@ -58,6 +63,7 @@ func (m MazeModel) View() string {
 		s += "\n"
 	}
 
+	s += fmt.Sprintf("\nStart: %d, %d; End: %d, %d; Width: %d, Height: %d\n", startX, startY, endX, endY, width, height)
 	s += "\n[G]enerate new maze \n"
 
 	return s

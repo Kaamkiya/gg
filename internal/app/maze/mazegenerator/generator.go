@@ -66,7 +66,7 @@ func (p *PrimGenerator) Generate(maze *Maze) {
 		}
 
 		// find the longest point
-		if maze.IsBoundary(wall.x, wall.y) && wall.Diff(start) > curr.Diff(start) {
+		if !maze.IsBoundary(wall.x, wall.y) && wall.Diff(start) > curr.Diff(start) {
 			curr = wall
 		}
 	}
