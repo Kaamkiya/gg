@@ -86,7 +86,6 @@ To contribute:
 * [ ] Space invaders (minimal, the invaders don't have to actually look like
   invaders)
 * [ ] Simon
-* [ ] Snake
 * [ ] Solitaire
 * [ ] Tetris
 * [ ] Tron
