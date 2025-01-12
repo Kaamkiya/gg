@@ -8,6 +8,7 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/hangman"
 	"github.com/Kaamkiya/gg/internal/app/maze"
 	"github.com/Kaamkiya/gg/internal/app/pong"
+	"github.com/Kaamkiya/gg/internal/app/snake"
 	"github.com/Kaamkiya/gg/internal/app/tictactoe"
 	"github.com/Kaamkiya/gg/internal/app/twenty48"
 
@@ -26,6 +27,7 @@ func main() {
 			huh.NewOption("dodger", "dodger"),
 			huh.NewOption("maze", "maze"),
 			huh.NewOption("hangman", "hangman"),
+			huh.NewOption("snake", "snake"),
 			huh.NewOption("connect 4 (2 player)", "connect4"),
 			huh.NewOption("pong (2 player)", "pong"),
 			huh.NewOption("tictactoe (2 player)", "tictactoe"),
@@ -53,6 +55,8 @@ func main() {
 		twenty48.Run()
 	case "connect4":
 		connect4.Run()
+	case "snake":
+		snake.Run()
 	default:
 		panic("This game either doesn't exist or hasn't been implemented.")
 	}
