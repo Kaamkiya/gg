@@ -42,8 +42,6 @@ func (p *player) move(m model, foodPos vector) {
 	p.body = append([]vector{head}, p.body...)
 	if !head.equals(foodPos) {
 		p.body = p.body[:len(p.body)-1]
-	} else {
-		m.setRandomFoodPos()
 	}
 }
 
@@ -116,6 +114,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		}
+
+		if head.x == m.foodPos.x && head.y == m.foodPos.y {
+			m.setRandomFoodPos()
+		}
 	}
 
 	return m, nil
@@ -158,7 +160,10 @@ func (m model) View() string {
 
 func initialModel() tea.Model {
 	return model{
-		foodPos: vector{4, 4},
+		foodPos: vector{
+			x: rand.IntN(20),
+			y: rand.IntN(20),
+		},
 		player: player{
 			body: []vector{{6, 6}},
 			dir:  dirRight,
