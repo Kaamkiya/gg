@@ -2,13 +2,18 @@ package connect4
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
 	"strconv"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type model struct {
 	board [6][7]rune // [y][x]
 	turn  rune
+
+	xStyle lipgloss.Style
+	oStyle lipgloss.Style
 }
 
 func initialModel() tea.Model {
@@ -22,6 +27,8 @@ func initialModel() tea.Model {
 	return model{
 		board: board,
 		turn:  'x',
+		xStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("2")),
+		oStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("9")),
 	}
 }
 
@@ -75,7 +82,13 @@ func (m model) View() string {
 	for _, row := range m.board {
 		s += "| "
 		for _, cell := range row {
-			s += string(cell) + " | "
+			style := m.oStyle
+
+			if cell == 'x' {
+				style = m.xStyle
+			}
+			
+			s += style.Render(string(cell)) + " | "
 		}
 		s += "\n"
 	}
