@@ -4,9 +4,9 @@ type Engine struct {
 	ai AI
 }
 
-func NewEngine() *Engine {
+func NewEngine(depth int) *Engine {
 	engine := &Engine{}
-	mcts := NewMCTS(engine)
+	mcts := NewMCTS(engine, depth)
 	engine.ai = mcts
 
 	return engine
@@ -22,31 +22,29 @@ func (e *Engine) GetLegalMoves(board *Board) []int {
 	return moves
 }
 
-func (e *Engine) PlayMove(board *Board, move int, player int) error {
+func (e *Engine) PlayMove(board *Board, player int, move int) error {
 	return board.SetCell(move, player)
 }
 
 func (e *Engine) GetOpponent(player int) int {
-	if player == P1 {
-		return P2
-	}
-	return P1
+	return -player
 }
 
 func (e *Engine) CheckGameOver(board *Board, lastMove int) (bool, int) {
 	if lastMove == -1 {
-		return false, EMPTY
+		return false, 0
 	}
 
 	if e.CheckWin(board, lastMove) {
-		return true, P1
+		absValue := P1 * P2 * -1
+		return true, absValue
 	}
 
 	if len(e.GetLegalMoves(board)) == 0 {
-		return true, EMPTY
+		return true, 0
 	}
 
-	return false, EMPTY
+	return false, 0
 }
 
 func (e *Engine) CheckWin(board *Board, lastMove int) bool {

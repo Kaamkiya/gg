@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/Kaamkiya/gg/internal/app/tictactoe/engine"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -128,4 +129,12 @@ func Run() {
 	}
 
 	fmt.Printf("%c wins\n", winner)
+}
+
+func RunVsAi() {
+	p := tea.NewProgram(engine.GetModel())
+
+	if _, err := p.Run(); err != nil {
+		panic(err)
+	}
 }

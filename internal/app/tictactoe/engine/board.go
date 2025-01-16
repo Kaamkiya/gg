@@ -8,11 +8,7 @@ const (
 	EMPTY = 0
 )
 
-type TictactoeBoard interface {
-	GetCell(row, col int) (int, error)
-	SetCell(row, col int, player int) error
-	GetRowCol(index int) (int, int)
-}
+type Player = int
 
 type Board struct {
 	Size  int

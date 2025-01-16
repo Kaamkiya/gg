@@ -31,6 +31,7 @@ func main() {
 			huh.NewOption("connect 4 (2 player)", "connect4"),
 			huh.NewOption("pong (2 player)", "pong"),
 			huh.NewOption("tictactoe (2 player)", "tictactoe"),
+			huh.NewOption("tictactoe (vs AI)", "tictactoe-ai"),
 		).
 		Value(&game).
 		Run()
@@ -46,6 +47,8 @@ func main() {
 		pong.Run()
 	case "tictactoe":
 		tictactoe.Run()
+	case "tictactoe-ai":
+		tictactoe.RunVsAi()
 	case "dodger":
 		dodger.Run()
 	case "hangman":

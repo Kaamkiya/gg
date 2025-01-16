@@ -57,7 +57,7 @@ var testCases = []struct {
 
 func TestEngine_Solve(t *testing.T) {
 	BOARD_SIZE := 3
-	engine := NewEngine()
+	engine := NewEngine(DEPTH)
 
 	for _, tc := range testCases {
 		t.Run("Testing solve", func(t *testing.T) {
@@ -76,7 +76,7 @@ func TestEngine_Solve(t *testing.T) {
 func TestEngine_CheckWin(t *testing.T) {
 	BOARD_SIZE := 3
 	board := NewBoard(BOARD_SIZE)
-	engine := NewEngine()
+	engine := NewEngine(DEPTH)
 
 	t.Run("Empty board", func(t *testing.T) {
 		if engine.CheckWin(board, 0) {
@@ -127,7 +127,7 @@ func TestEngine_CheckWin(t *testing.T) {
 func TestEngine_GetLegalMoves(t *testing.T) {
 	BOARD_SIZE := 4
 	board := NewBoard(BOARD_SIZE)
-	engine := NewEngine()
+	engine := NewEngine(DEPTH)
 	moves := []int{}
 
 	t.Run("Empty board", func(t *testing.T) {

@@ -12,21 +12,34 @@ const (
 )
 
 type AI interface {
+	// Returns the best move for the current player
 	Solve(board *Board) int
 }
 
-type mcts struct {
-	engine *Engine
+type GameEngine interface {
+	// Returns gameover (bool) & a value if there's a winner
+	CheckGameOver(board *Board, lastMove int) (bool, int)
+	// Get all available moves
+	GetLegalMoves(board *Board) []int
+	// Get the opponent of a player
+	GetOpponent(player int) int
+	// Play a move on the board
+	PlayMove(board *Board, player int, move int) error
 }
 
-func NewMCTS(engine *Engine) AI {
-	return &mcts{engine}
+type mcts struct {
+	engine GameEngine
+	depth  int
+}
+
+func NewMCTS(engine GameEngine, depth int) AI {
+	return &mcts{engine, depth}
 }
 
 func (m *mcts) Solve(board *Board) int {
 	root := newNode(m.engine, board, -1, nil)
 
-	for i := 0; i < DEPTH; i++ {
+	for i := 0; i < m.depth; i++ {
 		node := root
 		for node.isExpanded() {
 			child, err := node.selectChild()
@@ -77,25 +90,19 @@ func (m *mcts) Solve(board *Board) int {
 	return bestMove
 }
 
-// Represents a game node in mcts tree
 type node struct {
-	engine     *Engine
+	engine     GameEngine
 	board      *Board
 	move       int
 	parent     *node
 	children   []*node
-	legalMoves map[int]bool
+	legalMoves []int
 	valueSum   int
 	visitCount int
 }
 
-// Create a new node
-func newNode(engine *Engine, board *Board, move int, parent *node) *node {
+func newNode(engine GameEngine, board *Board, move int, parent *node) *node {
 	legalMoves := engine.GetLegalMoves(board)
-	moves := make(map[int]bool, len(legalMoves))
-	for _, m := range legalMoves {
-		moves[m] = true
-	}
 
 	return &node{
 		engine:     engine,
@@ -103,7 +110,7 @@ func newNode(engine *Engine, board *Board, move int, parent *node) *node {
 		move:       move,
 		parent:     parent,
 		children:   []*node{},
-		legalMoves: moves,
+		legalMoves: legalMoves,
 		valueSum:   0,
 		visitCount: 0,
 	}
@@ -122,17 +129,12 @@ func (n *node) simulate() int {
 	result := 0
 
 	for {
-		legalMoves := n.engine.GetLegalMoves(board)
-		moves := make(map[int]bool, len(legalMoves))
-		for _, m := range legalMoves {
-			moves[m] = true
-		}
-		move, err := popRandomMove(moves)
+		move, _, err := popRandomMove(n.engine.GetLegalMoves(board))
 		if err != nil {
 			break
 		}
 
-		board.SetCell(move, player)
+		n.engine.PlayMove(board, player, move)
 		isOver, winner = n.engine.CheckGameOver(board, move)
 		if isOver {
 			result = winner
@@ -146,19 +148,18 @@ func (n *node) simulate() int {
 }
 
 func (n *node) expand() (*node, error) {
-	move, err := popRandomMove(n.legalMoves)
+	move, rest, err := popRandomMove(n.legalMoves)
 	if err != nil {
 		return nil, err
 	}
 
-	n.legalMoves[move] = false
+	n.legalMoves = rest
 
 	board := n.board.Copy()
+	n.engine.PlayMove(board, P1, move)
 
 	// Every node considers itself as p1
-	board.SetCell(move, P1)
 	board.ChangePerspective()
-
 	child := newNode(n.engine, board, move, n)
 	n.children = append(n.children, child)
 
@@ -170,7 +171,7 @@ func (n *node) backpropagate(value int) {
 	n.valueSum += value
 
 	if n.parent != nil {
-		n.parent.backpropagate(value * -1)
+		n.parent.backpropagate(n.engine.GetOpponent(value))
 	}
 }
 
@@ -194,34 +195,20 @@ func (n *node) selectChild() (*node, error) {
 	return selected, nil
 }
 
-func popRandomMove(moves map[int]bool) (int, error) {
-	legalMoves := []int{}
-	for m, v := range moves {
-		if v {
-			legalMoves = append(legalMoves, m)
-		}
-	}
-
+func popRandomMove(legalMoves []int) (int, []int, error) {
 	if len(legalMoves) == 0 {
-		return -1, fmt.Errorf("No legal moves")
+		return -1, legalMoves, fmt.Errorf("No legal moves")
 	}
 
 	index := rand.IntN(len(legalMoves))
 	move := legalMoves[index]
+	legalMoves = append(legalMoves[:index], legalMoves[index+1:]...)
 
-	return move, nil
+	return move, legalMoves, nil
 }
 
 func (n *node) isExpanded() bool {
-	allVisited := true
-	for _, m := range n.legalMoves {
-		if m {
-			allVisited = false
-			break
-		}
-	}
-
-	return len(n.children) > 0 && allVisited
+	return len(n.children) > 0 && len(n.legalMoves) == 0
 }
 
 func (n *node) getUCB(child *node) float64 {
