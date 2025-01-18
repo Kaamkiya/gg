@@ -16,8 +16,7 @@ type Game struct {
 	turn     Player
 	winner   Player
 	gameover bool
-	xcolor   lipgloss.Style
-	ocolor   lipgloss.Style
+	colors   map[string]lipgloss.Style
 }
 
 const (
@@ -28,13 +27,36 @@ func GetModel() tea.Model {
 	board := NewBoard(size)
 	engine := NewEngine(100)
 
+	defaultStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#f9f6f2"))
+	c := func(s string) lipgloss.Color {
+		return lipgloss.Color(s)
+	}
+
+	const (
+		yellow = "#FF9E3B"
+		dark   = "#3C3A32"
+		gray   = "#717C7C"
+		light  = "#DCD7BA"
+		red    = "#E63D3D"
+		green  = "#98BB6C"
+		blue   = "#7E9CD8"
+	)
+
 	return Game{
 		board:    board,
 		engine:   engine,
 		turn:     P1,
+		winner:   0,
 		gameover: false,
-		xcolor:   lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000")),
-		ocolor:   lipgloss.NewStyle().Foreground(lipgloss.Color("#0000ff")),
+		colors: map[string]lipgloss.Style{
+			"board":  defaultStyle.Background(c(dark)),
+			"text":   defaultStyle.Background(c(dark)).Foreground(c(light)),
+			"line":   defaultStyle.Background(c(dark)).Foreground(c(gray)),
+			"p1":     defaultStyle.Background(c(dark)).Foreground(c(yellow)),
+			"p2":     defaultStyle.Background(c(dark)).Foreground(c(red)),
+			"hi":     defaultStyle.Foreground(c(green)),
+			"status": defaultStyle.Foreground(c(blue)),
+		},
 	}
 }
 
@@ -155,31 +177,62 @@ func printCell(board *Board, index int) string {
 
 func printPlayer(cell int) string {
 	if cell == P1 {
-		return "o"
+		return "O"
 	} else if cell == P2 {
-		return "x"
+		return "X"
 	}
 
 	return ""
 }
 
 func (g Game) View() string {
-	s := fmt.Sprintf("%s | %s | %s\n", printCell(g.board, 0), printCell(g.board, 1), printCell(g.board, 2))
-	s += "---------\n"
-	s += fmt.Sprintf("%s | %s | %s\n", printCell(g.board, 3), printCell(g.board, 4), printCell(g.board, 5))
-	s += "---------\n"
-	s += fmt.Sprintf("%s | %s | %s\n", printCell(g.board, 6), printCell(g.board, 7), printCell(g.board, 8))
+	renderCell := func(index int) string {
+		cell, _ := g.board.GetCell(index)
+		var style lipgloss.Style
+		content := ""
 
-	if g.gameover {
-		if g.winner != 0 {
-			s += fmt.Sprintf("\n\nWinner: %s", printPlayer(g.winner))
-		} else {
-			s += "\n\nDraw!\n"
+		switch cell {
+		case P1:
+			style = g.colors["p1"]
+			content = "O"
+		case P2:
+			style = g.colors["p2"]
+			content = "X"
+		default: // Empty cell, show index
+			style = g.colors["text"]
+			content = strconv.Itoa(index + 1)
 		}
-		s += "\n[Q]uit -- [N]ext match"
-	} else {
-		s += fmt.Sprintf("\n\n%s's turn", printPlayer(g.turn))
+
+		return style.Render(content)
 	}
 
-	return s
+	board := "\n"
+	for i := 0; i < 3; i++ {
+		board += g.colors["board"].Render(" ")
+		board += renderCell(i * 3)
+		board += g.colors["line"].Render(" | ")
+		board += renderCell(i*3 + 1)
+		board += g.colors["line"].Render(" | ")
+		board += renderCell(i*3 + 2)
+		board += g.colors["board"].Render(" ")
+
+		if i < 2 {
+			board += "\n" + g.colors["line"].Render("---+---+---") + "\n"
+		}
+	}
+
+	status := ""
+	if g.gameover {
+		if g.winner != 0 {
+			status += g.colors["hi"].Render("\n  Winner: ")
+			status += g.colors["hi"].Render(printPlayer(g.winner))
+		} else {
+			status += g.colors["hi"].Render("\n   Draw!")
+		}
+		status += g.colors["status"].Render("\n\n[Q]uit -- [N]ext match")
+	} else {
+		status = g.colors["status"].Render(fmt.Sprintf("\n  %s's turn", printPlayer(g.turn)))
+	}
+
+	return board + status
 }
