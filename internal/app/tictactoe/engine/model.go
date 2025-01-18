@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand/v2"
 	"strconv"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,11 +17,21 @@ type Game struct {
 	turn     Player
 	winner   Player
 	gameover bool
+	round    int
+	scoreP1  int
+	scoreP2  int
 	colors   map[string]lipgloss.Style
 }
 
 const (
-	size = 3
+	size   = 3
+	yellow = "#FF9E3B"
+	dark   = "#3C3A32"
+	gray   = "#717C7C"
+	light  = "#DCD7BA"
+	red    = "#E63D3D"
+	green  = "#98BB6C"
+	blue   = "#7E9CD8"
 )
 
 func GetModel() tea.Model {
@@ -32,21 +43,14 @@ func GetModel() tea.Model {
 		return lipgloss.Color(s)
 	}
 
-	const (
-		yellow = "#FF9E3B"
-		dark   = "#3C3A32"
-		gray   = "#717C7C"
-		light  = "#DCD7BA"
-		red    = "#E63D3D"
-		green  = "#98BB6C"
-		blue   = "#7E9CD8"
-	)
-
 	return Game{
 		board:    board,
 		engine:   engine,
 		turn:     P1,
 		winner:   0,
+		round:    1,
+		scoreP1:  0,
+		scoreP2:  0,
 		gameover: false,
 		colors: map[string]lipgloss.Style{
 			"board":  defaultStyle.Background(c(dark)),
@@ -64,30 +68,48 @@ func (g Game) Init() tea.Cmd {
 	return nil
 }
 
+type gameOverMsg struct{ winner Player }
+type nextTurnMsg struct{}
+type aiTurnMsg struct{}
+
 func (g Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case aiTurnMsg:
+		time.Sleep(time.Millisecond * 200)
+		return g, aiMoveCmd(&g)
+
+	case nextTurnMsg:
+		g.turn = g.engine.GetOpponent(g.turn)
+		if g.turn == P2 {
+			return g, func() tea.Msg {
+				return aiTurnMsg{}
+			}
+		}
+		return g, nil
+
 	case gameOverMsg:
 		g.winner = msg.winner
 		g.turn = g.engine.GetOpponent(g.turn)
 		g.gameover = true
-		return g, nil
-
-	case nextTurnMsg:
-		g.turn = g.engine.GetOpponent(g.turn)
+		if g.winner == P1 {
+			g.scoreP1 += 1
+		} else if g.winner == P2 {
+			g.scoreP2 += 1
+		}
 		return g, nil
 
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return g, tea.Quit
+
 		case "n", "N":
 			g.nextMatch()
-
 			if g.turn == P2 {
-				return g, aiTurnCmd(&g)
+				return g, aiMoveCmd(&g)
 			}
-
 			return g, nil
+
 		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
 			// There shouldn't be an error, because this is only called for integers
 			index, _ := strconv.Atoi(msg.String())
@@ -99,22 +121,29 @@ func (g Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			if cell == EMPTY {
 				g.engine.PlayMove(g.board, P1, index)
-				g.turn = g.engine.GetOpponent(g.turn)
 
 				isover, win := g.engine.CheckGameOver(g.board, index)
 
 				if isover {
 					if win > 0 {
 						g.winner = g.turn
+						// Update score
+						if g.winner == P1 {
+							g.scoreP1 += 1
+						} else if g.winner == P2 {
+							g.scoreP2 += 1
+						}
 					} else {
 						g.winner = 0
 					}
+
 					g.gameover = true
+					g.turn = g.engine.GetOpponent(g.turn)
 					return g, nil
 				}
 
-				if g.turn == P2 {
-					return g, aiTurnCmd(&g)
+				return g, func() tea.Msg {
+					return nextTurnMsg{}
 				}
 			}
 		}
@@ -123,16 +152,8 @@ func (g Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return g, nil
 }
 
-type gameOverMsg struct {
-	winner Player
-}
-
-type nextTurnMsg struct {
-	move int
-}
-
 // Handle AI turn
-func aiTurnCmd(g *Game) tea.Cmd {
+func aiMoveCmd(g *Game) tea.Cmd {
 	return func() tea.Msg {
 		rollout := g.board.Copy()
 		move := g.engine.ai.Solve(rollout)
@@ -156,6 +177,8 @@ func (g *Game) nextMatch() {
 	g.board = NewBoard(size)
 	g.gameover = false
 	g.winner = 0
+	g.round += 1
+
 	randLvl := rand.IntN(50) + 50
 	g.engine = NewEngine(randLvl)
 }
@@ -205,8 +228,20 @@ func (g Game) View() string {
 
 		return style.Render(content)
 	}
+	winner := "\n"
+	if g.gameover {
+		winner = ""
+		if g.winner != 0 {
+			winner += g.colors["hi"].Render(" Winner: ")
+			winner += g.colors["hi"].Render(printPlayer(g.winner))
+			winner += "\n"
+		} else {
+			winner += g.colors["hi"].Render("   Draw!")
+			winner += "\n"
+		}
+	}
 
-	board := "\n"
+	board := ""
 	for i := 0; i < 3; i++ {
 		board += g.colors["board"].Render(" ")
 		board += renderCell(i * 3)
@@ -221,18 +256,12 @@ func (g Game) View() string {
 		}
 	}
 
-	status := ""
+	status := g.colors["status"].Render(fmt.Sprintf("\n#%d:(W%d-L%d)", g.round, g.scoreP1, g.scoreP2))
 	if g.gameover {
-		if g.winner != 0 {
-			status += g.colors["hi"].Render("\n  Winner: ")
-			status += g.colors["hi"].Render(printPlayer(g.winner))
-		} else {
-			status += g.colors["hi"].Render("\n   Draw!")
-		}
-		status += g.colors["status"].Render("\n\n[Q]uit -- [N]ext match")
+		status += g.colors["status"].Render("> [Q]uit - [N]ext match")
 	} else {
-		status = g.colors["status"].Render(fmt.Sprintf("\n  %s's turn", printPlayer(g.turn)))
+		status += g.colors["status"].Render(fmt.Sprintf("> %s's turn", printPlayer(g.turn)))
 	}
 
-	return board + status
+	return winner + board + status
 }
