@@ -18,9 +18,9 @@ type model struct {
 func initialModel() tea.Model {
 	word := wordlist[rand.IntN(len(wordlist))]
 
-	showWord := []rune{}
-	for range word {
-		showWord = append(showWord, '_')
+	showWord := make([]rune, len(word))
+	for i := range word {
+		showWord[i] = '_'
 	}
 
 	art := []string{
@@ -144,7 +144,7 @@ func (m model) View() string {
 	s += "\n\n"
 
 	if m.guesses < 0 {
-		s += "Word: " + m.word
+		s += `The word was "` + m.word + "\".\n\n"
 	}
 
 	return s
