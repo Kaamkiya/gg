@@ -8,7 +8,8 @@ import (
 )
 
 func Run() {
-	p := tea.NewProgram(InitialModel())
+	initialModel := initialModel()
+	p := tea.NewProgram(&initialModel)
 
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("An error: %v", err)
