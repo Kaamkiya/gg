@@ -24,9 +24,9 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return gs, tea.Quit
-		case "a":
-			gs.HandleTick()
 		}
+	case TickMsg:
+		gs.HandleTick()
 	}
 
 	return gs, nil

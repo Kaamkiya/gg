@@ -12,38 +12,85 @@ type GameState struct {
 	gameBoard    *gameboard.Gameboard
 }
 
-func (gameState *GameState) HandleTick() {
-	middleX := gameboard.Width / 2
-	if gameState.nextShape == nil {
+func (gs *GameState) HandleTick() {
+	middleX := (gameboard.Width / 2) - 1
+	if gs.nextShape == nil {
 		newShape := shape.CreateNew(middleX, 0)
-		gameState.nextShape = &newShape
+		gs.nextShape = &newShape
 	}
 
-	if gameState.currentShape == nil {
+	if gs.currentShape == nil {
 		newShape := shape.CreateNew(middleX, 0)
-		gameState.currentShape = gameState.nextShape
-		gameState.nextShape = &newShape
-		gameState.addShape(gameState.currentShape)
+		gs.currentShape = gs.nextShape
+		gs.nextShape = &newShape
+		gs.addShape(gs.currentShape)
 		return
 	}
+
+	if !gs.applyTransformation(gs.currentShape.MoveDown) {
+		gs.currentShape = nil
+	}
 }
 
-func (gamestate *GameState) addShape(shape *shape.Shape) {
-	gamestate.modidfyColorGridFromShape(shape, shape.GetColor())
+func (gs *GameState) applyTransformation(tranformation func() shape.Shape) bool {
+	newShape := tranformation()
+
+	gs.deleteShape(gs.currentShape)
+
+	if gs.isShapeValid(newShape) {
+		gs.currentShape = &newShape
+		gs.addShape(gs.currentShape)
+
+		return true
+	} else {
+		gs.addShape(gs.currentShape)
+	}
+
+	return false
 }
 
-func (gamestate *GameState) deleteShape(shape *shape.Shape) {
-	gamestate.modidfyColorGridFromShape(shape, color.Black)
+func (gs *GameState) isShapeValid(shape shape.Shape) bool {
+	shapeGrid := shape.GetGrid()
+	posX, posY := shape.GetPosition()
+
+	if posX < 0 {
+		return false
+	}
+
+	if posX+len(shapeGrid) >= gameboard.Width || posY+len(shapeGrid[0]) >= gameboard.Height {
+
+		return false
+	}
+
+	for i := range shapeGrid {
+		for j := range shapeGrid[i] {
+			if shapeGrid[i][j] {
+				if gs.gameBoard.Grid[posY+i][posX+j] != color.Black {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
 }
 
-func (gamestate *GameState) modidfyColorGridFromShape(shape *shape.Shape, color color.Color) {
+func (gs *GameState) addShape(shape *shape.Shape) {
+	gs.modidfyColorGridFromShape(shape, shape.GetColor())
+}
+
+func (gs *GameState) deleteShape(shape *shape.Shape) {
+	gs.modidfyColorGridFromShape(shape, color.Black)
+}
+
+func (gs *GameState) modidfyColorGridFromShape(shape *shape.Shape, color color.Color) {
 	shapeGrid := shape.GetGrid()
 	posX, posY := shape.GetPosition()
 
 	for i := range shapeGrid {
 		for j := range shapeGrid[i] {
 			if shapeGrid[i][j] {
-				gamestate.gameBoard.Grid[posY+i][posX+j] = color
+				gs.gameBoard.Grid[posY+i][posX+j] = color
 			}
 		}
 	}
