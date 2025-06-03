@@ -1,6 +1,8 @@
 package shape
 
 import (
+	"math/rand"
+
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
 )
 
@@ -25,6 +27,19 @@ func createI(posX int, posY int) Shape {
 	}
 }
 
+func createJ(posX int, posY int) Shape {
+	return Shape{
+		posX,
+		posY,
+		[][]bool{
+			{false, true},
+			{false, true},
+			{true, true},
+		},
+		color.Green,
+	}
+}
+
 func createL(posX int, posY int) Shape {
 	return Shape{
 		posX,
@@ -38,8 +53,73 @@ func createL(posX int, posY int) Shape {
 	}
 }
 
+func createZ(posX int, posY int) Shape {
+	return Shape{
+		posX,
+		posY,
+		[][]bool{
+			{false, true},
+			{true, true},
+			{true, false},
+		},
+		color.Purple,
+	}
+}
+
+func createS(posX int, posY int) Shape {
+	return Shape{
+		posX,
+		posY,
+		[][]bool{
+			{true, false},
+			{true, true},
+			{false, true},
+		},
+		color.Pink,
+	}
+}
+
+func createO(posX int, posY int) Shape {
+	return Shape{
+		posX,
+		posY,
+		[][]bool{
+			{true, true},
+			{true, true},
+		},
+		color.Blue,
+	}
+}
+
+func createT(posX int, posY int) Shape {
+	return Shape{
+		posX,
+		posY,
+		[][]bool{
+			{true, true, true},
+			{false, true, false},
+		},
+		color.Magenta,
+	}
+}
+
 func CreateNew(posX, posY int) Shape {
-	return createL(posX, posY)
+	switch rand.Intn(7) {
+	case 0:
+		return createL(posX, posY)
+	case 1:
+		return createI(posX, posY)
+	case 2:
+		return createJ(posX, posY)
+	case 3:
+		return createO(posX, posY)
+	case 4:
+		return createS(posX, posY)
+	case 5:
+		return createZ(posX, posY)
+	default:
+		return createT(posX, posY)
+	}
 }
 
 func (s Shape) MoveDown() Shape {
