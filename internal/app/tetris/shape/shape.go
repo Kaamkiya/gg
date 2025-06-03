@@ -121,6 +121,10 @@ func (s Shape) GetGrid() [][]bool {
 	return copyGrid(s.grid)
 }
 
+func (s Shape) GetHeight() int {
+	return len(s.grid)
+}
+
 func copyGrid(grid [][]bool) [][]bool {
 	duplicate := make([][]bool, len(grid))
 	for i := range grid {
