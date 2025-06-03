@@ -45,7 +45,9 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (gs *GameState) View() string {
 	boardBuilder := strings.Builder{}
-	boardBuilder.Grow(Height * Width * 4)
+	boardBuilder.Grow(Height*Width*5 + 20*13)
+
+	sideBarLines := buildSidebar(gs)
 
 	for i := range Height {
 		lineBuilder := strings.Builder{}
@@ -56,13 +58,61 @@ func (gs *GameState) View() string {
 			lineBuilder.WriteString(nextChar + nextChar)
 		}
 
-		lineBuilder.WriteString("\n")
-
 		line := lineBuilder.String()
 		boardBuilder.WriteString(line)
-		boardBuilder.WriteString(line)
 
+		if 2*i < len(sideBarLines) {
+			boardBuilder.WriteString(sideBarLines[2*i])
+		}
+		boardBuilder.WriteString("\n")
+
+		boardBuilder.WriteString(line)
+		if 2*i+1 < len(sideBarLines) {
+			boardBuilder.WriteString(sideBarLines[2*i+1])
+		}
+		boardBuilder.WriteString("\n")
 	}
 
 	return boardBuilder.String()
+}
+
+func buildSidebar(gs *GameState) []string {
+	sidebarLines := make([]string, 13)
+	sidebarLines[0] = "      Next Shape      "
+	sidebarLines[1] = "                      "
+
+	if gs.nextShape != nil {
+		grid := gs.nextShape.GetGrid()
+
+		for i := range 4 {
+			if i >= len(grid) {
+				sidebarLines[i+2] = "                      "
+			} else {
+				lineBuilder := strings.Builder{}
+				spaceLength := (22 - len(grid[i])) / 2
+				lineBuilder.WriteString(strings.Repeat(" ", spaceLength))
+
+				for j := range grid[i] {
+					if grid[i][j] {
+						lineBuilder.WriteString(gs.gameBoard.Colors[gs.nextShape.GetColor()].Render(" "))
+					} else {
+						lineBuilder.WriteString(" ")
+					}
+				}
+				lineBuilder.WriteString(strings.Repeat(" ", spaceLength))
+
+				sidebarLines[i+2] = lineBuilder.String()
+			}
+		}
+	}
+
+	sidebarLines[6] = "                      "
+	sidebarLines[7] = "   Your score is      "
+	sidebarLines[8] = "   1111               "
+	sidebarLines[9] = "                      "
+	sidebarLines[10] = "  hjl or arrows to    "
+	sidebarLines[11] = "  move, z,x to rotate "
+	sidebarLines[12] = "  q or ctl+c to quit  "
+
+	return sidebarLines
 }
