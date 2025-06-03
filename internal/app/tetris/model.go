@@ -22,8 +22,18 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c", "q", "Q":
 			return gs, tea.Quit
+		case "h", "H", "left":
+			gs.HandleLeft()
+		case "l", "L", "right":
+			gs.HandleRight()
+		case "j", "J", "down":
+			gs.HandleDown()
+		case "z", "Z":
+			gs.HandleLeftRotate()
+		case "x", "X":
+			gs.HandleRightRotate()
 		}
 	case TickMsg:
 		gs.HandleTick()

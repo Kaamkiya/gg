@@ -1,6 +1,8 @@
 package shape
 
-import "github.com/Kaamkiya/gg/internal/app/tetris/color"
+import (
+	"github.com/Kaamkiya/gg/internal/app/tetris/color"
+)
 
 type Shape struct {
 	posX  int
@@ -45,6 +47,64 @@ func (s Shape) MoveDown() Shape {
 		s.posX,
 		s.posY + 1,
 		copyGrid(s.grid),
+		s.color,
+	}
+}
+
+func (s Shape) MoveRight() Shape {
+	return Shape{
+		s.posX + 1,
+		s.posY,
+		copyGrid(s.grid),
+		s.color,
+	}
+}
+
+func (s Shape) MoveLeft() Shape {
+	return Shape{
+		s.posX - 1,
+		s.posY,
+		copyGrid(s.grid),
+		s.color,
+	}
+}
+
+func (s Shape) RotateRight() Shape {
+	newGrid := make([][]bool, len(s.grid[0]))
+
+	for i := range s.grid[0] {
+		newLine := make([]bool, len(s.grid))
+		for j := range s.grid {
+			newLine[len(s.grid)-1-j] = s.grid[j][i]
+		}
+		newGrid[i] = newLine
+	}
+
+	return Shape{
+		s.posX,
+		s.posY,
+		newGrid,
+		s.color,
+	}
+}
+
+func (s Shape) RotateLeft() Shape {
+	newGrid := make([][]bool, len(s.grid[0]))
+
+	for i := range s.grid[0] {
+		newLine := make([]bool, len(s.grid))
+
+		for j := range s.grid {
+			newLine[j] = s.grid[j][i]
+		}
+
+		newGrid[len(s.grid[0])-1-i] = newLine
+	}
+
+	return Shape{
+		s.posX,
+		s.posY,
+		newGrid,
 		s.color,
 	}
 }

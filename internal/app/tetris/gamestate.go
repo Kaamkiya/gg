@@ -32,6 +32,46 @@ func (gs *GameState) HandleTick() {
 	}
 }
 
+func (gs *GameState) HandleLeft() {
+	if gs.currentShape == nil {
+		return
+	}
+
+	gs.applyTransformation(gs.currentShape.MoveLeft)
+}
+
+func (gs *GameState) HandleRight() {
+	if gs.currentShape == nil {
+		return
+	}
+
+	gs.applyTransformation(gs.currentShape.MoveRight)
+}
+
+func (gs *GameState) HandleDown() {
+	if gs.currentShape == nil {
+		return
+	}
+
+	gs.applyTransformation(gs.currentShape.MoveDown)
+}
+
+func (gs *GameState) HandleLeftRotate() {
+	if gs.currentShape == nil {
+		return
+	}
+
+	gs.applyTransformation(gs.currentShape.RotateLeft)
+}
+
+func (gs *GameState) HandleRightRotate() {
+	if gs.currentShape == nil {
+		return
+	}
+
+	gs.applyTransformation(gs.currentShape.RotateRight)
+}
+
 func (gs *GameState) applyTransformation(tranformation func() shape.Shape) bool {
 	newShape := tranformation()
 
@@ -57,8 +97,7 @@ func (gs *GameState) isShapeValid(shape shape.Shape) bool {
 		return false
 	}
 
-	if posX+len(shapeGrid) >= gameboard.Width || posY+len(shapeGrid[0]) >= gameboard.Height {
-
+	if posX+len(shapeGrid[0]) > gameboard.Width || posY+len(shapeGrid) > gameboard.Height {
 		return false
 	}
 
