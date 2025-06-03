@@ -1,8 +1,9 @@
 package tetris
 
 import (
+	"strings"
+
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
-	"github.com/Kaamkiya/gg/internal/app/tetris/gameboard"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -10,7 +11,7 @@ func initialModel() GameState {
 	return GameState{
 		nil,
 		nil,
-		gameboard.NewGameboard(color.Colors),
+		NewGameboard(color.Colors),
 	}
 }
 
@@ -43,5 +44,25 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (gs *GameState) View() string {
-	return gs.gameBoard.Render()
+	boardBuilder := strings.Builder{}
+	boardBuilder.Grow(Height * Width * 4)
+
+	for i := range Height {
+		lineBuilder := strings.Builder{}
+		lineBuilder.Grow(Width * 2)
+
+		for j := range Width {
+			nextChar := gs.gameBoard.Colors[gs.gameBoard.Grid[i][j]].Render("  ")
+			lineBuilder.WriteString(nextChar + nextChar)
+		}
+
+		lineBuilder.WriteString("\n")
+
+		line := lineBuilder.String()
+		boardBuilder.WriteString(line)
+		boardBuilder.WriteString(line)
+
+	}
+
+	return boardBuilder.String()
 }

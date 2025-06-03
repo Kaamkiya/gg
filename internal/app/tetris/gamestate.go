@@ -2,18 +2,32 @@ package tetris
 
 import (
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
-	"github.com/Kaamkiya/gg/internal/app/tetris/gameboard"
 	"github.com/Kaamkiya/gg/internal/app/tetris/shape"
+	"github.com/charmbracelet/lipgloss"
 )
+
+const Height = 20
+const Width = 10
+
+type Gameboard struct {
+	Colors map[color.Color]lipgloss.Style
+	Grid   [Height][Width]color.Color
+}
+
+func NewGameboard(colors map[color.Color]lipgloss.Style) *Gameboard {
+	grid := [Height][Width]color.Color{}
+
+	return &Gameboard{colors, grid}
+}
 
 type GameState struct {
 	nextShape    *shape.Shape
 	currentShape *shape.Shape
-	gameBoard    *gameboard.Gameboard
+	gameBoard    *Gameboard
 }
 
 func (gs *GameState) HandleTick() {
-	middleX := (gameboard.Width / 2) - 1
+	middleX := (Width / 2) - 1
 	if gs.nextShape == nil {
 		newShape := shape.CreateNew(middleX, 0)
 		gs.nextShape = &newShape
@@ -99,7 +113,7 @@ func (gs *GameState) isShapeValid(shape shape.Shape) bool {
 		return false
 	}
 
-	if posX+len(shapeGrid[0]) > gameboard.Width || posY+len(shapeGrid) > gameboard.Height {
+	if posX+len(shapeGrid[0]) > Width || posY+len(shapeGrid) > Height {
 		return false
 	}
 
@@ -161,7 +175,7 @@ func (gs *GameState) handleCompletedLines(from, to int) {
 			distanceToCopyFrom++
 		}
 
-		for j := range gameboard.Width {
+		for j := range Width {
 			gs.gameBoard.Grid[i][j] = gs.gameBoard.Grid[i-distanceToCopyFrom][j]
 		}
 	}
@@ -180,7 +194,7 @@ func (gs *GameState) checkForCompleteLines(from, to int) []int {
 }
 
 func (gs *GameState) isLineCompleted(line int) bool {
-	for i := range gameboard.Width {
+	for i := range Width {
 		if gs.gameBoard.Grid[line][i] == color.Black {
 			return false
 		}
@@ -190,7 +204,7 @@ func (gs *GameState) isLineCompleted(line int) bool {
 }
 
 func (gs *GameState) isLineEmpty(line int) bool {
-	for i := range gameboard.Width {
+	for i := range Width {
 		if gs.gameBoard.Grid[line][i] != color.Black {
 			return false
 		}
