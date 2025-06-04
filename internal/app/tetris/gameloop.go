@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
+	"github.com/Kaamkiya/gg/internal/app/tetris/shape"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -18,6 +19,7 @@ func initialModel() GameState {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		shape.NewRandomizer(),
 		0,
 		false,
 	}

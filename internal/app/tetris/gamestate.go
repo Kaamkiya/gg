@@ -32,17 +32,18 @@ func NewGameboard(colors map[color.Color]lipgloss.Style) *Gameboard {
 }
 
 type GameState struct {
-	nextShape    *shape.Shape
-	currentShape *shape.Shape
-	gameBoard    *Gameboard
-	score        uint
-	isPaused     bool
+	nextShape       *shape.Shape
+	currentShape    *shape.Shape
+	gameBoard       *Gameboard
+	shapeRandomizer *shape.Randomizer
+	score           uint
+	isPaused        bool
 }
 
 func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 	middleX := (Width / 2) - 1
 	if gs.nextShape == nil {
-		newShape := shape.CreateNew(middleX, 0)
+		newShape := shape.CreateNew(middleX, 0, gs.shapeRandomizer)
 		gs.nextShape = &newShape
 	}
 
@@ -51,7 +52,7 @@ func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 	})
 
 	if gs.currentShape == nil {
-		newShape := shape.CreateNew(middleX, 0)
+		newShape := shape.CreateNew(middleX, 0, gs.shapeRandomizer)
 		gs.currentShape = gs.nextShape
 		gs.nextShape = &newShape
 		gs.addShape(gs.currentShape)

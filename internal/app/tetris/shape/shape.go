@@ -1,9 +1,17 @@
 package shape
 
 import (
-	"math/rand"
-
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
+)
+
+const (
+	I int = iota
+	L
+	J
+	T
+	Z
+	S
+	O
 )
 
 type Shape struct {
@@ -103,19 +111,19 @@ func createT(posX int, posY int) Shape {
 	}
 }
 
-func CreateNew(posX, posY int) Shape {
-	switch rand.Intn(7) {
-	case 0:
+func CreateNew(posX, posY int, randomizer *Randomizer) Shape {
+	switch randomizer.nextInt(7) {
+	case L:
 		return createL(posX, posY)
-	case 1:
+	case I:
 		return createI(posX, posY)
-	case 2:
+	case J:
 		return createJ(posX, posY)
-	case 3:
+	case O:
 		return createO(posX, posY)
-	case 4:
+	case S:
 		return createS(posX, posY)
-	case 5:
+	case Z:
 		return createZ(posX, posY)
 	default:
 		return createT(posX, posY)

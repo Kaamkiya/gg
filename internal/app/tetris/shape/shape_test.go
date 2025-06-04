@@ -8,7 +8,7 @@ import (
 )
 
 func TestShapeMoveDown(t *testing.T) {
-	shape := CreateNew(0, 0)
+	shape := CreateNew(0, 0, NewRandomizer())
 	movedDownShape := shape.MoveDown()
 
 	if shape.color != movedDownShape.color {

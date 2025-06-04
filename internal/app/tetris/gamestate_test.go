@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
+	"github.com/Kaamkiya/gg/internal/app/tetris/shape"
 )
 
 func TestASingleLineIsRemoved(t *testing.T) {
@@ -11,6 +12,7 @@ func TestASingleLineIsRemoved(t *testing.T) {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		shape.NewRandomizer(),
 		0,
 		false,
 	}
@@ -33,6 +35,7 @@ func TestMultipleLinesAreRemoved(t *testing.T) {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		shape.NewRandomizer(),
 		0,
 		false,
 	}
