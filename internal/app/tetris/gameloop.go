@@ -2,10 +2,15 @@ package tetris
 
 import (
 	"strings"
+	"time"
 
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+const loopTickDelay time.Duration = 300 * time.Millisecond
+
+type LoopTick time.Time
 
 func initialModel() GameState {
 	return GameState{
@@ -16,7 +21,9 @@ func initialModel() GameState {
 }
 
 func (gs *GameState) Init() tea.Cmd {
-	return nil
+	return func() tea.Msg {
+		return LoopTick(time.Now())
+	}
 }
 
 func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -36,8 +43,11 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "x", "X":
 			gs.HandleRightRotate()
 		}
-	case TickMsg:
+	case LoopTick:
 		gs.HandleTick()
+		return gs, tea.Tick(loopTickDelay, func(t time.Time) tea.Msg {
+			return LoopTick(t)
+		})
 	}
 
 	return gs, nil
@@ -45,7 +55,7 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (gs *GameState) View() string {
 	boardBuilder := strings.Builder{}
-	boardBuilder.Grow(Height*Width*5 + 20*13)
+	boardBuilder.Grow(Height*Width*5 + 22*13)
 
 	sideBarLines := buildSidebar(gs)
 
