@@ -8,46 +8,48 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const loopTickDelay time.Duration = 300 * time.Millisecond
+const gameProgressTickDelay time.Duration = 300 * time.Millisecond
 
-type LoopTick time.Time
+type GameProgressTick struct{}
 
 func initialModel() GameState {
 	return GameState{
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		false,
 	}
 }
 
 func (gs *GameState) Init() tea.Cmd {
 	return func() tea.Msg {
-		return LoopTick(time.Now())
+		return GameProgressTick{}
 	}
 }
 
 func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q", "Q":
+		if msg.String() == "ctrl+c" || msg.String() == "q" || msg.String() == "Q" {
 			return gs, tea.Quit
-		case "h", "H", "left":
-			gs.HandleLeft()
-		case "l", "L", "right":
-			gs.HandleRight()
-		case "j", "J", "down":
-			gs.HandleDown()
-		case "z", "Z":
-			gs.HandleLeftRotate()
-		case "x", "X":
-			gs.HandleRightRotate()
+		} else if !gs.isAnimating {
+			switch msg.String() {
+			case "h", "H", "left":
+				gs.HandleLeft()
+			case "l", "L", "right":
+				gs.HandleRight()
+			case "j", "J", "down":
+				gs.HandleDown()
+			case "z", "Z":
+				gs.HandleLeftRotate()
+			case "x", "X":
+				gs.HandleRightRotate()
+			}
 		}
-	case LoopTick:
-		gs.HandleTick()
-		return gs, tea.Tick(loopTickDelay, func(t time.Time) tea.Msg {
-			return LoopTick(t)
-		})
+	case GameProgressTick:
+		return gs, gs.HandleGameProgressTick()
+	case LineAnimationTick:
+		return gs, gs.handleLineAnimationTick(msg)
 	}
 
 	return gs, nil

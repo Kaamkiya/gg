@@ -11,13 +11,15 @@ func TestASingleLineIsRemoved(t *testing.T) {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		false,
 	}
 
 	for i := range Width {
 		gamestate.gameBoard.Grid[Height-1][i] = color.Blue
 	}
 
-	gamestate.handleCompletedLines(19, 19)
+	lines := gamestate.checkForCompleteLines(19, 19)
+	gamestate.removeCompletedLines(lines)
 
 	if !gamestate.isLineEmpty(19) {
 		t.Fatal("Completed single line not removed")
@@ -30,6 +32,7 @@ func TestMultipleLinesAreRemoved(t *testing.T) {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		false,
 	}
 
 	for i := range Width {
@@ -41,7 +44,8 @@ func TestMultipleLinesAreRemoved(t *testing.T) {
 	gamestate.gameBoard.Grid[Height-2][0] = color.Blue
 	gamestate.gameBoard.Grid[Height-5][0] = color.Blue
 
-	gamestate.handleCompletedLines(16, 19)
+	lines := gamestate.checkForCompleteLines(16, 19)
+	gamestate.removeCompletedLines(lines)
 
 	if gamestate.gameBoard.Grid[Height-1][0] != color.Blue && gamestate.gameBoard.Grid[Height-1][1] != color.Black {
 		t.Fatal("Second to last line didn't drop when last line was completed")

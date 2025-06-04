@@ -13,6 +13,7 @@ const (
 	Teal
 	Purple
 	Magenta
+	Beige
 )
 
 var defaultStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#f9f6f2"))
@@ -26,4 +27,5 @@ var Colors = map[Color]lipgloss.Style{
 	Teal:    defaultStyle.Background(lipgloss.Color("#2692E8")),
 	Purple:  defaultStyle.Background(lipgloss.Color("#9047A3")),
 	Magenta: defaultStyle.Background(lipgloss.Color("#CA1F7B")),
+	Beige:   defaultStyle.Background(lipgloss.Color("#FFFDD0")),
 }

@@ -1,17 +1,28 @@
 package tetris
 
 import (
+	"maps"
+	"slices"
+	"time"
+
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
 	"github.com/Kaamkiya/gg/internal/app/tetris/shape"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 const Height = 20
 const Width = 10
+const LineAnimationInterval time.Duration = 100 * time.Millisecond
 
 type Gameboard struct {
 	Colors map[color.Color]lipgloss.Style
 	Grid   [Height][Width]color.Color
+}
+
+type LineAnimationTick struct {
+	linesToUpdate      map[int][Width]color.Color
+	animationCountDown int
 }
 
 func NewGameboard(colors map[color.Color]lipgloss.Style) *Gameboard {
@@ -24,28 +35,42 @@ type GameState struct {
 	nextShape    *shape.Shape
 	currentShape *shape.Shape
 	gameBoard    *Gameboard
+	isAnimating  bool
 }
 
-func (gs *GameState) HandleTick() {
+func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 	middleX := (Width / 2) - 1
 	if gs.nextShape == nil {
 		newShape := shape.CreateNew(middleX, 0)
 		gs.nextShape = &newShape
 	}
 
+	nextCmd := tea.Tick(gameProgressTickDelay, func(t time.Time) tea.Msg {
+		return GameProgressTick{}
+	})
+
 	if gs.currentShape == nil {
 		newShape := shape.CreateNew(middleX, 0)
 		gs.currentShape = gs.nextShape
 		gs.nextShape = &newShape
 		gs.addShape(gs.currentShape)
-		return
+		return nextCmd
 	}
 
 	if !gs.applyTransformation(gs.currentShape.MoveDown) {
 		_, posY := gs.currentShape.GetPosition()
-		gs.handleCompletedLines(posY, posY+gs.currentShape.GetHeight()-1)
+		completedLines := gs.checkForCompleteLines(posY, posY+gs.currentShape.GetHeight()-1)
+
 		gs.currentShape = nil
+
+		if len(completedLines) != 0 {
+			gs.isAnimating = true
+			lineAnimationMsg := gs.constructLineAnimationMsg(completedLines)
+			return gs.handleLineAnimationTick(lineAnimationMsg)
+		}
 	}
+
+	return nextCmd
 }
 
 func (gs *GameState) HandleLeft() {
@@ -151,13 +176,63 @@ func (gs *GameState) modidfyColorGridFromShape(shape *shape.Shape, color color.C
 	}
 }
 
-func (gs *GameState) handleCompletedLines(from, to int) {
-	completedLines := gs.checkForCompleteLines(from, to)
+func (gs *GameState) constructLineAnimationMsg(completedLines []int) LineAnimationTick {
+	completedLineMap := make(map[int][Width]color.Color, len(completedLines))
 
-	if len(completedLines) == 0 {
-		return
+	highlightColor := color.Beige
+	animationCountdown := 2
+
+	if len(completedLines) == 3 {
+		animationCountdown = 4
 	}
 
+	if len(completedLines) == 4 {
+		animationCountdown = 6
+	}
+
+	highlightedLine := [Width]color.Color{}
+	for i := range Width {
+		highlightedLine[i] = highlightColor
+	}
+
+	for _, v := range completedLines {
+		completedLineMap[v] = highlightedLine
+
+	}
+
+	return LineAnimationTick{
+		completedLineMap,
+		animationCountdown,
+	}
+}
+
+func (gs *GameState) handleLineAnimationTick(animationTick LineAnimationTick) tea.Cmd {
+	if animationTick.animationCountDown == 0 {
+		gs.isAnimating = false
+		gs.removeCompletedLines(slices.Collect(maps.Keys(animationTick.linesToUpdate)))
+		return func() tea.Msg {
+			return GameProgressTick{}
+		}
+	}
+
+	animationTick.animationCountDown--
+	newLinesToUpdateMap := make(map[int][Width]color.Color, len(animationTick.linesToUpdate))
+	for k, v := range animationTick.linesToUpdate {
+		newLinesToUpdateMap[k] = gs.gameBoard.Grid[k]
+		gs.gameBoard.Grid[k] = v
+	}
+
+	return tea.Tick(LineAnimationInterval, func(time.Time) tea.Msg {
+		return LineAnimationTick{
+			newLinesToUpdateMap,
+			animationTick.animationCountDown,
+		}
+	})
+}
+
+func (gs *GameState) removeCompletedLines(completedLines []int) {
+	slices.Sort(completedLines)
+	slices.Reverse(completedLines)
 	distanceToCopyFrom := 1
 	nextCompletedLine := 1
 
@@ -179,7 +254,6 @@ func (gs *GameState) handleCompletedLines(from, to int) {
 			gs.gameBoard.Grid[i][j] = gs.gameBoard.Grid[i-distanceToCopyFrom][j]
 		}
 	}
-
 }
 
 func (gs *GameState) checkForCompleteLines(from, to int) []int {
