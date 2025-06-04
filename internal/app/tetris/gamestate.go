@@ -36,7 +36,7 @@ type GameState struct {
 	currentShape *shape.Shape
 	gameBoard    *Gameboard
 	score        uint
-	isAnimating  bool
+	isPaused     bool
 }
 
 func (gs *GameState) HandleGameProgressTick() tea.Cmd {
@@ -67,7 +67,6 @@ func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 		gs.currentShape = nil
 
 		if len(completedLines) != 0 {
-			gs.isAnimating = true
 			lineAnimationMsg := gs.constructLineAnimationMsg(completedLines)
 			return gs.handleLineAnimationTick(lineAnimationMsg)
 		}
@@ -215,7 +214,6 @@ func (gs *GameState) constructLineAnimationMsg(completedLines []int) LineAnimati
 
 func (gs *GameState) handleLineAnimationTick(animationTick LineAnimationTick) tea.Cmd {
 	if animationTick.animationCountDown == 0 {
-		gs.isAnimating = false
 		gs.removeCompletedLines(slices.Collect(maps.Keys(animationTick.linesToUpdate)))
 		return func() tea.Msg {
 			return GameProgressTick{}

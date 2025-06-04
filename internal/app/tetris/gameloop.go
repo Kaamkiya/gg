@@ -34,7 +34,7 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" || msg.String() == "Q" {
 			return gs, tea.Quit
-		} else if !gs.isAnimating {
+		} else if !gs.isPaused {
 			switch msg.String() {
 			case "h", "H", "left":
 				gs.HandleLeft()
@@ -46,9 +46,20 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				gs.HandleLeftRotate()
 			case "x", "X":
 				gs.HandleRightRotate()
+			case "p", "P":
+				gs.isPaused = true
+				return gs, nil
+			}
+		} else {
+			if msg.String() == "p" || msg.String() == "P" {
+				gs.isPaused = false
+				return gs, tea.Tick(gameProgressTickDelay, func(time.Time) tea.Msg { return GameProgressTick{} })
 			}
 		}
 	case GameProgressTick:
+		if gs.isPaused {
+			return gs, nil
+		}
 		return gs, gs.HandleGameProgressTick()
 	case LineAnimationTick:
 		return gs, gs.handleLineAnimationTick(msg)
@@ -91,7 +102,7 @@ func (gs *GameState) View() string {
 }
 
 func buildSidebar(gs *GameState) []string {
-	sidebarLines := make([]string, 13)
+	sidebarLines := make([]string, 14)
 	sidebarLines[0] = "      Next Shape      "
 	sidebarLines[1] = "                      "
 
@@ -125,9 +136,10 @@ func buildSidebar(gs *GameState) []string {
 	sidebarLines[7] = "   Your score is      "
 	sidebarLines[8] = strings.Repeat(" ", 22-len(scoreStr)) + scoreStr
 	sidebarLines[9] = "                      "
-	sidebarLines[10] = "  hjl or arrows to    "
-	sidebarLines[11] = "  move, z,x to rotate "
-	sidebarLines[12] = "  q or ctl+c to quit  "
+	sidebarLines[10] = "  hjl/←↓→ to move    "
+	sidebarLines[11] = "  z,x to rotate      "
+	sidebarLines[12] = "  q/ctl+c to quit    "
+	sidebarLines[13] = "  p to pause"
 
 	return sidebarLines
 }
