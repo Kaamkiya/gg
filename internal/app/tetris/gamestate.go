@@ -46,7 +46,7 @@ func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 		gs.nextShape = &newShape
 	}
 
-	nextCmd := tea.Tick(gameProgressTickDelay, func(t time.Time) tea.Msg {
+	nextCmd := tea.Tick(gameProgressTickDelay, func(time.Time) tea.Msg {
 		return GameProgressTick{}
 	})
 
@@ -69,6 +69,8 @@ func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 		if len(completedLines) != 0 {
 			lineAnimationMsg := gs.constructLineAnimationMsg(completedLines)
 			return gs.handleLineAnimationTick(lineAnimationMsg)
+		} else if posY == 0 {
+			return tea.Quit
 		}
 	}
 
