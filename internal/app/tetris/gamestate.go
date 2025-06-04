@@ -35,6 +35,7 @@ type GameState struct {
 	nextShape    *shape.Shape
 	currentShape *shape.Shape
 	gameBoard    *Gameboard
+	score        uint
 	isAnimating  bool
 }
 
@@ -56,6 +57,8 @@ func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 		gs.addShape(gs.currentShape)
 		return nextCmd
 	}
+
+	gs.score += 1
 
 	if !gs.applyTransformation(gs.currentShape.MoveDown) {
 		_, posY := gs.currentShape.GetPosition()
@@ -94,7 +97,11 @@ func (gs *GameState) HandleDown() {
 		return
 	}
 
-	gs.applyTransformation(gs.currentShape.MoveDown)
+	succesfull := gs.applyTransformation(gs.currentShape.MoveDown)
+
+	if succesfull {
+		gs.score += 2
+	}
 }
 
 func (gs *GameState) HandleLeftRotate() {
@@ -231,6 +238,7 @@ func (gs *GameState) handleLineAnimationTick(animationTick LineAnimationTick) te
 }
 
 func (gs *GameState) removeCompletedLines(completedLines []int) {
+	gs.addLineScore(len(completedLines))
 	slices.Sort(completedLines)
 	slices.Reverse(completedLines)
 	distanceToCopyFrom := 1
@@ -253,6 +261,19 @@ func (gs *GameState) removeCompletedLines(completedLines []int) {
 		for j := range Width {
 			gs.gameBoard.Grid[i][j] = gs.gameBoard.Grid[i-distanceToCopyFrom][j]
 		}
+	}
+}
+
+func (gs *GameState) addLineScore(completedLinesNum int) {
+	switch completedLinesNum {
+	case 4:
+		gs.score += 800
+	case 3:
+		gs.score += 500
+	case 2:
+		gs.score += 300
+	default:
+		gs.score += 100
 	}
 }
 

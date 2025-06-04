@@ -11,6 +11,7 @@ func TestASingleLineIsRemoved(t *testing.T) {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		0,
 		false,
 	}
 
@@ -32,6 +33,7 @@ func TestMultipleLinesAreRemoved(t *testing.T) {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		0,
 		false,
 	}
 

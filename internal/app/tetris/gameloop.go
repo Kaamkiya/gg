@@ -1,6 +1,7 @@
 package tetris
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ func initialModel() GameState {
 		nil,
 		nil,
 		NewGameboard(color.Colors),
+		0,
 		false,
 	}
 }
@@ -118,9 +120,10 @@ func buildSidebar(gs *GameState) []string {
 		}
 	}
 
+	scoreStr := strconv.FormatUint(uint64(gs.score), 10)
 	sidebarLines[6] = "                      "
 	sidebarLines[7] = "   Your score is      "
-	sidebarLines[8] = "   1111               "
+	sidebarLines[8] = strings.Repeat(" ", 22-len(scoreStr)) + scoreStr
 	sidebarLines[9] = "                      "
 	sidebarLines[10] = "  hjl or arrows to    "
 	sidebarLines[11] = "  move, z,x to rotate "
