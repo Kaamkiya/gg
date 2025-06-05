@@ -14,6 +14,11 @@ func TestASingleLineIsRemoved(t *testing.T) {
 		newGameboard(color.Colors),
 		shape.NewRandomizer(),
 		0,
+		&difficulty{
+			20,
+			1.0,
+			300,
+		},
 		false,
 	}
 
@@ -37,6 +42,11 @@ func TestMultipleLinesAreRemoved(t *testing.T) {
 		newGameboard(color.Colors),
 		shape.NewRandomizer(),
 		0,
+		&difficulty{
+			20,
+			1.0,
+			300,
+		},
 		false,
 	}
 
