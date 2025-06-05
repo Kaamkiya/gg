@@ -1,7 +1,6 @@
 package tetris
 
 import (
-	"maps"
 	"slices"
 	"time"
 
@@ -17,15 +16,8 @@ const (
 	// width is the game area height counted in Tetris squares
 	width = 10
 
-	// initialDifficulyCountDown is the number of pieces that trigger a difficulty increase
-	initialDifficulyCountDown = 10
-	// initialDifficulyLevel is the factor that increases scoring and decreases the game tick. Increased by 0.1 on difficulty increase.
-	initialDifficulyLevel = 1.0
 	// initialGameProgressTickDelay is the game loop interval
 	initialGameProgressTickDelay time.Duration = 300 * time.Millisecond
-
-	// lineAnimationInterval is the animation refresh interval
-	lineAnimationInterval time.Duration = 100 * time.Millisecond
 )
 
 // gameboard represents the Tetris game area. The Grid is a fixed-size array
@@ -35,20 +27,6 @@ const (
 type gameboard struct {
 	Colors map[color.Color]lipgloss.Style
 	Grid   [height][width]color.Color
-}
-
-// lineAnimationTick is a tea.Msg that contains which lines the lines to change
-// and their colors and how many animations (color changes) are left for the
-// animation to complete.
-type lineAnimationTick struct {
-	linesToUpdate      map[int][width]color.Color
-	animationCountDown int
-}
-
-type difficulty struct {
-	countdown             int
-	level                 float32
-	gameProgressTickDelay time.Duration
 }
 
 // gameState contains the application state.
@@ -95,11 +73,11 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 		newShape := shape.CreateNew(middleX, 0, gs.shapeRandomizer)
 		gs.currentShape = gs.nextShape
 		gs.nextShape = &newShape
-		gs.addShape(gs.currentShape)
+		gs.addShapeToGrid(gs.currentShape)
 		return nextCmd
 	}
 
-	gs.scorePoints(1)
+	gs.addStillLivingScore()
 
 	if !gs.applyTransformation(gs.currentShape.MoveDown) {
 		gs.adjustDifficulty()
@@ -143,7 +121,7 @@ func (gs *gameState) handleDown() {
 	succesfull := gs.applyTransformation(gs.currentShape.MoveDown)
 
 	if succesfull {
-		gs.scorePoints(2)
+		gs.addLivingDangerouslyScore()
 	}
 }
 
@@ -166,15 +144,15 @@ func (gs *gameState) handleRightRotate() {
 func (gs *gameState) applyTransformation(tranformation func() shape.Shape) bool {
 	newShape := tranformation()
 
-	gs.deleteShape(gs.currentShape)
+	gs.deleteShapeFromGrid(gs.currentShape)
 
 	if gs.isShapeValid(newShape) {
 		gs.currentShape = &newShape
-		gs.addShape(gs.currentShape)
+		gs.addShapeToGrid(gs.currentShape)
 
 		return true
 	} else {
-		gs.addShape(gs.currentShape)
+		gs.addShapeToGrid(gs.currentShape)
 	}
 
 	return false
@@ -208,11 +186,11 @@ func (gs *gameState) isShapeValid(shape shape.Shape) bool {
 	return true
 }
 
-func (gs *gameState) addShape(shape *shape.Shape) {
+func (gs *gameState) addShapeToGrid(shape *shape.Shape) {
 	gs.modidfyColorGridFromShape(shape, shape.GetColor())
 }
 
-func (gs *gameState) deleteShape(shape *shape.Shape) {
+func (gs *gameState) deleteShapeFromGrid(shape *shape.Shape) {
 	gs.modidfyColorGridFromShape(shape, color.Black)
 }
 
@@ -229,60 +207,6 @@ func (gs *gameState) modidfyColorGridFromShape(shape *shape.Shape, color color.C
 	}
 }
 
-func (gs *gameState) constructLineAnimationMsg(completedLines []int) lineAnimationTick {
-	completedLineMap := make(map[int][width]color.Color, len(completedLines))
-	animationCountdown := 2
-
-	if len(completedLines) == 3 {
-		animationCountdown = 4
-	}
-
-	if len(completedLines) == 4 {
-		animationCountdown = 6
-	}
-
-	highlightedLine := [width]color.Color{}
-	for i := range width {
-		highlightedLine[i] = color.Beige
-	}
-
-	for _, v := range completedLines {
-		completedLineMap[v] = highlightedLine
-
-	}
-
-	return lineAnimationTick{
-		completedLineMap,
-		animationCountdown,
-	}
-}
-
-// handleLineAnimationTick performs the state updates for the flashing animation when
-// lines are completed. If the animation is complete (animationCountDown set to 0) it
-// resumes the game. Otherwse it swaps the lines color and continues with the animation.
-func (gs *gameState) handleLineAnimationTick(animationTick lineAnimationTick) tea.Cmd {
-	if animationTick.animationCountDown == 0 {
-		gs.removeCompletedLines(slices.Collect(maps.Keys(animationTick.linesToUpdate)))
-		return func() tea.Msg {
-			return gameProgressTick{}
-		}
-	}
-
-	animationTick.animationCountDown--
-	newLinesToUpdateMap := make(map[int][width]color.Color, len(animationTick.linesToUpdate))
-	for k, v := range animationTick.linesToUpdate {
-		newLinesToUpdateMap[k] = gs.gameBoard.Grid[k]
-		gs.gameBoard.Grid[k] = v
-	}
-
-	return tea.Tick(lineAnimationInterval, func(time.Time) tea.Msg {
-		return lineAnimationTick{
-			newLinesToUpdateMap,
-			animationTick.animationCountDown,
-		}
-	})
-}
-
 func (gs *gameState) removeCompletedLines(completedLines []int) {
 	gs.addLineScore(len(completedLines))
 	slices.Sort(completedLines)
@@ -291,7 +215,7 @@ func (gs *gameState) removeCompletedLines(completedLines []int) {
 	// lines are removed with a single pass from bottom to top.The completedLines array
 	// is sorted in descending order and the first completed line is replaced by the one
 	// above it. If another completed line is encountered during replacing, the distanceToCopyFrom
-	// is increased to start copying from two places above etc. The distanceToCopyFrom variable
+	// is increased to start copying from two places above and so on. The distanceToCopyFrom variable
 	// specifies both the lines to skip when replacing and the index of the next completed line in the
 	// completedLines array.
 	distanceToCopyFrom := 1
@@ -312,19 +236,6 @@ func (gs *gameState) removeCompletedLines(completedLines []int) {
 		for j := range width {
 			gs.gameBoard.Grid[i][j] = gs.gameBoard.Grid[i-distanceToCopyFrom][j]
 		}
-	}
-}
-
-func (gs *gameState) addLineScore(completedLinesNum int) {
-	switch completedLinesNum {
-	case 4:
-		gs.scorePoints(800)
-	case 3:
-		gs.scorePoints(500)
-	case 2:
-		gs.scorePoints(300)
-	default:
-		gs.scorePoints(100)
 	}
 }
 
@@ -357,20 +268,4 @@ func (gs *gameState) isLineEmpty(line int) bool {
 	}
 
 	return true
-}
-
-func (gs *gameState) adjustDifficulty() {
-	if gs.currentDifficulty.countdown <= 1 {
-		gs.currentDifficulty.countdown = initialDifficulyCountDown
-		gs.currentDifficulty.level += 0.1
-		gs.currentDifficulty.gameProgressTickDelay = time.Duration(float32(initialGameProgressTickDelay) / gs.currentDifficulty.level)
-
-		return
-	}
-
-	gs.currentDifficulty.countdown--
-}
-
-func (gs *gameState) scorePoints(points uint) {
-	gs.score += uint(float32(points) * gs.currentDifficulty.level)
 }
