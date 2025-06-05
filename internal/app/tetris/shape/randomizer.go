@@ -5,7 +5,7 @@ import (
 	"slices"
 )
 
-// Randomizer makes the drawing of shapes to fill less 'unfair'. Inspired by info found
+// Randomizer makes the randrom pick of shapes to fill less 'unfair'. Inspired by info found
 // here: https://tetris.fandom.com/wiki/TGM_randomizer
 type Randomizer struct {
 	lastValues []int

@@ -77,8 +77,6 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 		return nextCmd
 	}
 
-	gs.addStillLivingScore()
-
 	if !gs.applyTransformation(gs.currentShape.MoveDown) {
 		gs.adjustDifficulty()
 		_, posY := gs.currentShape.GetPosition()
@@ -93,6 +91,8 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 			return tea.Quit
 		}
 	}
+
+	gs.addStillLivingScore()
 
 	return nextCmd
 }

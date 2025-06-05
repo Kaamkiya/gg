@@ -12,8 +12,9 @@ import (
 // lineAnimationInterval is the animation refresh interval
 const lineAnimationInterval time.Duration = 100 * time.Millisecond
 
-// lineAnimationTick is a tea.Msg that contains which lines the lines to change
-// and their colors and how many animations (color changes) are left for the
+// lineAnimationTick is a tea.Msg that contains the lines to change in a map
+// where the key is the line index and the value is the colors to apply.
+// Additionally, it holds how many animations (color changes) are left for the
 // animation to complete.
 type lineAnimationTick struct {
 	linesToUpdate      map[int][width]color.Color
@@ -48,7 +49,7 @@ func (gs *gameState) constructLineAnimationMsg(completedLines []int) lineAnimati
 	}
 }
 
-// handleLineAnimationTick performs the state updates for the flashing animation when
+// handleLineAnimationTick performs the grid updates for the flashing animation when
 // lines are completed. If the animation is complete (animationCountDown set to 0) it
 // resumes the game. Otherwse it swaps the lines color and continues with the animation.
 func (gs *gameState) handleLineAnimationTick(animationTick lineAnimationTick) tea.Cmd {
@@ -73,3 +74,4 @@ func (gs *gameState) handleLineAnimationTick(animationTick lineAnimationTick) te
 		}
 	})
 }
+

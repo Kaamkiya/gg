@@ -79,7 +79,7 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View method creates the view by generating the play area and the sidebar. Although the Tetris board size is
-// defined by Height Width the play area is larger. Each Tetris box is 4 characters wide and 2 characters tall
+// defined by Height and Width, the play area is larger. Each Tetris box is 4 characters wide and 2 characters tall
 // so the total play area size is 2 * Height * 4 * Width characters. On each line of the play area, a sidebar
 // line is appended.
 func (gs *gameState) View() string {
