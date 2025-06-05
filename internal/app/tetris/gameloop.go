@@ -10,8 +10,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const gameProgressTickDelay time.Duration = 300 * time.Millisecond
-
 type gameProgressTick struct{}
 
 func initialModel() gameState {
@@ -21,6 +19,11 @@ func initialModel() gameState {
 		newGameboard(color.Colors),
 		shape.NewRandomizer(),
 		0,
+		&difficulty{
+			initialDifficulyCountDown,
+			initialDifficulyLevel,
+			initialGameProgressTickDelay,
+		},
 		false,
 	}
 }
@@ -60,7 +63,7 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			if msg.String() == "p" || msg.String() == "P" {
 				gs.isPaused = false
-				return gs, tea.Tick(gameProgressTickDelay, func(time.Time) tea.Msg { return gameProgressTick{} })
+				return gs, tea.Tick(gs.currentDifficulty.gameProgressTickDelay, func(time.Time) tea.Msg { return gameProgressTick{} })
 			}
 		}
 	case gameProgressTick:

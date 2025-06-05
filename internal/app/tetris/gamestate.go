@@ -11,13 +11,22 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// height is the game area height counted in Tetris squares
-const height = 20
+const (
+	// height is the game area height counted in Tetris squares
+	height = 20
+	// width is the game area height counted in Tetris squares
+	width = 10
 
-// width is the game area height counted in Tetris squares
-const width = 10
+	// initialDifficulyCountDown is the number of pieces that trigger a difficulty increase
+	initialDifficulyCountDown = 10
+	// initialDifficulyLevel is the factor that increases scoring and decreases the game tick. Increased by 0.1 on difficulty increase.
+	initialDifficulyLevel = 1.0
+	// initialGameProgressTickDelay is the game loop interval
+	initialGameProgressTickDelay time.Duration = 300 * time.Millisecond
 
-const lineAnimationInterval time.Duration = 100 * time.Millisecond
+	// lineAnimationInterval is the animation refresh interval
+	lineAnimationInterval time.Duration = 100 * time.Millisecond
+)
 
 // gameboard represents the Tetris game area. The Grid is a fixed-size array
 // where each box contains a Color. The color of each box is used both for displaying
@@ -36,10 +45,10 @@ type lineAnimationTick struct {
 	animationCountDown int
 }
 
-func newGameboard(colors map[color.Color]lipgloss.Style) *gameboard {
-	grid := [height][width]color.Color{}
-
-	return &gameboard{colors, grid}
+type difficulty struct {
+	countdown             int
+	level                 float32
+	gameProgressTickDelay time.Duration
 }
 
 // gameState contains the application state.
@@ -49,12 +58,19 @@ func newGameboard(colors map[color.Color]lipgloss.Style) *gameboard {
 //   - shapeRandomizer is used to find which shape is going to be dropped next.
 //   - isPaused is a flag which is true when the game is paused.
 type gameState struct {
-	nextShape       *shape.Shape
-	currentShape    *shape.Shape
-	gameBoard       *gameboard
-	shapeRandomizer *shape.Randomizer
-	score           uint
-	isPaused        bool
+	nextShape         *shape.Shape
+	currentShape      *shape.Shape
+	gameBoard         *gameboard
+	shapeRandomizer   *shape.Randomizer
+	score             uint
+	currentDifficulty *difficulty
+	isPaused          bool
+}
+
+func newGameboard(colors map[color.Color]lipgloss.Style) *gameboard {
+	grid := [height][width]color.Color{}
+
+	return &gameboard{colors, grid}
 }
 
 // handleGameProgressTick updates the game state to simulate the current shape
@@ -71,7 +87,7 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 		gs.nextShape = &newShape
 	}
 
-	nextCmd := tea.Tick(gameProgressTickDelay, func(time.Time) tea.Msg {
+	nextCmd := tea.Tick(gs.currentDifficulty.gameProgressTickDelay, func(time.Time) tea.Msg {
 		return gameProgressTick{}
 	})
 
@@ -83,9 +99,10 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 		return nextCmd
 	}
 
-	gs.score += 1
+	gs.scorePoints(1)
 
 	if !gs.applyTransformation(gs.currentShape.MoveDown) {
+		gs.adjustDifficulty()
 		_, posY := gs.currentShape.GetPosition()
 		completedLines := gs.checkForCompleteLines(posY, posY+gs.currentShape.GetHeight()-1)
 
@@ -126,7 +143,7 @@ func (gs *gameState) handleDown() {
 	succesfull := gs.applyTransformation(gs.currentShape.MoveDown)
 
 	if succesfull {
-		gs.score += 2
+		gs.scorePoints(2)
 	}
 }
 
@@ -301,13 +318,13 @@ func (gs *gameState) removeCompletedLines(completedLines []int) {
 func (gs *gameState) addLineScore(completedLinesNum int) {
 	switch completedLinesNum {
 	case 4:
-		gs.score += 800
+		gs.scorePoints(800)
 	case 3:
-		gs.score += 500
+		gs.scorePoints(500)
 	case 2:
-		gs.score += 300
+		gs.scorePoints(300)
 	default:
-		gs.score += 100
+		gs.scorePoints(100)
 	}
 }
 
@@ -340,4 +357,20 @@ func (gs *gameState) isLineEmpty(line int) bool {
 	}
 
 	return true
+}
+
+func (gs *gameState) adjustDifficulty() {
+	if gs.currentDifficulty.countdown <= 1 {
+		gs.currentDifficulty.countdown = initialDifficulyCountDown
+		gs.currentDifficulty.level += 0.1
+		gs.currentDifficulty.gameProgressTickDelay = time.Duration(float32(initialGameProgressTickDelay) / gs.currentDifficulty.level)
+
+		return
+	}
+
+	gs.currentDifficulty.countdown--
+}
+
+func (gs *gameState) scorePoints(points uint) {
+	gs.score += uint(float32(points) * gs.currentDifficulty.level)
 }
