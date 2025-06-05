@@ -12,26 +12,31 @@ import (
 
 const gameProgressTickDelay time.Duration = 300 * time.Millisecond
 
-type GameProgressTick struct{}
+type gameProgressTick struct{}
 
-func initialModel() GameState {
-	return GameState{
+func initialModel() gameState {
+	return gameState{
 		nil,
 		nil,
-		NewGameboard(color.Colors),
+		newGameboard(color.Colors),
 		shape.NewRandomizer(),
 		0,
 		false,
 	}
 }
 
-func (gs *GameState) Init() tea.Cmd {
+func (gs *gameState) Init() tea.Cmd {
 	return func() tea.Msg {
-		return GameProgressTick{}
+		return gameProgressTick{}
 	}
 }
 
-func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+// Update implements the game loop by handling the tea.Msg structs. There are the following flows:
+//   - Base loop: gameProgressTick -> handleGameProgress -> gameProgressTick
+//   - Line complete: gameProgressTick -> handleGameProgress -> lineAnimationTick
+//   - Line animation ongoing: lineAnimationTick -> handleLineAnimation -> lineAnimationTick
+//   - Line animation finished: lineAnimationTick -> handleLineAnimation -> gameProgressTick
+func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" || msg.String() == "Q" {
@@ -39,15 +44,15 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else if !gs.isPaused {
 			switch msg.String() {
 			case "h", "H", "left":
-				gs.HandleLeft()
+				gs.handleLeft()
 			case "l", "L", "right":
-				gs.HandleRight()
+				gs.handleRight()
 			case "j", "J", "down":
-				gs.HandleDown()
+				gs.handleDown()
 			case "z", "Z":
-				gs.HandleLeftRotate()
+				gs.handleLeftRotate()
 			case "x", "X":
-				gs.HandleRightRotate()
+				gs.handleRightRotate()
 			case "p", "P":
 				gs.isPaused = true
 				return gs, nil
@@ -55,34 +60,38 @@ func (gs *GameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			if msg.String() == "p" || msg.String() == "P" {
 				gs.isPaused = false
-				return gs, tea.Tick(gameProgressTickDelay, func(time.Time) tea.Msg { return GameProgressTick{} })
+				return gs, tea.Tick(gameProgressTickDelay, func(time.Time) tea.Msg { return gameProgressTick{} })
 			}
 		}
-	case GameProgressTick:
+	case gameProgressTick:
 		if gs.isPaused {
 			return gs, nil
 		}
-		return gs, gs.HandleGameProgressTick()
-	case LineAnimationTick:
+		return gs, gs.handleGameProgressTick()
+	case lineAnimationTick:
 		return gs, gs.handleLineAnimationTick(msg)
 	}
 
 	return gs, nil
 }
 
-func (gs *GameState) View() string {
+// View method creates the view by generating the play area and the sidebar. Although the Tetris board size is
+// defined by Height Width the play area is larger. Each Tetris box is 4 characters wide and 2 characters tall
+// so the total play area size is 2 * Height * 4 * Width characters. On each line of the play area, a sidebar
+// line is appended.
+func (gs *gameState) View() string {
 	boardBuilder := strings.Builder{}
-	boardBuilder.Grow(Height*Width*5 + 22*13)
+	boardBuilder.Grow(height*width*5 + 22*13)
 
 	sideBarLines := buildSidebar(gs)
 
-	for i := range Height {
+	for i := range height {
 		lineBuilder := strings.Builder{}
-		lineBuilder.Grow(Width * 2)
+		lineBuilder.Grow(width * 2)
 
-		for j := range Width {
-			nextChar := gs.gameBoard.Colors[gs.gameBoard.Grid[i][j]].Render("  ")
-			lineBuilder.WriteString(nextChar + nextChar)
+		for j := range width {
+			nextChar := gs.gameBoard.Colors[gs.gameBoard.Grid[i][j]].Render("    ")
+			lineBuilder.WriteString(nextChar)
 		}
 
 		line := lineBuilder.String()
@@ -103,7 +112,7 @@ func (gs *GameState) View() string {
 	return boardBuilder.String()
 }
 
-func buildSidebar(gs *GameState) []string {
+func buildSidebar(gs *gameState) []string {
 	sidebarLines := make([]string, 14)
 	sidebarLines[0] = "      Next Shape      "
 	sidebarLines[1] = "                      "
@@ -141,7 +150,7 @@ func buildSidebar(gs *GameState) []string {
 	sidebarLines[10] = "  hjl/←↓→ to move    "
 	sidebarLines[11] = "  z,x to rotate      "
 	sidebarLines[12] = "  q/ctl+c to quit    "
-	sidebarLines[13] = "  p to pause"
+	sidebarLines[13] = "  p to pause         "
 
 	return sidebarLines
 }

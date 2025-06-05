@@ -11,44 +11,68 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const Height = 20
-const Width = 10
-const LineAnimationInterval time.Duration = 100 * time.Millisecond
+// height is the game area height counted in Tetris squares
+const height = 20
 
-type Gameboard struct {
+// width is the game area height counted in Tetris squares
+const width = 10
+
+const lineAnimationInterval time.Duration = 100 * time.Millisecond
+
+// gameboard represents the Tetris game area. The Grid is a fixed-size array
+// where each box contains a Color. The color of each box is used both for displaying
+// and for calculating if a box is empty where if the box is of color Black, it is
+// considered empty.
+type gameboard struct {
 	Colors map[color.Color]lipgloss.Style
-	Grid   [Height][Width]color.Color
+	Grid   [height][width]color.Color
 }
 
-type LineAnimationTick struct {
-	linesToUpdate      map[int][Width]color.Color
+// lineAnimationTick is a tea.Msg that contains which lines the lines to change
+// and their colors and how many animations (color changes) are left for the
+// animation to complete.
+type lineAnimationTick struct {
+	linesToUpdate      map[int][width]color.Color
 	animationCountDown int
 }
 
-func NewGameboard(colors map[color.Color]lipgloss.Style) *Gameboard {
-	grid := [Height][Width]color.Color{}
+func newGameboard(colors map[color.Color]lipgloss.Style) *gameboard {
+	grid := [height][width]color.Color{}
 
-	return &Gameboard{colors, grid}
+	return &gameboard{colors, grid}
 }
 
-type GameState struct {
+// gameState contains the application state.
+//   - nextShape is the shape that will be dropped after the current one.
+//   - currentShape is the shape that is being dropped currently.
+//   - gameboard is the playing area
+//   - shapeRandomizer is used to find which shape is going to be dropped next.
+//   - isPaused is a flag which is true when the game is paused.
+type gameState struct {
 	nextShape       *shape.Shape
 	currentShape    *shape.Shape
-	gameBoard       *Gameboard
+	gameBoard       *gameboard
 	shapeRandomizer *shape.Randomizer
 	score           uint
 	isPaused        bool
 }
 
-func (gs *GameState) HandleGameProgressTick() tea.Cmd {
-	middleX := (Width / 2) - 1
+// handleGameProgressTick updates the game state to simulate the current shape
+// dropping a line. The basic flow is:
+//  1. Create new shapes if needed
+//  2. Drop the current shape one line
+//  3. Check if any lines are completed
+//  4. Start the line clearing animation if needed, otherwise schedule the
+//     the next tick.
+func (gs *gameState) handleGameProgressTick() tea.Cmd {
+	middleX := (width / 2) - 1
 	if gs.nextShape == nil {
 		newShape := shape.CreateNew(middleX, 0, gs.shapeRandomizer)
 		gs.nextShape = &newShape
 	}
 
 	nextCmd := tea.Tick(gameProgressTickDelay, func(time.Time) tea.Msg {
-		return GameProgressTick{}
+		return gameProgressTick{}
 	})
 
 	if gs.currentShape == nil {
@@ -78,7 +102,7 @@ func (gs *GameState) HandleGameProgressTick() tea.Cmd {
 	return nextCmd
 }
 
-func (gs *GameState) HandleLeft() {
+func (gs *gameState) handleLeft() {
 	if gs.currentShape == nil {
 		return
 	}
@@ -86,7 +110,7 @@ func (gs *GameState) HandleLeft() {
 	gs.applyTransformation(gs.currentShape.MoveLeft)
 }
 
-func (gs *GameState) HandleRight() {
+func (gs *gameState) handleRight() {
 	if gs.currentShape == nil {
 		return
 	}
@@ -94,7 +118,7 @@ func (gs *GameState) HandleRight() {
 	gs.applyTransformation(gs.currentShape.MoveRight)
 }
 
-func (gs *GameState) HandleDown() {
+func (gs *gameState) handleDown() {
 	if gs.currentShape == nil {
 		return
 	}
@@ -106,7 +130,7 @@ func (gs *GameState) HandleDown() {
 	}
 }
 
-func (gs *GameState) HandleLeftRotate() {
+func (gs *gameState) handleLeftRotate() {
 	if gs.currentShape == nil {
 		return
 	}
@@ -114,7 +138,7 @@ func (gs *GameState) HandleLeftRotate() {
 	gs.applyTransformation(gs.currentShape.RotateLeft)
 }
 
-func (gs *GameState) HandleRightRotate() {
+func (gs *gameState) handleRightRotate() {
 	if gs.currentShape == nil {
 		return
 	}
@@ -122,7 +146,7 @@ func (gs *GameState) HandleRightRotate() {
 	gs.applyTransformation(gs.currentShape.RotateRight)
 }
 
-func (gs *GameState) applyTransformation(tranformation func() shape.Shape) bool {
+func (gs *gameState) applyTransformation(tranformation func() shape.Shape) bool {
 	newShape := tranformation()
 
 	gs.deleteShape(gs.currentShape)
@@ -139,7 +163,10 @@ func (gs *GameState) applyTransformation(tranformation func() shape.Shape) bool 
 	return false
 }
 
-func (gs *GameState) isShapeValid(shape shape.Shape) bool {
+// isShapeValid checks if a shape is valid by checking:
+//   - If the shape is inside the gameBoard
+//   - If the shape does not overlap with any occupied box.
+func (gs *gameState) isShapeValid(shape shape.Shape) bool {
 	shapeGrid := shape.GetGrid()
 	posX, posY := shape.GetPosition()
 
@@ -147,7 +174,7 @@ func (gs *GameState) isShapeValid(shape shape.Shape) bool {
 		return false
 	}
 
-	if posX+len(shapeGrid[0]) > Width || posY+len(shapeGrid) > Height {
+	if posX+len(shapeGrid[0]) > width || posY+len(shapeGrid) > height {
 		return false
 	}
 
@@ -164,15 +191,15 @@ func (gs *GameState) isShapeValid(shape shape.Shape) bool {
 	return true
 }
 
-func (gs *GameState) addShape(shape *shape.Shape) {
+func (gs *gameState) addShape(shape *shape.Shape) {
 	gs.modidfyColorGridFromShape(shape, shape.GetColor())
 }
 
-func (gs *GameState) deleteShape(shape *shape.Shape) {
+func (gs *gameState) deleteShape(shape *shape.Shape) {
 	gs.modidfyColorGridFromShape(shape, color.Black)
 }
 
-func (gs *GameState) modidfyColorGridFromShape(shape *shape.Shape, color color.Color) {
+func (gs *gameState) modidfyColorGridFromShape(shape *shape.Shape, color color.Color) {
 	shapeGrid := shape.GetGrid()
 	posX, posY := shape.GetPosition()
 
@@ -185,10 +212,8 @@ func (gs *GameState) modidfyColorGridFromShape(shape *shape.Shape, color color.C
 	}
 }
 
-func (gs *GameState) constructLineAnimationMsg(completedLines []int) LineAnimationTick {
-	completedLineMap := make(map[int][Width]color.Color, len(completedLines))
-
-	highlightColor := color.Beige
+func (gs *gameState) constructLineAnimationMsg(completedLines []int) lineAnimationTick {
+	completedLineMap := make(map[int][width]color.Color, len(completedLines))
 	animationCountdown := 2
 
 	if len(completedLines) == 3 {
@@ -199,9 +224,9 @@ func (gs *GameState) constructLineAnimationMsg(completedLines []int) LineAnimati
 		animationCountdown = 6
 	}
 
-	highlightedLine := [Width]color.Color{}
-	for i := range Width {
-		highlightedLine[i] = highlightColor
+	highlightedLine := [width]color.Color{}
+	for i := range width {
+		highlightedLine[i] = color.Beige
 	}
 
 	for _, v := range completedLines {
@@ -209,41 +234,50 @@ func (gs *GameState) constructLineAnimationMsg(completedLines []int) LineAnimati
 
 	}
 
-	return LineAnimationTick{
+	return lineAnimationTick{
 		completedLineMap,
 		animationCountdown,
 	}
 }
 
-func (gs *GameState) handleLineAnimationTick(animationTick LineAnimationTick) tea.Cmd {
+// handleLineAnimationTick performs the state updates for the flashing animation when
+// lines are completed. If the animation is complete (animationCountDown set to 0) it
+// resumes the game. Otherwse it swaps the lines color and continues with the animation.
+func (gs *gameState) handleLineAnimationTick(animationTick lineAnimationTick) tea.Cmd {
 	if animationTick.animationCountDown == 0 {
 		gs.removeCompletedLines(slices.Collect(maps.Keys(animationTick.linesToUpdate)))
 		return func() tea.Msg {
-			return GameProgressTick{}
+			return gameProgressTick{}
 		}
 	}
 
 	animationTick.animationCountDown--
-	newLinesToUpdateMap := make(map[int][Width]color.Color, len(animationTick.linesToUpdate))
+	newLinesToUpdateMap := make(map[int][width]color.Color, len(animationTick.linesToUpdate))
 	for k, v := range animationTick.linesToUpdate {
 		newLinesToUpdateMap[k] = gs.gameBoard.Grid[k]
 		gs.gameBoard.Grid[k] = v
 	}
 
-	return tea.Tick(LineAnimationInterval, func(time.Time) tea.Msg {
-		return LineAnimationTick{
+	return tea.Tick(lineAnimationInterval, func(time.Time) tea.Msg {
+		return lineAnimationTick{
 			newLinesToUpdateMap,
 			animationTick.animationCountDown,
 		}
 	})
 }
 
-func (gs *GameState) removeCompletedLines(completedLines []int) {
+func (gs *gameState) removeCompletedLines(completedLines []int) {
 	gs.addLineScore(len(completedLines))
 	slices.Sort(completedLines)
 	slices.Reverse(completedLines)
+
+	// lines are removed with a single pass from bottom to top.The completedLines array
+	// is sorted in descending order and the first completed line is replaced by the one
+	// above it. If another completed line is encountered during replacing, the distanceToCopyFrom
+	// is increased to start copying from two places above etc. The distanceToCopyFrom variable
+	// specifies both the lines to skip when replacing and the index of the next completed line in the
+	// completedLines array.
 	distanceToCopyFrom := 1
-	nextCompletedLine := 1
 
 	for i := completedLines[0]; i >= 0; i-- {
 		if i-distanceToCopyFrom < 0 {
@@ -254,18 +288,17 @@ func (gs *GameState) removeCompletedLines(completedLines []int) {
 			return
 		}
 
-		for nextCompletedLine < len(completedLines) && completedLines[nextCompletedLine] == i-distanceToCopyFrom {
-			nextCompletedLine++
+		for distanceToCopyFrom < len(completedLines) && completedLines[distanceToCopyFrom] == i-distanceToCopyFrom {
 			distanceToCopyFrom++
 		}
 
-		for j := range Width {
+		for j := range width {
 			gs.gameBoard.Grid[i][j] = gs.gameBoard.Grid[i-distanceToCopyFrom][j]
 		}
 	}
 }
 
-func (gs *GameState) addLineScore(completedLinesNum int) {
+func (gs *gameState) addLineScore(completedLinesNum int) {
 	switch completedLinesNum {
 	case 4:
 		gs.score += 800
@@ -278,7 +311,7 @@ func (gs *GameState) addLineScore(completedLinesNum int) {
 	}
 }
 
-func (gs *GameState) checkForCompleteLines(from, to int) []int {
+func (gs *gameState) checkForCompleteLines(from, to int) []int {
 	completedLines := make([]int, 0, 4)
 	for i := to; i >= from; i-- {
 		if gs.isLineCompleted(i) {
@@ -289,8 +322,8 @@ func (gs *GameState) checkForCompleteLines(from, to int) []int {
 	return completedLines
 }
 
-func (gs *GameState) isLineCompleted(line int) bool {
-	for i := range Width {
+func (gs *gameState) isLineCompleted(line int) bool {
+	for i := range width {
 		if gs.gameBoard.Grid[line][i] == color.Black {
 			return false
 		}
@@ -299,8 +332,8 @@ func (gs *GameState) isLineCompleted(line int) bool {
 	return true
 }
 
-func (gs *GameState) isLineEmpty(line int) bool {
-	for i := range Width {
+func (gs *gameState) isLineEmpty(line int) bool {
+	for i := range width {
 		if gs.gameBoard.Grid[line][i] != color.Black {
 			return false
 		}

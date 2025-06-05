@@ -1,3 +1,6 @@
+// Package shape is responsible for creating and transforming the game shapes.
+// The constructed shape cannot be modified outside the package and each
+// transformation is producing a new shape.
 package shape
 
 import (
