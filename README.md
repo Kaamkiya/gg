@@ -87,7 +87,6 @@ To contribute:
   invaders)
 * [ ] Simon
 * [ ] Solitaire
-* [ ] Tetris
 * [ ] Tron
 * [ ] Typespeed
 
