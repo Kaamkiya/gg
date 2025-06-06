@@ -20,6 +20,7 @@ func TestASingleLineIsRemoved(t *testing.T) {
 			300,
 		},
 		false,
+		dropFinished,
 	}
 
 	for i := range width {
@@ -48,6 +49,7 @@ func TestMultipleLinesAreRemoved(t *testing.T) {
 			300,
 		},
 		false,
+		dropFinished,
 	}
 
 	for i := range width {

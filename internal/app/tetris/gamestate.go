@@ -18,6 +18,10 @@ const (
 
 	// initialGameProgressTickDelay is the game loop interval
 	initialGameProgressTickDelay time.Duration = 300 * time.Millisecond
+
+	dropIniated dropStatus = iota
+	dropInProgress
+	dropFinished
 )
 
 // gameboard represents the Tetris game area. The Grid is a fixed-size array
@@ -43,7 +47,10 @@ type gameState struct {
 	score             uint
 	currentDifficulty *difficulty
 	isPaused          bool
+	dropStatus        dropStatus
 }
+
+type dropStatus int
 
 func newGameboard(colors map[color.Color]lipgloss.Style) *gameboard {
 	grid := [height][width]color.Color{}
@@ -77,12 +84,19 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 		return nextCmd
 	}
 
+	// Give the player a full tick to arrange the piece.
+	if gs.dropStatus == dropIniated {
+		gs.dropStatus = dropInProgress
+		return nextCmd
+	}
+
 	if !gs.applyTransformation(gs.currentShape.MoveDown) {
 		gs.adjustDifficulty()
 		_, posY := gs.currentShape.GetPosition()
 		completedLines := gs.checkForCompleteLines(posY, posY+gs.currentShape.GetHeight()-1)
 
 		gs.currentShape = nil
+		gs.dropStatus = dropFinished
 
 		if len(completedLines) != 0 {
 			lineAnimationMsg := gs.constructLineAnimationMsg(completedLines)
@@ -113,14 +127,17 @@ func (gs *gameState) handleRight() {
 	gs.applyTransformation(gs.currentShape.MoveRight)
 }
 
-func (gs *gameState) handleDown() {
-	if gs.currentShape == nil {
+// handleDrop drops immediately the piece to the bottom. The dropStatus variable
+// is needed to ensure that the player has a full game tick to do shape arrangements and
+// that game progress isn't stopped if they hold down indefinitely.
+func (gs *gameState) handleDrop() {
+	if gs.currentShape == nil || gs.dropStatus != dropFinished {
 		return
 	}
 
-	succesfull := gs.applyTransformation(gs.currentShape.MoveDown)
+	gs.dropStatus = dropIniated
 
-	if succesfull {
+	for gs.applyTransformation(gs.currentShape.MoveDown) {
 		gs.addLivingDangerouslyScore()
 	}
 }

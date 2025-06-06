@@ -26,6 +26,7 @@ func initialModel() gameState {
 			initialGameProgressTickDelay,
 		},
 		false,
+		dropFinished,
 	}
 }
 
@@ -52,7 +53,7 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "l", "L", "right":
 				gs.handleRight()
 			case "j", "J", "down":
-				gs.handleDown()
+				gs.handleDrop()
 			case "z", "Z":
 				gs.handleLeftRotate()
 			case "x", "X":
