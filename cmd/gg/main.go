@@ -31,11 +31,11 @@ func main() {
 			huh.NewOption("maze", "maze"),
 			huh.NewOption("hangman", "hangman"),
 			huh.NewOption("snake", "snake"),
+			huh.NewOption("tetris", "tetris"),
 			huh.NewOption("connect 4 (2 player)", "connect4"),
 			huh.NewOption("pong (2 player)", "pong"),
 			huh.NewOption("tictactoe (2 player)", "tictactoe"),
 			huh.NewOption("tictactoe (vs AI)", "tictactoe-ai"),
-			huh.NewOption("tetris", "tetris"),
 		).
 		Value(&game).
 		Run()
