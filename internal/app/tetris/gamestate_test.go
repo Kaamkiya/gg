@@ -62,11 +62,11 @@ func TestMultipleLinesAreRemoved(t *testing.T) {
 	lines := gamestate.checkForCompleteLines(16, 19)
 	gamestate.removeCompletedLines(lines)
 
-	if gamestate.gameBoard.Grid[height-1][0] != color.Blue && gamestate.gameBoard.Grid[height-1][1] != color.Black {
+	if gamestate.gameBoard.Grid[height-1][0] != color.Blue && gamestate.gameBoard.Grid[height-1][1] != color.None {
 		t.Fatal("Second to last line didn't drop when last line was completed")
 	}
 
-	if gamestate.gameBoard.Grid[height-2][0] != color.Blue && gamestate.gameBoard.Grid[height-2][1] != color.Black {
+	if gamestate.gameBoard.Grid[height-2][0] != color.Blue && gamestate.gameBoard.Grid[height-2][1] != color.None {
 		t.Fatal("Fifth to last line didn't drop when third to last line was completed")
 	}
 

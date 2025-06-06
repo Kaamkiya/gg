@@ -32,7 +32,7 @@ func TestShapeRotateRight(t *testing.T) {
 			{true, true, true, true, true},
 			{false, true, false, false, true},
 		},
-		color.Black,
+		color.None,
 	}
 
 	rotatedShape := shape.RotateRight()
@@ -59,7 +59,7 @@ func TestShapeRotateLeft(t *testing.T) {
 			{false, true, false, false, true},
 			{true, true, false, true, true},
 		},
-		color.Black,
+		color.None,
 	}
 
 	rotatedShape := shape.RotateLeft()
@@ -86,7 +86,7 @@ func testShapeOppositeRotationsCancelEachOther(t *testing.T) {
 			{true, true, false, false, true},
 			{false, true, false, true, false},
 		},
-		color.Black,
+		color.None,
 	}
 
 	rotatedShape := shape.RotateLeft().RotateRight()

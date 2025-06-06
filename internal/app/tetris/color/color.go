@@ -5,7 +5,7 @@ import "github.com/charmbracelet/lipgloss"
 type Color int
 
 const (
-	Black Color = iota
+	None Color = iota
 	Blue
 	Green
 	Orange
@@ -19,7 +19,7 @@ const (
 var defaultStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#f9f6f2"))
 
 var Colors = map[Color]lipgloss.Style{
-	Black:   defaultStyle.Background(lipgloss.Color("#000000")),
+	None:    defaultStyle.Background(lipgloss.NoColor{}),
 	Blue:    defaultStyle.Background(lipgloss.Color("#063970")),
 	Green:   defaultStyle.Background(lipgloss.Color("#4CA74F")),
 	Orange:  defaultStyle.Background(lipgloss.Color("#CF6209")),

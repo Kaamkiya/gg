@@ -8,6 +8,7 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/tetris/color"
 	"github.com/Kaamkiya/gg/internal/app/tetris/shape"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type gameProgressTick struct{}
@@ -84,13 +85,52 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // line is appended.
 func (gs *gameState) View() string {
 	boardBuilder := strings.Builder{}
-	boardBuilder.Grow(height*width*5 + 22*13)
+	boardBuilder.Grow((height+2)*(width+2)*8 + 22*14)
 
+	borderStyle := lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#200C0C", Dark: "#BEC1C6"})
+
+	gameGridLines := buildGameGrid(gs)
 	sideBarLines := buildSidebar(gs)
+
+	for i := range height * 2 {
+		var playAreaStr string
+
+		if i == 0 {
+			playAreaStr = borderStyle.
+				BorderTop(true).
+				BorderRight(true).
+				BorderLeft(true).
+				Render(gameGridLines[i])
+		} else if i == height*2-1 {
+			playAreaStr = borderStyle.
+				BorderRight(true).
+				BorderBottom(true).
+				BorderLeft(true).
+				Render(gameGridLines[i])
+		} else {
+			playAreaStr = borderStyle.BorderLeft(true).BorderRight(true).Render(gameGridLines[i])
+		}
+
+		boardBuilder.WriteString(playAreaStr)
+
+		if i < len(sideBarLines) {
+			boardBuilder.WriteString(sideBarLines[i])
+		}
+
+		boardBuilder.WriteString("\n")
+	}
+
+	return boardBuilder.String()
+}
+
+func buildGameGrid(gs *gameState) [height * 2]string {
+	gridLines := [height * 2]string{}
 
 	for i := range height {
 		lineBuilder := strings.Builder{}
-		lineBuilder.Grow(width * 2)
+		lineBuilder.Grow(width * 4)
 
 		for j := range width {
 			nextChar := gs.gameBoard.Colors[gs.gameBoard.Grid[i][j]].Render("    ")
@@ -98,25 +138,15 @@ func (gs *gameState) View() string {
 		}
 
 		line := lineBuilder.String()
-		boardBuilder.WriteString(line)
-
-		if 2*i < len(sideBarLines) {
-			boardBuilder.WriteString(sideBarLines[2*i])
-		}
-		boardBuilder.WriteString("\n")
-
-		boardBuilder.WriteString(line)
-		if 2*i+1 < len(sideBarLines) {
-			boardBuilder.WriteString(sideBarLines[2*i+1])
-		}
-		boardBuilder.WriteString("\n")
+		gridLines[2*i] = line
+		gridLines[2*i+1] = line
 	}
 
-	return boardBuilder.String()
+	return gridLines
 }
 
-func buildSidebar(gs *gameState) []string {
-	sidebarLines := make([]string, 14)
+func buildSidebar(gs *gameState) [14]string {
+	sidebarLines := [14]string{}
 	sidebarLines[0] = "      Next Shape      "
 	sidebarLines[1] = "                      "
 

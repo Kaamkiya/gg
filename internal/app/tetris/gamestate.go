@@ -176,7 +176,7 @@ func (gs *gameState) isShapeValid(shape shape.Shape) bool {
 	for i := range shapeGrid {
 		for j := range shapeGrid[i] {
 			if shapeGrid[i][j] {
-				if gs.gameBoard.Grid[posY+i][posX+j] != color.Black {
+				if gs.gameBoard.Grid[posY+i][posX+j] != color.None {
 					return false
 				}
 			}
@@ -191,7 +191,7 @@ func (gs *gameState) addShapeToGrid(shape *shape.Shape) {
 }
 
 func (gs *gameState) deleteShapeFromGrid(shape *shape.Shape) {
-	gs.modidfyColorGridFromShape(shape, color.Black)
+	gs.modidfyColorGridFromShape(shape, color.None)
 }
 
 func (gs *gameState) modidfyColorGridFromShape(shape *shape.Shape, color color.Color) {
@@ -252,7 +252,7 @@ func (gs *gameState) checkForCompleteLines(from, to int) []int {
 
 func (gs *gameState) isLineCompleted(line int) bool {
 	for i := range width {
-		if gs.gameBoard.Grid[line][i] == color.Black {
+		if gs.gameBoard.Grid[line][i] == color.None {
 			return false
 		}
 	}
@@ -262,7 +262,7 @@ func (gs *gameState) isLineCompleted(line int) bool {
 
 func (gs *gameState) isLineEmpty(line int) bool {
 	for i := range width {
-		if gs.gameBoard.Grid[line][i] != color.Black {
+		if gs.gameBoard.Grid[line][i] != color.None {
 			return false
 		}
 	}
