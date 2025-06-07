@@ -26,7 +26,10 @@ func initialModel() gameState {
 			initialGameProgressTickDelay,
 		},
 		false,
-		dropFinished,
+		pieceDrop{
+			dropFinished,
+			false,
+		},
 	}
 }
 
@@ -53,7 +56,7 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "l", "L", "right":
 				gs.handleRight()
 			case "j", "J", "down":
-				gs.handleDrop()
+				return gs, gs.handleDrop()
 			case "z", "Z":
 				gs.handleLeftRotate()
 			case "x", "X":
@@ -70,6 +73,12 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case gameProgressTick:
 		if gs.isPaused {
+			return gs, nil
+		}
+
+		// Skip a tick as droping a force scheduled a new one
+		if gs.pieceDrop.dropForced {
+			gs.pieceDrop.dropForced = false
 			return gs, nil
 		}
 		return gs, gs.handleGameProgressTick()

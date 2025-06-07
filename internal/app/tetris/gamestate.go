@@ -18,10 +18,6 @@ const (
 
 	// initialGameProgressTickDelay is the game loop interval
 	initialGameProgressTickDelay time.Duration = 300 * time.Millisecond
-
-	dropIniated dropStatus = iota
-	dropInProgress
-	dropFinished
 )
 
 // gameboard represents the Tetris game area. The Grid is a fixed-size array
@@ -47,10 +43,21 @@ type gameState struct {
 	score             uint
 	currentDifficulty *difficulty
 	isPaused          bool
-	dropStatus        dropStatus
+	pieceDrop         pieceDrop
 }
 
+const (
+	dropIniated dropStatus = iota
+	dropInProgress
+	dropFinished
+)
+
 type dropStatus int
+
+type pieceDrop struct {
+	dropStatus dropStatus
+	dropForced bool
+}
 
 func newGameboard(colors map[color.Color]lipgloss.Style) *gameboard {
 	grid := [height][width]color.Color{}
@@ -85,8 +92,8 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 	}
 
 	// Give the player a full tick to arrange the piece.
-	if gs.dropStatus == dropIniated {
-		gs.dropStatus = dropInProgress
+	if gs.pieceDrop.dropStatus == dropIniated {
+		gs.pieceDrop.dropStatus = dropInProgress
 		return nextCmd
 	}
 
@@ -96,7 +103,7 @@ func (gs *gameState) handleGameProgressTick() tea.Cmd {
 		completedLines := gs.checkForCompleteLines(posY, posY+gs.currentShape.GetHeight()-1)
 
 		gs.currentShape = nil
-		gs.dropStatus = dropFinished
+		gs.pieceDrop.dropStatus = dropFinished
 
 		if len(completedLines) != 0 {
 			lineAnimationMsg := gs.constructLineAnimationMsg(completedLines)
@@ -127,19 +134,31 @@ func (gs *gameState) handleRight() {
 	gs.applyTransformation(gs.currentShape.MoveRight)
 }
 
-// handleDrop drops immediately the piece to the bottom. The dropStatus variable
-// is needed to ensure that the player has a full game tick to do shape arrangements and
-// that game progress isn't stopped if they hold down indefinitely.
-func (gs *gameState) handleDrop() {
-	if gs.currentShape == nil || gs.dropStatus != dropFinished {
-		return
+// handleDrop moves immediately the piece to the bottom but the drop is not finished yet.
+// Players will have time equal to another tick to arrange the piece before it is dropped fully.
+// This is achieved with the dropStatus variable.
+// If players press down again they force a drop which causes the piece to drop fully immediately.
+// In that case a new Tick is scheduled to progress the game.
+func (gs *gameState) handleDrop() tea.Cmd {
+	if gs.currentShape == nil {
+		return nil
 	}
 
-	gs.dropStatus = dropIniated
-
+	pieceMoved := false
 	for gs.applyTransformation(gs.currentShape.MoveDown) {
+		pieceMoved = true
 		gs.addLivingDangerouslyScore()
 	}
+
+	if pieceMoved {
+		gs.pieceDrop.dropStatus = dropIniated
+		return nil
+	}
+
+	gs.pieceDrop.dropStatus = dropFinished
+	gs.pieceDrop.dropForced = true
+
+	return gs.handleGameProgressTick()
 }
 
 func (gs *gameState) handleLeftRotate() {
