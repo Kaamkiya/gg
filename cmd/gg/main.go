@@ -13,6 +13,7 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/tetris"
 	"github.com/Kaamkiya/gg/internal/app/tictactoe"
 	"github.com/Kaamkiya/gg/internal/app/twenty48"
+	"github.com/Kaamkiya/gg/internal/app/blackjack"
 
 	"github.com/charmbracelet/huh"
 )
@@ -25,6 +26,7 @@ func main() {
 	err := huh.NewSelect[string]().
 		Title("choose a game:").
 		Options(
+			huh.NewOption("blackjack", "blackjack"),
 			huh.NewOption("2048", "twenty48"),
 			huh.NewOption("sudoku", "sudoku"),
 			huh.NewOption("dodger", "dodger"),
@@ -45,6 +47,8 @@ func main() {
 	}
 
 	switch game {
+	case "blackjack":
+		blackjack.Run()
 	case "maze":
 		maze.Run()
 	case "pong":
