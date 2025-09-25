@@ -136,6 +136,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.gameOver = true
 			}
+		case "n":
+			if m.gameOver {
+				return initialModel(), nil
+			}
 		}
 	}
 	return m, nil
@@ -162,7 +166,7 @@ func (m model) View() string {
 
 	s += "\n" + m.defaultStyle.Render(m.message) + "\n"
 	if m.gameOver {
-		s += "\nPress 'q' to quit.\n"
+		s += "\nPress 'q' to quit or 'n' to start a new game.\n"
 	}
 
 	return s
