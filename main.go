@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	//"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -17,14 +19,26 @@ const (
 	RESET_LEN = len(RESET)
 	COLOR_LEN = len(RED)
 	UNDERLINE_CHAR = "^"
+	CHAR_LEN = len(RED) + 1 + len(RESET)
 )
 
 // Define your model
 type model struct {
-	prompt string
-	promptUnderline string
-	input string
-	i int
+	pStr string
+	
+	// Current character the user is trying to solve for
+	pIdx int
+
+	pIdxLowerLimit int
+
+	pUnderlines string
+
+	pSlice []string
+
+	// Current word being attempted, initially 0
+	curIdx int 
+
+	inStr string
 }
 
 // Init runs when the program starts
@@ -43,112 +57,75 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			// Quit on q or ctrl+c
 			return m, tea.Quit
-		case "enter":
-
-		case "ctrl+w":
-			// Delete block from input
-			if len(m.input) > 1 {
-				m.input = strings.TrimRight(m.input, " ")
-				
-
-				for i := len(m.input) - 1; i >= 0; i-- {
-					char := m.input[i]
-
-					if char == ' ' {
-						m.input = m.input[:i+1]
-						break
-					} else if i == 1 {
-						m.input = ""
-						break
-					}
-				}
-
-
-				// Rollback currently attempted word
-				promptCopy := m.prompt[:m.i]
-				strings.TrimRight(promptCopy, " ")
-
-				res := 0
-				for i := len(promptCopy) - 1; i >= 0; i-- {
-					char := promptCopy[i]
-
-					if char == ' ' {
-						res = i+1
-						break
-					} else if i == 1 {
-						break
-					}
-				}
-
-				if m.i < len(m.promptUnderline) {
-					m.promptUnderline = m.promptUnderline[:m.i] + " " + m.promptUnderline[m.i+1:]
-				}
-
-				m.i = res
-
-				if m.i < len(m.promptUnderline) {
-					m.promptUnderline = m.promptUnderline[:m.i] + UNDERLINE_CHAR + m.promptUnderline[m.i+1:]
-				}
-			}
-
+		case "enter", "ctrl+w":
 
 		case "backspace":
-			if len(m.input) > 0 {
-				m.input = m.input[:len(m.input)-1]
+			if len(m.inStr) > 0 {
+				m.inStr = m.inStr[:len(m.inStr)- 1]
 
-				if m.i < len(m.promptUnderline) {
-					m.promptUnderline = m.promptUnderline[:m.i] + " " + m.promptUnderline[m.i+1:]
+				if m.pIdx > m.pIdxLowerLimit {
+					m.pIdx--
+					m.pUnderlines = updateUnderlines(m.pIdx, m.pIdx+1, m.pUnderlines)
 				}
-
-				if m.i > 0 {
-					m.i--
-				}
-
-				if m.i < len(m.promptUnderline) {
-					m.promptUnderline = m.promptUnderline[:m.i] + UNDERLINE_CHAR + m.promptUnderline[m.i+1:]
-				}
-
 			}
 
 		default:
-			if len(m.input) < len(m.prompt) {
-				m.input += in
+			if len(m.inStr) < len(m.pSlice[m.curIdx]) + 1{
 
-				if m.i < len(m.promptUnderline) {
-					m.promptUnderline = m.promptUnderline[:m.i] + " " + m.promptUnderline[m.i+1:]
+				m.inStr += in
+				if m.pIdx < len(m.pUnderlines) - 1 {
+					m.pIdx++
+					m.pUnderlines = updateUnderlines(m.pIdx, m.pIdx-1, m.pUnderlines)
 				}
 
-				if m.i < len(m.promptUnderline) {
-					m.i++
+				// User typed correctly 
+				if m.inStr == (m.pSlice[m.curIdx] + " ") {
+					m.curIdx++
+					m.inStr = ""
+					m.pIdxLowerLimit = m.pIdx
 				}
 
-				if m.i < len(m.promptUnderline) {
-					m.promptUnderline = m.promptUnderline[:m.i] + UNDERLINE_CHAR + m.promptUnderline[m.i+1:]
+				if m.curIdx > len(m.pSlice) - 1 {
+					fmt.Println("Winner!")
+					return m, tea.Quit
 				}
 			}
 		}
 	}
+
 	return m, nil
+}
+
+// Takes the new idx to mark where the current pointer should point to in the string
+func updateUnderlines(newI, old int, s string) string {
+	s = s[:old] + " " + s[old+1:]
+	s = s[:newI] + UNDERLINE_CHAR + s[newI+1:]
+	return s
+
 }
 
 // View renders the UI
 func (m model) View() string {
 	return fmt.Sprintf(
-		"%s\n%s\n%s", m.prompt, m.promptUnderline, m.input,
+		"%s\n%s\n%s", m.pStr, m.pUnderlines, m.inStr,
 	)
 }
 
 func main() {
 	//Test("hello ")
-	newModel := model{prompt: "Type this text out in full"}
-	newUnderline := UNDERLINE_CHAR
-	for range(newModel.prompt[1:]) {
-		newUnderline += " "
+	pStr := "hello, world!"
+	pSlice := strings.Split(pStr, " ")
+	pUnderlines := UNDERLINE_CHAR
+	for range(pStr) {
+		pUnderlines += " "
 	}
 
-	newModel.promptUnderline = newUnderline
+	p := tea.NewProgram(model{
+		pStr: pStr,
+		pSlice: pSlice,
+		pUnderlines: pUnderlines,
+	})
 
-	p := tea.NewProgram(newModel)
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
