@@ -12,8 +12,11 @@ import (
 
 const (
 	RESET = "\033[0m"
+	//RESET = "XXXXXXX"
 	RED = "\033[31m"
+	//RED = "RRRRRRRR"
 	GREEN = "\033[32m"
+	//GREEN = "GGGGGGGG"
 	YELLOW = "\033[33m"
 	BLUE = "\033[34m"
 	RESET_LEN = len(RESET)
@@ -27,6 +30,7 @@ type model struct {
 	pStr string
 	
 	// Current character the user is trying to solve for
+	// based on pStr
 	pIdx int
 
 	pIdxLowerLimit int
@@ -36,9 +40,12 @@ type model struct {
 	pSlice []string
 
 	// Current word being attempted, initially 0
-	curIdx int 
+	wordIdx int 
 
 	inStr string
+
+	// Length of user input string
+	inLen int
 }
 
 // Init runs when the program starts
@@ -60,9 +67,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", "ctrl+w":
 
 		case "backspace":
-			if len(m.inStr) > 0 {
-				m.inStr = m.inStr[:len(m.inStr)- 1]
+			if m.inLen > 0 {
+				m.inStr = m.inStr[:len(m.inStr) - CHAR_LEN ]//CHAR_LEN]
+				m.inLen--
 
+				// Decrement underline pointer if greater than lower limit
 				if m.pIdx > m.pIdxLowerLimit {
 					m.pIdx--
 					m.pUnderlines = updateUnderlines(m.pIdx, m.pIdx+1, m.pUnderlines)
@@ -70,22 +79,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		default:
-			if len(m.inStr) < len(m.pSlice[m.curIdx]) + 1{
+			if m.inLen < len(m.pSlice[m.wordIdx]) + 1{
 
-				m.inStr += in
+				// Update underline pointer and add colors to characters for output
 				if m.pIdx < len(m.pUnderlines) - 1 {
+
+					if in == string(m.pStr[m.pIdx]) {
+						in = GREEN + in + RESET
+					} else { 
+					in = RED + in + RESET 
+					}
+					m.inLen ++
+
 					m.pIdx++
 					m.pUnderlines = updateUnderlines(m.pIdx, m.pIdx-1, m.pUnderlines)
 				}
+					m.inStr += in
 
 				// User typed correctly 
-				if m.inStr == (m.pSlice[m.curIdx] + " ") {
-					m.curIdx++
+				if removeColors(m.inStr) == (m.pSlice[m.wordIdx] + " ") {
+
+					m.wordIdx++
 					m.inStr = ""
 					m.pIdxLowerLimit = m.pIdx
+					m.inLen = 0
 				}
 
-				if m.curIdx > len(m.pSlice) - 1 {
+				// Exit if finished
+				if m.wordIdx > len(m.pSlice) - 1 {
 					fmt.Println("Winner!")
 					return m, tea.Quit
 				}
@@ -94,6 +115,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+// Removes ANSI colors from a string
+func removeColors(s string) string {
+	s = strings.ReplaceAll(s, RESET, "")
+	s = strings.ReplaceAll(s, GREEN, "")
+	s = strings.ReplaceAll(s, RED, "")
+	return s
 }
 
 // Takes the new idx to mark where the current pointer should point to in the string
@@ -113,7 +142,7 @@ func (m model) View() string {
 
 func main() {
 	//Test("hello ")
-	pStr := "hello, world!"
+	pStr := "In Golang, string replacement is primarily handled by functions within the strings package. The two main functions for this purpose are"
 	pSlice := strings.Split(pStr, " ")
 	pUnderlines := UNDERLINE_CHAR
 	for range(pStr) {
