@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	Prompts []Prompt `yaml:"prompts"`
+	ActivePromptID int
 }
 
 type Prompt struct {
