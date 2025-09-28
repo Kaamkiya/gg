@@ -1,14 +1,14 @@
 package main
 
 import (
-	"os"
 	"gopkg.in/yaml.v3"
+	"os"
 )
 
 type Config struct {
-	Prompts []Prompt `yaml:"prompts"`
+	Prompts        []Prompt `yaml:"prompts"`
 	ActivePromptID int
-	SeenIDs map[int]int
+	SeenIDs        map[int]int
 }
 
 type Prompt struct {
@@ -24,11 +24,15 @@ func parseYAML(filePath string) (*Config, error) {
 	}
 
 	data, err := os.ReadFile(path)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	var cfg Config
 
-	if err = yaml.Unmarshal(data, &cfg); err != nil { return nil, err}
+	if err = yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, err
+	}
 
 	return &cfg, nil
 

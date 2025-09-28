@@ -5,148 +5,148 @@ prompts:
   - id: 2
     text: "Concurrency is not parallelism."
     difficulty: medium
-#  - id: 3
-#    text: "Channels orchestrate; mutexes serialize."
-#    difficulty: hard
-#  - id: 4
-#    text: "A stitch in time saves nine."
-#    difficulty: easy
-#  - id: 5
-#    text: "An apple a day keeps the doctor away."
-#    difficulty: easy
-#  - id: 6
-#    text: "Errors are opportunities to learn."
-#    difficulty: medium
-#  - id: 7
-#    text: "Goroutines communicate via channels."
-#    difficulty: hard
-#  - id: 8
-#    text: "Practice makes perfect."
-#    difficulty: easy
-#  - id: 9
-#    text: "Reading improves comprehension and focus."
-#    difficulty: medium
-#  - id: 10
-#    text: "Mutex deadlocks can stall an entire program."
-#    difficulty: hard
-#  - id: 11
-#    text: "Early to bed and early to rise."
-#    difficulty: easy
-#  - id: 12
-#    text: "Optimizing algorithms reduces time complexity."
-#    difficulty: medium
-#  - id: 13
-#    text: "Select statements simplify concurrent waits."
-#    difficulty: hard
-#  - id: 14
-#    text: "Honesty is the best policy."
-#    difficulty: easy
-#  - id: 15
-#    text: "Unit tests prevent regression bugs."
-#    difficulty: medium
-#  - id: 16
-#    text: "Lock-free data structures require careful design."
-#    difficulty: hard
-#  - id: 17
-#    text: "Birds of a feather flock together."
-#    difficulty: easy
-#  - id: 18
-#    text: "Profiling code reveals performance bottlenecks."
-#    difficulty: medium
-#  - id: 19
-#    text: "Race conditions are subtle and dangerous."
-#    difficulty: hard
-#  - id: 20
-#    text: "Time flies when you're having fun."
-#    difficulty: easy
-#  - id: 21
-#    text: "Memory leaks accumulate silently over time."
-#    difficulty: medium
-#  - id: 22
-#    text: "Immutable data structures reduce side effects."
-#    difficulty: hard
-#  - id: 23
-#    text: "Actions speak louder than words."
-#    difficulty: easy
-#  - id: 24
-#    text: "Lazy evaluation can improve efficiency."
-#    difficulty: medium
-#  - id: 25
-#    text: "Deadlocks occur when resources are circularly held."
-#    difficulty: hard
-#  - id: 26
-#    text: "Look before you leap."
-#    difficulty: easy
-#  - id: 27
-#    text: "Understanding big-O notation is essential for optimization."
-#    difficulty: medium
-#  - id: 28
-#    text: "Event loops handle asynchronous I/O gracefully."
-#    difficulty: hard
-#  - id: 29
-#    text: "Better late than never."
-#    difficulty: easy
-#  - id: 30
-#    text: "Refactoring code improves maintainability."
-#    difficulty: medium
-#  - id: 31
-#    text: "Persistent storage must be synchronized with caches."
-#    difficulty: hard
-#  - id: 32
-#    text: "All that glitters is not gold."
-#    difficulty: easy
-#  - id: 33
-#    text: "Dead code increases technical debt."
-#    difficulty: medium
-#  - id: 34
-#    text: "Atomic operations prevent inconsistent state."
-#    difficulty: hard
-#  - id: 35
-#    text: "Slow and steady wins the race."
-#    difficulty: easy
-#  - id: 36
-#    text: "Profiling helps identify hot spots."
-#    difficulty: medium
-#  - id: 37
-#    text: "Sharding databases can improve throughput."
-#    difficulty: hard
-#  - id: 38
-#    text: "The pen is mightier than the sword."
-#    difficulty: easy
-#  - id: 39
-#    text: "Garbage collection frees memory automatically."
-#    difficulty: medium
-#  - id: 40
-#    text: "Non-blocking I/O prevents thread starvation."
-#    difficulty: hard
-#  - id: 41
-#    text: "Curiosity killed the cat."
-#    difficulty: easy
-#  - id: 42
-#    text: "Immutable strings are safer for concurrent access."
-#    difficulty: medium
-#  - id: 43
-#    text: "Lock contention can degrade performance severely."
-#    difficulty: hard
-#  - id: 44
-#    text: "Time is money."
-#    difficulty: easy
-#  - id: 45
-#    text: "Benchmarking code shows realistic performance."
-#    difficulty: medium
-#  - id: 46
-#    text: "Concurrent pipelines can maximize CPU utilization."
-#    difficulty: hard
-#  - id: 47
-#    text: "A watched pot never boils."
-#    difficulty: easy
-#  - id: 48
-#    text: "Understanding references prevents subtle bugs."
-#    difficulty: medium
-#  - id: 49
-#    text: "Non-deterministic behavior complicates testing."
-#    difficulty: hard
-#  - id: 50
-#    text: "Actions have consequences, plan accordingly."
-#    difficulty: medium
-#
+  - id: 3
+    text: "Channels orchestrate; mutexes serialize."
+    difficulty: hard
+  - id: 4
+    text: "A stitch in time saves nine."
+    difficulty: easy
+  - id: 5
+    text: "An apple a day keeps the doctor away."
+    difficulty: easy
+  - id: 6
+    text: "Errors are opportunities to learn."
+    difficulty: medium
+  - id: 7
+    text: "Goroutines communicate via channels."
+    difficulty: hard
+  - id: 8
+    text: "Practice makes perfect."
+    difficulty: easy
+  - id: 9
+    text: "Reading improves comprehension and focus."
+    difficulty: medium
+  - id: 10
+    text: "Mutex deadlocks can stall an entire program."
+    difficulty: hard
+  - id: 11
+    text: "Early to bed and early to rise."
+    difficulty: easy
+  - id: 12
+    text: "Optimizing algorithms reduces time complexity."
+    difficulty: medium
+  - id: 13
+    text: "Select statements simplify concurrent waits."
+    difficulty: hard
+  - id: 14
+    text: "Honesty is the best policy."
+    difficulty: easy
+  - id: 15
+    text: "Unit tests prevent regression bugs."
+    difficulty: medium
+  - id: 16
+    text: "Lock-free data structures require careful design."
+    difficulty: hard
+  - id: 17
+    text: "Birds of a feather flock together."
+    difficulty: easy
+  - id: 18
+    text: "Profiling code reveals performance bottlenecks."
+    difficulty: medium
+  - id: 19
+    text: "Race conditions are subtle and dangerous."
+    difficulty: hard
+  - id: 20
+    text: "Time flies when you're having fun."
+    difficulty: easy
+  - id: 21
+    text: "Memory leaks accumulate silently over time."
+    difficulty: medium
+  - id: 22
+    text: "Immutable data structures reduce side effects."
+    difficulty: hard
+  - id: 23
+    text: "Actions speak louder than words."
+    difficulty: easy
+  - id: 24
+    text: "Lazy evaluation can improve efficiency."
+    difficulty: medium
+  - id: 25
+    text: "Deadlocks occur when resources are circularly held."
+    difficulty: hard
+  - id: 26
+    text: "Look before you leap."
+    difficulty: easy
+  - id: 27
+    text: "Understanding big-O notation is essential for optimization."
+    difficulty: medium
+  - id: 28
+    text: "Event loops handle asynchronous I/O gracefully."
+    difficulty: hard
+  - id: 29
+    text: "Better late than never."
+    difficulty: easy
+  - id: 30
+    text: "Refactoring code improves maintainability."
+    difficulty: medium
+  - id: 31
+    text: "Persistent storage must be synchronized with caches."
+    difficulty: hard
+  - id: 32
+    text: "All that glitters is not gold."
+    difficulty: easy
+  - id: 33
+    text: "Dead code increases technical debt."
+    difficulty: medium
+  - id: 34
+    text: "Atomic operations prevent inconsistent state."
+    difficulty: hard
+  - id: 35
+    text: "Slow and steady wins the race."
+    difficulty: easy
+  - id: 36
+    text: "Profiling helps identify hot spots."
+    difficulty: medium
+  - id: 37
+    text: "Sharding databases can improve throughput."
+    difficulty: hard
+  - id: 38
+    text: "The pen is mightier than the sword."
+    difficulty: easy
+  - id: 39
+    text: "Garbage collection frees memory automatically."
+    difficulty: medium
+  - id: 40
+    text: "Non-blocking I/O prevents thread starvation."
+    difficulty: hard
+  - id: 41
+    text: "Curiosity killed the cat."
+    difficulty: easy
+  - id: 42
+    text: "Immutable strings are safer for concurrent access."
+    difficulty: medium
+  - id: 43
+    text: "Lock contention can degrade performance severely."
+    difficulty: hard
+  - id: 44
+    text: "Time is money."
+    difficulty: easy
+  - id: 45
+    text: "Benchmarking code shows realistic performance."
+    difficulty: medium
+  - id: 46
+    text: "Concurrent pipelines can maximize CPU utilization."
+    difficulty: hard
+  - id: 47
+    text: "A watched pot never boils."
+    difficulty: easy
+  - id: 48
+    text: "Understanding references prevents subtle bugs."
+    difficulty: medium
+  - id: 49
+    text: "Non-deterministic behavior complicates testing."
+    difficulty: hard
+  - id: 50
+    text: "Actions have consequences, plan accordingly."
+    difficulty: medium
+

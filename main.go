@@ -31,7 +31,7 @@ const (
 type TickMsg time.Time
 
 type State struct {
-	Score int
+	Completions int
 
 	// As decimal
 	Accuracy float32
@@ -52,7 +52,7 @@ type State struct {
 
 // Define your model
 type Model struct {
-	Cfg *Config 
+	Cfg *Config
 
 	// Current string ID in play
 	PStrsID int
@@ -120,19 +120,19 @@ func typeChar(m *Model, in string) {
 		if m.PIdx < len(m.PUnderlines)-1 {
 
 			if in == string(m.PStr[m.PIdx]) {
-				in = GREEN + in + RESET
-
-				if _, ok := m.State.SeenIdxSet[m.PIdx]; !ok {
+				if _, ok := m.State.SeenIdxSet[m.PIdx]; !ok && in != " " {
 					m.State.Hits++
 					m.State.SeenIdxSet[m.PIdx] = 1
 				}
 
+				in = GREEN + in + RESET
+
 			} else {
-				in = RED + in + RESET
-				if _, ok := m.State.SeenIdxSet[m.PIdx]; !ok {
+				if _, ok := m.State.SeenIdxSet[m.PIdx]; !ok && in != " " {
 					m.State.Errors++
 					m.State.SeenIdxSet[m.PIdx] = 1
 				}
+				in = RED + in + RESET
 			}
 			m.InLen++
 
@@ -148,7 +148,7 @@ func typeChar(m *Model, in string) {
 		m.WordIdx++
 		m.PIdxLowerLimit = m.PIdx
 		m.InStr = ""
-		for range(m.PIdxLowerLimit) {
+		for range m.PIdxLowerLimit {
 			m.InStr += " "
 		}
 		m.InLen = 0
@@ -191,7 +191,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				for range m.PStr {
 					m.PUnderlines += " "
 				}
-				m.State.Score++
+				m.State.Completions++
 				m.InStr = ""
 				m.PIdx = 0
 				m.PIdxLowerLimit = 0
@@ -213,7 +213,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func getNewPromptId(cfg *Config, curID int) int {
 	cfg.SeenIDs[curID] = 1
 
-	if len(cfg.SeenIDs) - 1 >= len(cfg.Prompts) {
+	if len(cfg.SeenIDs)-1 >= len(cfg.Prompts) {
 		return -2
 	}
 
@@ -221,11 +221,9 @@ func getNewPromptId(cfg *Config, curID int) int {
 	_, ok := cfg.SeenIDs[newIdx]
 
 	for ok {
-		fmt.Println("looping...")
 		newIdx = rand.Intn(len(cfg.Prompts)) + 1
 		_, ok = cfg.SeenIDs[newIdx]
 	}
-
 
 	// For now just increment by one
 
@@ -257,14 +255,14 @@ func (m Model) View() string {
 		PStr = m.PStr[:m.PIdx] + "|" + string(m.PStr[m.PIdx]) + m.PStr[m.PIdx+1:]
 	}
 
-	m.State.Accuracy = 100
+	m.State.Accuracy = 0
 
 	if m.State.Hits > 0 {
 		m.State.Accuracy = (1.0 - (float32(m.State.Errors) / float32(m.State.Hits))) * 100
 	}
 
 	return fmt.Sprintf(
-		"%s\n%s\n%s\nScore: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\n\n", PStr, m.PUnderlines, m.InStr, m.State.Score, m.State.Time, m.State.Accuracy,
+		"%s\n%s\n%s\nCompletions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\n\n", PStr, m.PUnderlines, m.InStr, m.State.Completions, m.State.Time, m.State.Accuracy,
 	)
 }
 
@@ -286,14 +284,14 @@ func main() {
 	}
 
 	p := tea.NewProgram(Model{
-		Cfg: cfg,
-		PStrsID: pStrsID,
+		Cfg:         cfg,
+		PStrsID:     pStrsID,
 		PStr:        pStr,
 		PSlice:      pSlice,
 		PUnderlines: pUnderlines,
-		State:       State{
+		State: State{
 			SeenIdxSet: make(map[int]int),
-			Hits: 1,
+			Hits:       1,
 		},
 	})
 
