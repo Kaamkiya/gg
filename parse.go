@@ -8,6 +8,7 @@ import (
 type Config struct {
 	Prompts []Prompt `yaml:"prompts"`
 	ActivePromptID int
+	SeenIDs map[int]int
 }
 
 type Prompt struct {

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -178,6 +179,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Select next prompt
 				m.PStrsID = getNewPromptId(m.Cfg, m.PStrsID)
 
+				if m.PStrsID == -2 {
+					fmt.Println("Finished!")
+					return m, tea.Quit
+				}
+
 				// Reinitialize variables
 				m.PStr = m.Cfg.Prompts[m.PStrsID-1].Text
 				m.PSlice = strings.Split(m.PStr, " ")
@@ -194,7 +200,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				// Wipe the seen set
 				m.State.SeenIdxSet = make(map[int]int)
-				//return m, tea.Quit
 			}
 		}
 	case TickMsg:
@@ -206,8 +211,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func getNewPromptId(cfg *Config, curID int) int {
+	cfg.SeenIDs[curID] = 1
+
+	if len(cfg.SeenIDs) - 1 >= len(cfg.Prompts) {
+		return -2
+	}
+
+	newIdx := rand.Intn(len(cfg.Prompts)) + 1 // 1 indexed
+	_, ok := cfg.SeenIDs[newIdx]
+
+	for ok {
+		fmt.Println("looping...")
+		newIdx = rand.Intn(len(cfg.Prompts)) + 1
+		_, ok = cfg.SeenIDs[newIdx]
+	}
+
+
 	// For now just increment by one
-	return curID + 1
+
+	return newIdx
 }
 
 // Removes ANSI colors from a string
@@ -252,9 +274,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	cfg.SeenIDs = make(map[int]int)
 
 	//PStr := "In Golang, string replacement is primarily handled by functions within the strings package. The two main functions for this purpose are"
-	pStrsID := 1
+	pStrsID := getNewPromptId(cfg, -1)
 	pStr := cfg.Prompts[pStrsID-1].Text
 	pSlice := strings.Split(pStr, " ")
 	pUnderlines := UNDERLINE_CHAR
