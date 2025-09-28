@@ -6,5 +6,5 @@ import (
 )
 
 func Test(s string) {
-	fmt.Println(strings.TrimRight(s, " ")+"+")
+	fmt.Println(strings.TrimRight(s, " ") + "+")
 }
