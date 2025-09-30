@@ -1,4 +1,4 @@
-package typespeed 
+package typespeed
 
 import (
 	"fmt"
@@ -7,7 +7,9 @@ import (
 	"os"
 	"strings"
 	"time"
+
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/huh"
 )
 
 const (
@@ -74,7 +76,7 @@ type Model struct {
 	// Length of user input string
 	InLen int
 
-	State State
+	State *State
 }
 
 func doTick() tea.Cmd {
@@ -152,6 +154,11 @@ func typeChar(m *Model, in string) {
 	}
 }
 
+func getPromptText(prompts []Prompt, promptID int) string {
+  return prompts[promptID-1].Text
+
+}
+
 // Update handles messages and updates the model
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -163,7 +170,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			// Quit on q or ctrl+c
 			return m, tea.Quit
-		case "enter", "ctrl+w":
+		case "enter", "ctrl+w", "tab", "ctrl+tab":
 
 		case "backspace":
 			backspace(&m)
@@ -174,15 +181,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Exit if finished
 			if m.WordIdx > len(m.PSlice)-1 {
 				// Select next prompt
-				m.PStrsID = getNewPromptId(m.Cfg, m.PStrsID)
+				m.PStrsID = getNewPromptId(m.Cfg, m.PStrsID, m.State)
 
+        // Exit the game
 				if m.PStrsID == -2 {
 					fmt.Println("Finished!")
 					return m, tea.Quit
 				}
 
 				// Reinitialize variables
-				m.PStr = m.Cfg.Prompts[m.PStrsID-1].Text
+        m.PStr = getPromptText(m.Cfg.Prompts, m.PStrsID)
 				m.PSlice = strings.Split(m.PStr, " ")
 				m.PUnderlines = UNDERLINE_CHAR
 				for range m.PStr {
@@ -207,24 +215,29 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func getNewPromptId(cfg *Config, curID int) int {
+func getNewPromptId(cfg *Config, curID int, state *State) int {
+  // Add the ID just completed to the seen set
 	cfg.SeenIDs[curID] = 1
 
-	if len(cfg.SeenIDs)-1 >= len(cfg.Prompts) {
-		return -2
+
+  // Exit game case
+//	if len(cfg.SeenIDs)-1 >= len(cfg.Prompts) {
+//		return -2
+//	}
+  if cfg.ActivePromptsLen == state.Completions {
+    return -2
+  }
+
+	newID := rand.Intn(len(cfg.Prompts)) + 1 // 1 indexed
+
+  // Keep looping if already used newID prompt
+	_, ok := cfg.SeenIDs[newID]
+	for ok || cfg.Ptype != "any" && getPromptText(cfg.Prompts, newID) != cfg.Ptype {
+		newID = rand.Intn(len(cfg.Prompts)) + 1
+		_, ok = cfg.SeenIDs[newID]
 	}
 
-	newIdx := rand.Intn(len(cfg.Prompts)) + 1 // 1 indexed
-	_, ok := cfg.SeenIDs[newIdx]
-
-	for ok {
-		newIdx = rand.Intn(len(cfg.Prompts)) + 1
-		_, ok = cfg.SeenIDs[newIdx]
-	}
-
-	// For now just increment by one
-
-	return newIdx
+	return newID
 }
 
 // Removes ANSI colors from a string
@@ -240,6 +253,23 @@ func updateUnderlines(newI, old int, s string) string {
 	s = s[:old] + " " + s[old+1:]
 	s = s[:newI] + UNDERLINE_CHAR + s[newI+1:]
 	return s
+}
+
+func setActivePromptsLen(pType string, prompts []Prompt) int {
+  var res int
+
+  if pType == "any" {
+    return len(prompts)
+  }
+
+
+  for _, prompt := range(prompts) {
+    if prompt.Type == pType {
+      res++
+    }
+  }
+
+  return res
 }
 
 // View renders the UI
@@ -264,16 +294,65 @@ func (m Model) View() string {
 }
 
 func Run(libraryPath string) {
+  var gameMode string
+  err := huh.NewSelect[string]().
+    Title("Select a mode").
+    Options(
+    huh.NewOption("classic (generic prompts for typing speed)", "classic"),
+    huh.NewOption("coding (common coding motifs from different languages)", "coding"),
+    huh.NewOption("any", "any"),
+    ).Value(&gameMode).Run()
+
+  if err != nil {
+    fmt.Println("Error: failed to run selected game mode")
+    panic(err)
+  }
+  
+  // Prompt type (generic, c++, Python etc...)
+  var pType string
+
+  switch gameMode {
+  case "classic":
+    pType = "generic"
+
+  case "coding":
+    err := huh.NewSelect[string]().
+      Title("Select a coding language").
+      Options(
+      huh.NewOption("c++", "c++"),
+      huh.NewOption("golang", "golang"),
+      huh.NewOption("python", "python"),
+      huh.NewOption("java", "java"),
+      ).Value(&pType).Run()
+    if err != nil {
+      fmt.Println("Error: failed to run selected game mode")
+      panic(err)
+    }
+
+  case "any":
+    pType = "any"
+
+  default:
+    panic("The game mode " + gameMode + " is not currently supported")
+  }
+
 	// Parse 'library.yaml' for a list of prompts
 	cfg, err := parseYAML(libraryPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	cfg.SeenIDs = make(map[int]int)
 
-	//PStr := "In Golang, string replacement is primarily handled by functions within the strings package. The two main functions for this purpose are"
-	pStrsID := getNewPromptId(cfg, -1)
-	pStr := cfg.Prompts[pStrsID-1].Text
+  cfg.Ptype = pType
+  cfg.ActivePromptsLen = setActivePromptsLen(pType, cfg.Prompts)
+
+  state := State{
+    SeenIdxSet: make(map[int]int),
+    Hits: 1,
+  }
+
+	cfg.SeenIDs = make(map[int]int)
+	pStrsID := getNewPromptId(cfg, -1, &state)
+  pStr := getPromptText(cfg.Prompts, pStrsID)
 	pSlice := strings.Split(pStr, " ")
 	pUnderlines := UNDERLINE_CHAR
 	for range pStr {
@@ -286,10 +365,7 @@ func Run(libraryPath string) {
 		PStr:        pStr,
 		PSlice:      pSlice,
 		PUnderlines: pUnderlines,
-		State: State{
-			SeenIdxSet: make(map[int]int),
-			Hits:       1,
-		},
+		State: &state,
 	})
 
 	if _, err := p.Run(); err != nil {

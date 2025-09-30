@@ -9,12 +9,21 @@ type Config struct {
 	Prompts        []Prompt `yaml:"prompts"`
 	ActivePromptID int
 	SeenIDs        map[int]int
+  
+  // how many prompts are active for the specific
+  // type requested. Used for determining when game should
+  // end if all prompts are used
+  ActivePromptsLen int
+
+
+  Ptype string
 }
 
 type Prompt struct {
 	ID         int    `yaml:"id"`
 	Text       string `yaml:"text"`
 	Difficulty string `yaml:"difficulty"`
+  Type       string `yaml:"type"`
 }
 
 func parseYAML(filePath string) (*Config, error) {

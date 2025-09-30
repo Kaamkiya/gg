@@ -1,152 +1,351 @@
 prompts:
+  # ------------------- Generic (25) -------------------
   - id: 1
-    text: "The quick brown fox jumps over the lazy dog."
+    text: "Practice makes progress, not perfection."
     difficulty: easy
+    Type: Generic
   - id: 2
-    text: "Concurrency is not parallelism."
-    difficulty: medium
+    text: "The stars shine brightest in the darkest night."
+    difficulty: easy
+    Type: Generic
   - id: 3
-    text: "Channels orchestrate; mutexes serialize."
-    difficulty: hard
+    text: "Patience is bitter, but its fruit is sweet."
+    difficulty: medium
+    Type: Generic
   - id: 4
-    text: "A stitch in time saves nine."
-    difficulty: easy
+    text: "A journey of a thousand miles begins with a single step."
+    difficulty: medium
+    Type: Generic
   - id: 5
-    text: "An apple a day keeps the doctor away."
-    difficulty: easy
+    text: "Wisdom comes not from age, but from learning."
+    difficulty: medium
+    Type: Generic
   - id: 6
-    text: "Errors are opportunities to learn."
-    difficulty: medium
+    text: "Silence is sometimes the best answer."
+    difficulty: easy
+    Type: Generic
   - id: 7
-    text: "Goroutines communicate via channels."
-    difficulty: hard
+    text: "Knowledge without action is meaningless."
+    difficulty: medium
+    Type: Generic
   - id: 8
-    text: "Practice makes perfect."
-    difficulty: easy
+    text: "Hard work beats talent when talent doesn’t work hard."
+    difficulty: hard
+    Type: Generic
   - id: 9
-    text: "Reading improves comprehension and focus."
+    text: "The early bird catches the worm, but the second mouse gets the cheese."
     difficulty: medium
+    Type: Generic
   - id: 10
-    text: "Mutex deadlocks can stall an entire program."
+    text: "Do not go where the path may lead, go instead where there is no path and leave a trail."
     difficulty: hard
+    Type: Generic
   - id: 11
-    text: "Early to bed and early to rise."
-    difficulty: easy
+    text: "Happiness is not something ready made; it comes from your own actions."
+    difficulty: medium
+    Type: Generic
   - id: 12
-    text: "Optimizing algorithms reduces time complexity."
+    text: "Courage is grace under pressure."
     difficulty: medium
+    Type: Generic
   - id: 13
-    text: "Select statements simplify concurrent waits."
+    text: "The best way to predict the future is to create it."
     difficulty: hard
+    Type: Generic
   - id: 14
-    text: "Honesty is the best policy."
-    difficulty: easy
+    text: "Small deeds done are better than great deeds planned."
+    difficulty: medium
+    Type: Generic
   - id: 15
-    text: "Unit tests prevent regression bugs."
-    difficulty: medium
+    text: "You cannot step into the same river twice."
+    difficulty: hard
+    Type: Generic
   - id: 16
-    text: "Lock-free data structures require careful design."
-    difficulty: hard
+    text: "Dreams don’t work unless you do."
+    difficulty: easy
+    Type: Generic
   - id: 17
-    text: "Birds of a feather flock together."
-    difficulty: easy
+    text: "Great minds discuss ideas; average minds discuss events; small minds discuss people."
+    difficulty: hard
+    Type: Generic
   - id: 18
-    text: "Profiling code reveals performance bottlenecks."
+    text: "Opportunities don’t happen, you create them."
     difficulty: medium
+    Type: Generic
   - id: 19
-    text: "Race conditions are subtle and dangerous."
-    difficulty: hard
+    text: "Fall seven times and stand up eight."
+    difficulty: easy
+    Type: Generic
   - id: 20
-    text: "Time flies when you're having fun."
-    difficulty: easy
+    text: "Do not let making a living prevent you from making a life."
+    difficulty: medium
+    Type: Generic
   - id: 21
-    text: "Memory leaks accumulate silently over time."
-    difficulty: medium
+    text: "A diamond is a piece of coal that did well under pressure."
+    difficulty: hard
+    Type: Generic
   - id: 22
-    text: "Immutable data structures reduce side effects."
+    text: "What you get by achieving your goals is not as important as what you become by achieving your goals."
     difficulty: hard
+    Type: Generic
   - id: 23
-    text: "Actions speak louder than words."
+    text: "Change is the only constant in life."
     difficulty: easy
+    Type: Generic
   - id: 24
-    text: "Lazy evaluation can improve efficiency."
+    text: "Success is stumbling from failure to failure with no loss of enthusiasm."
     difficulty: medium
+    Type: Generic
   - id: 25
-    text: "Deadlocks occur when resources are circularly held."
-    difficulty: hard
+    text: "The mind is everything; what you think you become."
+    difficulty: medium
+    Type: Generic
+
+  # ------------------- Golang (15) -------------------
   - id: 26
-    text: "Look before you leap."
+    text: "for i := 0; i < 10; i++ { fmt.Println(i) }"
     difficulty: easy
+    Type: Golang
   - id: 27
-    text: "Understanding big-O notation is essential for optimization."
-    difficulty: medium
+    text: "if err != nil { log.Fatal(err) }"
+    difficulty: easy
+    Type: Golang
   - id: 28
-    text: "Event loops handle asynchronous I/O gracefully."
-    difficulty: hard
+    text: "numbers := []int{1,2,3,4,5}"
+    difficulty: easy
+    Type: Golang
   - id: 29
-    text: "Better late than never."
-    difficulty: easy
+    text: "m := map[string]int{\"a\":1,\"b\":2}"
+    difficulty: medium
+    Type: Golang
   - id: 30
-    text: "Refactoring code improves maintainability."
+    text: "go func(){ ch <- 42 }()"
     difficulty: medium
+    Type: Golang
   - id: 31
-    text: "Persistent storage must be synchronized with caches."
+    text: "select { case v := <-ch: fmt.Println(v) default: fmt.Println(\"none\") }"
     difficulty: hard
+    Type: Golang
   - id: 32
-    text: "All that glitters is not gold."
-    difficulty: easy
+    text: "type Person struct { Name string Age int }"
+    difficulty: medium
+    Type: Golang
   - id: 33
-    text: "Dead code increases technical debt."
-    difficulty: medium
+    text: "func add(a int,b int) int { return a+b }"
+    difficulty: easy
+    Type: Golang
   - id: 34
-    text: "Atomic operations prevent inconsistent state."
-    difficulty: hard
+    text: "defer file.Close()"
+    difficulty: easy
+    Type: Golang
   - id: 35
-    text: "Slow and steady wins the race."
-    difficulty: easy
+    text: "json.NewEncoder(w).Encode(data)"
+    difficulty: medium
+    Type: Golang
   - id: 36
-    text: "Profiling helps identify hot spots."
-    difficulty: medium
+    text: "mutex.Lock(); counter++; mutex.Unlock()"
+    difficulty: hard
+    Type: Golang
   - id: 37
-    text: "Sharding databases can improve throughput."
+    text: "ctx,cancel := context.WithTimeout(context.Background(),time.Second)"
     difficulty: hard
+    Type: Golang
   - id: 38
-    text: "The pen is mightier than the sword."
-    difficulty: easy
+    text: "http.HandleFunc(\"/\", func(w http.ResponseWriter,r *http.Request){ fmt.Fprint(w,\"hi\") })"
+    difficulty: hard
+    Type: Golang
   - id: 39
-    text: "Garbage collection frees memory automatically."
+    text: "f,err := os.Open(\"file.txt\")"
     difficulty: medium
+    Type: Golang
   - id: 40
-    text: "Non-blocking I/O prevents thread starvation."
-    difficulty: hard
+    text: "strings.Join([]string{\"go\",\"lang\"},\"-\")"
+    difficulty: medium
+    Type: Golang
+
+  # ------------------- Python (15) -------------------
   - id: 41
-    text: "Curiosity killed the cat."
+    text: "for i in range(10): print(i)"
     difficulty: easy
+    Type: Python
   - id: 42
-    text: "Immutable strings are safer for concurrent access."
-    difficulty: medium
+    text: "if x is None: raise ValueError(\"x cannot be None\")"
+    difficulty: easy
+    Type: Python
   - id: 43
-    text: "Lock contention can degrade performance severely."
-    difficulty: hard
+    text: "nums = [1,2,3,4,5]"
+    difficulty: easy
+    Type: Python
   - id: 44
-    text: "Time is money."
-    difficulty: easy
+    text: "squares = [x*x for x in range(10)]"
+    difficulty: medium
+    Type: Python
   - id: 45
-    text: "Benchmarking code shows realistic performance."
+    text: "with open(\"file.txt\") as f: data = f.read()"
     difficulty: medium
+    Type: Python
   - id: 46
-    text: "Concurrent pipelines can maximize CPU utilization."
-    difficulty: hard
+    text: "import json; json.dumps({\"a\":1,\"b\":2})"
+    difficulty: medium
+    Type: Python
   - id: 47
-    text: "A watched pot never boils."
-    difficulty: easy
+    text: "try: risky() except Exception as e: print(e)"
+    difficulty: medium
+    Type: Python
   - id: 48
-    text: "Understanding references prevents subtle bugs."
-    difficulty: medium
+    text: "def add(a,b): return a+b"
+    difficulty: easy
+    Type: Python
   - id: 49
-    text: "Non-deterministic behavior complicates testing."
+    text: "class Person: def __init__(self,name,age): self.name=name; self.age=age"
     difficulty: hard
+    Type: Python
   - id: 50
-    text: "Actions have consequences, plan accordingly."
+    text: "lambda x: x*2"
+    difficulty: easy
+    Type: Python
+  - id: 51
+    text: "dict(zip(keys,values))"
     difficulty: medium
+    Type: Python
+  - id: 52
+    text: "from collections import Counter; Counter(words)"
+    difficulty: medium
+    Type: Python
+  - id: 53
+    text: "async def main(): await do_task()"
+    difficulty: hard
+    Type: Python
+  - id: 54
+    text: "import asyncio; asyncio.run(main())"
+    difficulty: hard
+    Type: Python
+  - id: 55
+    text: "sorted(data,key=lambda x: x[1])"
+    difficulty: hard
+    Type: Python
+
+  # ------------------- Java (15) -------------------
+  - id: 56
+    text: "for(int i=0;i<10;i++){System.out.println(i);}"
+    difficulty: easy
+    Type: Java
+  - id: 57
+    text: "if(str==null){throw new IllegalArgumentException();}"
+    difficulty: easy
+    Type: Java
+  - id: 58
+    text: "int[] arr = {1,2,3,4,5};"
+    difficulty: easy
+    Type: Java
+  - id: 59
+    text: "List<String> list = Arrays.asList(\"a\",\"b\");"
+    difficulty: medium
+    Type: Java
+  - id: 60
+    text: "Map<String,Integer> map = new HashMap<>();"
+    difficulty: medium
+    Type: Java
+  - id: 61
+    text: "try{ risky(); }catch(Exception e){ e.printStackTrace(); }"
+    difficulty: medium
+    Type: Java
+  - id: 62
+    text: "class Person{ String name; int age; Person(String n,int a){ name=n; age=a; }}"
+    difficulty: hard
+    Type: Java
+  - id: 63
+    text: "public static int add(int a,int b){ return a+b; }"
+    difficulty: easy
+    Type: Java
+  - id: 64
+    text: "File f = new File(\"file.txt\");"
+    difficulty: medium
+    Type: Java
+  - id: 65
+    text: "Optional<String> opt = Optional.of(\"hi\");"
+    difficulty: medium
+    Type: Java
+  - id: 66
+    text: "Stream.of(1,2,3).map(x->x*2).forEach(System.out::println);"
+    difficulty: hard
+    Type: Java
+  - id: 67
+    text: "synchronized(lock){ counter++; }"
+    difficulty: hard
+    Type: Java
+  - id: 68
+    text: "CompletableFuture.runAsync(()->task());"
+    difficulty: hard
+    Type: Java
+  - id: 69
+    text: "System.out.println(String.join(\"-\",list));"
+    difficulty: medium
+    Type: Java
+  - id: 70
+    text: "Integer.parseInt(\"123\");"
+    difficulty: easy
+    Type: Java
+
+  # ------------------- C++ (15) -------------------
+  - id: 71
+    text: "for(int i=0;i<10;i++){std::cout<<i<<std::endl;}"
+    difficulty: easy
+    Type: C++
+  - id: 72
+    text: "if(ptr==nullptr){throw std::runtime_error(\"null\");}"
+    difficulty: easy
+    Type: C++
+  - id: 73
+    text: "std::vector<int> v = {1,2,3,4,5};"
+    difficulty: easy
+    Type: C++
+  - id: 74
+    text: "std::map<std::string,int> m = {{\"a\",1},{\"b\",2}};"
+    difficulty: medium
+    Type: C++
+  - id: 75
+    text: "try{ risky(); }catch(const std::exception& e){ std::cerr<<e.what(); }"
+    difficulty: medium
+    Type: C++
+  - id: 76
+    text: "class Person{ public: std::string name; int age; Person(std::string n,int a):name(n),age(a){} };"
+    difficulty: hard
+    Type: C++
+  - id: 77
+    text: "int add(int a,int b){ return a+b; }"
+    difficulty: easy
+    Type: C++
+  - id: 78
+    text: "std::unique_ptr<int> p = std::make_unique<int>(5);"
+    difficulty: medium
+    Type: C++
+  - id: 79
+    text: "auto it = std::find(v.begin(),v.end(),3);"
+    difficulty: medium
+    Type: C++
+  - id: 80
+    text: "std::sort(v.begin(),v.end(),[](int a,int b){ return a<b; });"
+    difficulty: hard
+    Type: C++
+  - id: 81
+    text: "std::thread t([](){ std::cout<<\"hi\"; }); t.join();"
+    difficulty: hard
+    Type: C++
+  - id: 82
+    text: "std::lock_guard<std::mutex> guard(mtx); counter++;"
+    difficulty: hard
+    Type: C++
+  - id: 83
+    text: "std::string s = std::to_string(42);"
+    difficulty: easy
+    Type: C++
+  - id: 84
+    text: "for(auto& x:v){ x*=2; }"
+    difficulty: medium
+    Type: C++
+  - id: 85
+    text: "std::chrono::milliseconds ms(1000);"
+    difficulty: medium
+    Type: C++
 
