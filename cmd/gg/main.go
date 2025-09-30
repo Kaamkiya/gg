@@ -74,8 +74,7 @@ func main() {
 	case "tetris":
 		tetris.Run()
 	case "typespeed":
-		libraryPath := "../../internal/app/typespeed/library.yaml"
-		typespeed.Run(libraryPath)
+		typespeed.Run()
 
 	default:
 		panic("This game either doesn't exist or hasn't been implemented.")

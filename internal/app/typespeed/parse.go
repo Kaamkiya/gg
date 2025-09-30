@@ -2,8 +2,11 @@ package typespeed
 
 import (
 	"gopkg.in/yaml.v3"
-	"os"
+	_"embed"
 )
+
+//go:embed library.yaml
+var libraryYaml string
 
 type Config struct {
 	Prompts        []Prompt `yaml:"prompts"`
@@ -29,20 +32,10 @@ type Prompt struct {
 	Type       string `yaml:"type"`
 }
 
-func parseYAML(filePath string) (*Config, error) {
-	path := "library.yaml"
-	if filePath != "" {
-		path = filePath
-	}
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
+func parseYAML() (*Config, error) {
 	var cfg Config
 
-	if err = yaml.Unmarshal(data, &cfg); err != nil {
+	if err := yaml.Unmarshal([]byte(libraryYaml), &cfg); err != nil {
 		return nil, err
 	}
 

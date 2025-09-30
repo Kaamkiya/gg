@@ -298,7 +298,7 @@ func (m Model) View() string {
 	)
 }
 
-func Run(libraryPath string) {
+func Run() {
 	var gameMode string
 	err := huh.NewSelect[string]().
 		Title("Select a mode").
@@ -358,7 +358,7 @@ func Run(libraryPath string) {
 	}
 
 	// Parse 'library.yaml' for a list of prompts
-	cfg, err := parseYAML(libraryPath)
+	cfg, err := parseYAML()
 	if err != nil {
 		log.Fatal(err)
 	}
