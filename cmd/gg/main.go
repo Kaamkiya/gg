@@ -14,6 +14,7 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/tictactoe"
 	"github.com/Kaamkiya/gg/internal/app/twenty48"
 	"github.com/Kaamkiya/gg/internal/app/blackjack"
+	"github.com/Kaamkiya/gg/internal/app/typespeed"
 
 	"github.com/charmbracelet/huh"
 )
@@ -26,6 +27,7 @@ func main() {
 	err := huh.NewSelect[string]().
 		Title("choose a game:").
 		Options(
+			huh.NewOption("typespeed", "typespeed"),
 			huh.NewOption("blackjack", "blackjack"),
 			huh.NewOption("2048", "twenty48"),
 			huh.NewOption("sudoku", "sudoku"),
@@ -71,6 +73,10 @@ func main() {
 		sudoku.Run()
 	case "tetris":
 		tetris.Run()
+	case "typespeed":
+		libraryPath := "../../internal/app/typespeed/library.yaml"
+		typespeed.Run(libraryPath)
+
 	default:
 		panic("This game either doesn't exist or hasn't been implemented.")
 	}

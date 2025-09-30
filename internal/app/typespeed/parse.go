@@ -1,4 +1,4 @@
-package main
+package typespeed
 
 import (
 	"gopkg.in/yaml.v3"

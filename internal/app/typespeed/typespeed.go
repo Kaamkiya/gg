@@ -1,4 +1,4 @@
-package main
+package typespeed 
 
 import (
 	"fmt"
@@ -7,9 +7,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	//"strings"
-
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -266,9 +263,9 @@ func (m Model) View() string {
 	)
 }
 
-func main() {
+func Run(libraryPath string) {
 	// Parse 'library.yaml' for a list of prompts
-	cfg, err := parseYAML("")
+	cfg, err := parseYAML(libraryPath)
 	if err != nil {
 		log.Fatal(err)
 	}
