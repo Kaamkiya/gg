@@ -13,14 +13,16 @@ import (
 )
 
 const (
-	RESET = "\033[0m"
-	//RESET = "XXXXXXX"
-	RED = "\033[31m"
-	//RED = "RRRRRRRR"
-	GREEN = "\033[32m"
-	//GREEN = "GGGGGGGG"
-	YELLOW         = "\033[33m"
-	BLUE           = "\033[34m"
+	RESET  = "\033[0m"
+	RED    = "\033[31m"
+	GREEN  = "\033[32m"
+	YELLOW = "\033[33m"
+	BLUE   = "\033[34m"
+	ORANGE = "\033[33m" // closest standard color to orange
+	TEAL   = "\033[36m" // cyan/teal
+	BROWN  = "\033[33m" // same as orange in basic ANSI
+	PURPLE = "\033[35m" // magenta/purple
+
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)
 	UNDERLINE_CHAR = "^"
@@ -54,27 +56,27 @@ type Model struct {
 	Cfg *Config
 
 	// Current string ID in play
-	PStrsID int
+	PromptStrsID int
 
-	PStr string
+	PromptStr string
 
 	// Current character the user is trying to solve for
-	// based on PStr
-	PIdx int
+	// based on PromptStr
+	PromptIdx int
 
-	PIdxLowerLimit int
+	PromptIdxLowerLimit int
 
-	PUnderlines string
+	PromptUnderlines string
 
-	PSlice []string
+	PromptSlice []string
 
 	// Current word being attempted, initially 0
 	WordIdx int
 
-	InStr string
+	InputStr string
 
 	// Length of user input string
-	InLen int
+	InputLen int
 
 	State *State
 }
@@ -93,14 +95,14 @@ func (m Model) Init() tea.Cmd {
 
 // Deletes a character from user input and updates the underline string
 func backspace(m *Model) {
-	if m.InLen > 0 {
-		m.InStr = m.InStr[:len(m.InStr)-CHAR_LEN] //CHAR_LEN]
-		m.InLen--
+	if m.InputLen > 0 {
+		m.InputStr = m.InputStr[:len(m.InputStr)-CHAR_LEN] //CHAR_LEN]
+		m.InputLen--
 
 		// Decrement underline pointer if greater than lower limit
-		if m.PIdx > m.PIdxLowerLimit {
-			m.PIdx--
-			m.PUnderlines = updateUnderlines(m.PIdx, m.PIdx+1, m.PUnderlines)
+		if m.PromptIdx > m.PromptIdxLowerLimit {
+			m.PromptIdx--
+			m.PromptUnderlines = updateUnderlines(m.PromptIdx, m.PromptIdx+1, m.PromptUnderlines)
 		}
 	}
 }
@@ -109,53 +111,54 @@ func backspace(m *Model) {
 func typeChar(m *Model, in string) {
 	lastWordIncr := 1
 	space := " "
-	if m.WordIdx == len(m.PSlice)-1 {
+	if m.WordIdx == len(m.PromptSlice)-1 {
 		lastWordIncr = 2
 		space = ""
 	}
 
-	if m.InLen < len(m.PSlice[m.WordIdx])+lastWordIncr {
+	if m.InputLen < len(m.PromptSlice[m.WordIdx])+lastWordIncr {
 		// Update underline pointer and add colors to characters for output
-		if m.PIdx < len(m.PUnderlines)-1 {
+		if m.PromptIdx < len(m.PromptUnderlines)-1 {
 
-			if in == string(m.PStr[m.PIdx]) {
-				if _, ok := m.State.SeenIdxSet[m.PIdx]; !ok && in != " " {
+			if in == string(m.PromptStr[m.PromptIdx]) {
+				if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
 					m.State.Hits++
-					m.State.SeenIdxSet[m.PIdx] = 1
+					m.State.SeenIdxSet[m.PromptIdx] = 1
 				}
 
 				in = GREEN + in + RESET
 
 			} else {
-				if _, ok := m.State.SeenIdxSet[m.PIdx]; !ok && in != " " {
+				if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
 					m.State.Errors++
-					m.State.SeenIdxSet[m.PIdx] = 1
+					m.State.SeenIdxSet[m.PromptIdx] = 1
 				}
 				in = RED + in + RESET
 			}
-			m.InLen++
+			m.InputLen++
 
-			m.PIdx++
-			m.PUnderlines = updateUnderlines(m.PIdx, m.PIdx-1, m.PUnderlines)
+			m.PromptIdx++
+			m.PromptUnderlines = updateUnderlines(m.PromptIdx, m.PromptIdx-1, m.PromptUnderlines)
 
-			m.InStr += in
+			m.InputStr += in
 		}
 	}
 
 	// User typed correctly
-	if removeColors(m.InStr[m.PIdxLowerLimit:]) == (m.PSlice[m.WordIdx] + space) {
+	if removeColors(m.InputStr[m.PromptIdxLowerLimit:]) == (m.PromptSlice[m.WordIdx] + space) {
 		m.WordIdx++
-		m.PIdxLowerLimit = m.PIdx
-		m.InStr = ""
-		for range m.PIdxLowerLimit {
-			m.InStr += " "
+		m.PromptIdxLowerLimit = m.PromptIdx
+		m.InputStr = ""
+		for range m.PromptIdxLowerLimit {
+			m.InputStr += " "
 		}
-		m.InLen = 0
+		m.InputLen = 0
 	}
 }
 
-func getPromptText(prompts []Prompt, promptID int) string {
-  return prompts[promptID-1].Text
+// Takes an ID and returns Prompt struct
+func getPrompt(prompts []Prompt, promptID int) Prompt {
+	return prompts[promptID-1]
 
 }
 
@@ -170,41 +173,41 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			// Quit on q or ctrl+c
 			return m, tea.Quit
-		case "enter", "ctrl+w", "tab", "ctrl+tab":
+		case "enter", "ctrl+w", "ctrl+h", "ctrl+backspace", "tab", "ctrl+tab":
 
 		case "backspace":
 			backspace(&m)
-
 		default:
-			typeChar(&m, in)
+			if isValidChar(in) {
+				typeChar(&m, in)
+				// Exit if finished
+				if m.WordIdx > len(m.PromptSlice)-1 {
+					m.State.Completions++
 
-			// Exit if finished
-			if m.WordIdx > len(m.PSlice)-1 {
-				// Select next prompt
-				m.PStrsID = getNewPromptId(m.Cfg, m.PStrsID, m.State)
+					// Select next prompt
+					m.PromptStrsID = getNewPromptId(m.Cfg, m.PromptStrsID, m.State)
+					// Exit the game
+					if m.PromptStrsID == -2 {
+						fmt.Println("Finished!")
+						return m, tea.Quit
+					}
 
-        // Exit the game
-				if m.PStrsID == -2 {
-					fmt.Println("Finished!")
-					return m, tea.Quit
+					// Reinitialize variables
+					m.PromptStr = getPrompt(m.Cfg.Prompts, m.PromptStrsID).Text
+					m.PromptSlice = strings.Split(m.PromptStr, " ")
+					m.PromptUnderlines = UNDERLINE_CHAR
+					for range m.PromptStr {
+						m.PromptUnderlines += " "
+					}
+					m.InputStr = ""
+					m.PromptIdx = 0
+					m.PromptIdxLowerLimit = 0
+					m.WordIdx = 0
+					m.InputLen = 0
+
+					// Wipe the seen set
+					m.State.SeenIdxSet = make(map[int]int)
 				}
-
-				// Reinitialize variables
-        m.PStr = getPromptText(m.Cfg.Prompts, m.PStrsID)
-				m.PSlice = strings.Split(m.PStr, " ")
-				m.PUnderlines = UNDERLINE_CHAR
-				for range m.PStr {
-					m.PUnderlines += " "
-				}
-				m.State.Completions++
-				m.InStr = ""
-				m.PIdx = 0
-				m.PIdxLowerLimit = 0
-				m.WordIdx = 0
-				m.InLen = 0
-
-				// Wipe the seen set
-				m.State.SeenIdxSet = make(map[int]int)
 			}
 		}
 	case TickMsg:
@@ -215,24 +218,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func isValidChar(in string) bool {
+	r := rune(in[0])
+	return len(in) == 1 && r >= 32 && r <= 126
+}
+
 func getNewPromptId(cfg *Config, curID int, state *State) int {
-  // Add the ID just completed to the seen set
+	// Add the ID just completed to the seen set
 	cfg.SeenIDs[curID] = 1
 
-
-  // Exit game case
-//	if len(cfg.SeenIDs)-1 >= len(cfg.Prompts) {
-//		return -2
-//	}
-  if cfg.ActivePromptsLen == state.Completions {
-    return -2
-  }
+	// Exit game case
+	if cfg.ActivePromptsLen == state.Completions {
+		return -2
+	}
 
 	newID := rand.Intn(len(cfg.Prompts)) + 1 // 1 indexed
 
-  // Keep looping if already used newID prompt
+	// Keep looping if already used newID prompt
 	_, ok := cfg.SeenIDs[newID]
-	for ok || cfg.Ptype != "any" && getPromptText(cfg.Prompts, newID) != cfg.Ptype {
+	for ok || cfg.PromptType != "any" && getPrompt(cfg.Prompts, newID).Type != cfg.PromptType {
 		newID = rand.Intn(len(cfg.Prompts)) + 1
 		_, ok = cfg.SeenIDs[newID]
 	}
@@ -255,31 +259,30 @@ func updateUnderlines(newI, old int, s string) string {
 	return s
 }
 
-func setActivePromptsLen(pType string, prompts []Prompt) int {
-  var res int
+func getActivePromptsLen(pType string, prompts []Prompt) int {
+	var res int
 
-  if pType == "any" {
-    return len(prompts)
-  }
+	if pType == "any" {
+		return len(prompts)
+	}
 
+	for _, prompt := range prompts {
+		if prompt.Type == pType {
+			res++
+		}
+	}
 
-  for _, prompt := range(prompts) {
-    if prompt.Type == pType {
-      res++
-    }
-  }
-
-  return res
+	return res
 }
 
 // View renders the UI
 func (m Model) View() string {
 
-	PStr := m.PStr
+	PromptStr := m.PromptStr
 
 	// Updates the '|' cursor line to the prompt string
-	if m.PIdx+1 < len(m.PStr)+1 {
-		PStr = m.PStr[:m.PIdx] + "|" + string(m.PStr[m.PIdx]) + m.PStr[m.PIdx+1:]
+	if m.PromptIdx+1 < len(m.PromptStr)+1 {
+		PromptStr = m.PromptStr[:m.PromptIdx] + "|" + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
 	}
 
 	m.State.Accuracy = 0
@@ -288,53 +291,71 @@ func (m Model) View() string {
 		m.State.Accuracy = (1.0 - (float32(m.State.Errors) / float32(m.State.Hits))) * 100
 	}
 
+	pType := m.Cfg.PromptTypeColor + "--------- " + m.Cfg.PromptType + " ---------" + RESET
+
 	return fmt.Sprintf(
-		"%s\n%s\n%s\nCompletions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\n\n", PStr, m.PUnderlines, m.InStr, m.State.Completions, m.State.Time, m.State.Accuracy,
+		"%s\n%s\n%s\n%s\nCompletions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.Completions, m.State.Time, m.State.Accuracy,
 	)
 }
 
 func Run(libraryPath string) {
-  var gameMode string
-  err := huh.NewSelect[string]().
-    Title("Select a mode").
-    Options(
-    huh.NewOption("classic (generic prompts for typing speed)", "classic"),
-    huh.NewOption("coding (common coding motifs from different languages)", "coding"),
-    huh.NewOption("any", "any"),
-    ).Value(&gameMode).Run()
+	var gameMode string
+	err := huh.NewSelect[string]().
+		Title("Select a mode").
+		Options(
+			huh.NewOption("standard (standard prompts for typing speed)", "standard"),
+			huh.NewOption("coding (common coding motifs from different languages)", "coding"),
+			huh.NewOption("any", "any"),
+		).Value(&gameMode).Run()
 
-  if err != nil {
-    fmt.Println("Error: failed to run selected game mode")
-    panic(err)
-  }
-  
-  // Prompt type (generic, c++, Python etc...)
-  var pType string
+	if err != nil {
+		fmt.Println("Error: failed to run selected game mode")
+		panic(err)
+	}
 
-  switch gameMode {
-  case "classic":
-    pType = "generic"
+	// Prompt type (standard, c++, Python etc...)
+	var pType string
+	var pTypeColor string
 
-  case "coding":
-    err := huh.NewSelect[string]().
-      Title("Select a coding language").
-      Options(
-      huh.NewOption("c++", "c++"),
-      huh.NewOption("golang", "golang"),
-      huh.NewOption("python", "python"),
-      huh.NewOption("java", "java"),
-      ).Value(&pType).Run()
-    if err != nil {
-      fmt.Println("Error: failed to run selected game mode")
-      panic(err)
-    }
+	switch gameMode {
+	case "standard":
+		pType = "standard"
 
-  case "any":
-    pType = "any"
+	case "coding":
+		err := huh.NewSelect[string]().
+			Title("Select a coding language").
+			Options(
+				huh.NewOption("c++", "c++"),
+				huh.NewOption("golang", "golang"),
+				huh.NewOption("python", "python"),
+				huh.NewOption("java", "java"),
+			).Value(&pType).Run()
+		if err != nil {
+			fmt.Println("Error: failed to run selected game mode")
+			panic(err)
+		}
 
-  default:
-    panic("The game mode " + gameMode + " is not currently supported")
-  }
+	case "any":
+		pType = "any"
+
+	default:
+		panic("The game mode " + gameMode + " is not currently supported")
+	}
+
+	switch pType {
+	case "c++":
+		pTypeColor = BLUE
+	case "python":
+		pTypeColor = ORANGE
+	case "golang":
+		pTypeColor = TEAL
+	case "rust":
+		pTypeColor = BROWN
+	case "java":
+		pTypeColor = YELLOW
+	case "any", "standard":
+		pTypeColor = YELLOW
+	}
 
 	// Parse 'library.yaml' for a list of prompts
 	cfg, err := parseYAML(libraryPath)
@@ -342,17 +363,18 @@ func Run(libraryPath string) {
 		log.Fatal(err)
 	}
 
-  cfg.Ptype = pType
-  cfg.ActivePromptsLen = setActivePromptsLen(pType, cfg.Prompts)
+	cfg.PromptType = pType
+	cfg.PromptTypeColor = pTypeColor
+	cfg.ActivePromptsLen = getActivePromptsLen(pType, cfg.Prompts)
 
-  state := State{
-    SeenIdxSet: make(map[int]int),
-    Hits: 1,
-  }
+	state := State{
+		SeenIdxSet: make(map[int]int),
+		Hits:       1,
+	}
 
 	cfg.SeenIDs = make(map[int]int)
 	pStrsID := getNewPromptId(cfg, -1, &state)
-  pStr := getPromptText(cfg.Prompts, pStrsID)
+	pStr := getPrompt(cfg.Prompts, pStrsID).Text
 	pSlice := strings.Split(pStr, " ")
 	pUnderlines := UNDERLINE_CHAR
 	for range pStr {
@@ -361,11 +383,11 @@ func Run(libraryPath string) {
 
 	p := tea.NewProgram(Model{
 		Cfg:         cfg,
-		PStrsID:     pStrsID,
-		PStr:        pStr,
-		PSlice:      pSlice,
-		PUnderlines: pUnderlines,
-		State: &state,
+		PromptStrsID:     pStrsID,
+		PromptStr:        pStr,
+		PromptSlice:      pSlice,
+		PromptUnderlines: pUnderlines,
+		State:       &state,
 	})
 
 	if _, err := p.Run(); err != nil {
