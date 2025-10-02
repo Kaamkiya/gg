@@ -20,7 +20,7 @@ const (
 )
 
 type card struct {
-	rank   int  // 1..13 => A..K
+	rank   int // 1..13 => A..K
 	suit   suit
 	faceUp bool
 }
@@ -356,7 +356,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.selected = source{kind: srcNone}
 			m.message = "cleared selection"
 		case "1", "2", "3", "4", "5", "6", "7":
-			idx := int(key[0]-'1')
+			idx := int(key[0] - '1')
 			if m.selected.kind == srcNone {
 				m.selected = source{kind: srcTableau, idx: idx}
 				m.message = fmt.Sprintf("selected: T%d", idx+1)
@@ -444,7 +444,12 @@ func (m model) View() string {
 		for col := 0; col < 7; col++ {
 			pile := m.tableau[col]
 			if row < len(pile) {
-				b.WriteString("[" + pile[row].String(m.redStyle, m.blackStyle) + "]")
+				cardStr := pile[row].String(m.redStyle, m.blackStyle)
+				// Pad the card string to ensure consistent width (2 characters)
+				if len(cardStr) < 2 {
+					cardStr = cardStr + " "
+				}
+				b.WriteString("[" + cardStr + "]")
 			} else {
 				b.WriteString("[  ]")
 			}
