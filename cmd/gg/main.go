@@ -14,6 +14,7 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/tictactoe"
 	"github.com/Kaamkiya/gg/internal/app/twenty48"
 	"github.com/Kaamkiya/gg/internal/app/blackjack"
+	"github.com/Kaamkiya/gg/internal/app/solitaire"
 
 	"github.com/charmbracelet/huh"
 )
@@ -27,6 +28,7 @@ func main() {
 		Title("choose a game:").
 		Options(
 			huh.NewOption("blackjack", "blackjack"),
+			huh.NewOption("solitaire", "solitaire"),
 			huh.NewOption("2048", "twenty48"),
 			huh.NewOption("sudoku", "sudoku"),
 			huh.NewOption("dodger", "dodger"),
@@ -49,6 +51,8 @@ func main() {
 	switch game {
 	case "blackjack":
 		blackjack.Run()
+	case "solitaire":
+		solitaire.Run()
 	case "maze":
 		maze.Run()
 	case "pong":
