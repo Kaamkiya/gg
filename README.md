@@ -81,12 +81,12 @@ To contribute:
 
 ## Roadmap
 
-* [ ] Blackjack
+* [✅] Blackjack
 * [ ] A simple platforming game
 * [ ] Space invaders (minimal, the invaders don't have to actually look like
   invaders)
 * [ ] Simon
-* [ ] Solitaire
+* [✅] Solitaire
 * [ ] Tron
 * [ ] Typespeed
 
