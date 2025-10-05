@@ -109,45 +109,45 @@ func backspace(m *Model) {
 
 // Types a character from the user input, and updates the underline string
 func typeChar(m *Model, in string) {
-	lastWordIncr := 1
-	space := " "
-	if m.WordIdx == len(m.PromptSlice)-1 {
-		lastWordIncr = 2
-		space = ""
-	}
+//	lastWordIncr := 1
+//	space := " "
+//	if m.WordIdx == len(m.PromptSlice)-1 {
+//		lastWordIncr = 2
+//		space = ""
+//	}
 
-	if m.InputLen < len(m.PromptSlice[m.WordIdx])+lastWordIncr {
-		// Update underline pointer and add colors to characters for output
-		if m.PromptIdx < len(m.PromptUnderlines)-1 {
+	//if m.InputLen < len(m.PromptSlice[m.WordIdx])+lastWordIncr {
+	// Update underline pointer and add colors to characters for output
+	if m.PromptIdx < len(m.PromptStr) {
 
-			if in == string(m.PromptStr[m.PromptIdx]) {
-				if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
-					m.State.Hits++
-					m.State.SeenIdxSet[m.PromptIdx] = 1
-				}
-
-				in = GREEN + in + RESET
-
-			} else {
-				if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
-					m.State.Errors++
-					m.State.SeenIdxSet[m.PromptIdx] = 1
-				}
-				in = RED + in + RESET
+		if in == string(m.PromptStr[m.PromptIdx]) {
+			if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
+				m.State.Hits++
+				m.State.SeenIdxSet[m.PromptIdx] = 1
 			}
-			m.InputLen++
 
-			m.PromptIdx++
-			m.PromptUnderlines = updateUnderlines(m.PromptIdx, m.PromptIdx-1, m.PromptUnderlines)
+			in = GREEN + in + RESET
 
-			m.InputStr += in
+		} else {
+			if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
+				m.State.Errors++
+				m.State.SeenIdxSet[m.PromptIdx] = 1
+			}
+			in = RED + in + RESET
 		}
+		m.InputLen++
+
+		m.PromptIdx++
+		m.PromptUnderlines = updateUnderlines(m.PromptIdx, m.PromptIdx-1, m.PromptUnderlines)
+
+		m.InputStr += in
 	}
 
 	// User typed correctly
-	if removeColors(m.InputStr[m.PromptIdxLowerLimit:]) == (m.PromptSlice[m.WordIdx] + space) {
+	inputStrPlain := removeColors(m.InputStr[m.PromptIdxLowerLimit:])
+	if len(inputStrPlain) >= len(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(removeColors(inputStrPlain)) == (m.PromptSlice[m.WordIdx]) {
 		m.WordIdx++
-		m.PromptIdxLowerLimit = m.PromptIdx
+		m.PromptIdxLowerLimit = m.PromptIdx  
 		m.InputStr = ""
 		for range m.PromptIdxLowerLimit {
 			m.InputStr += " "
