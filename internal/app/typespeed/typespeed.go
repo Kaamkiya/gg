@@ -164,6 +164,9 @@ func getPrompt(prompts []Prompt, promptID int) Prompt {
 
 // Update handles messages and updates the model
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.PromptStrsID == -2 {
+		return m, tea.Quit
+	}
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
@@ -189,7 +192,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// Exit the game
 					if m.PromptStrsID == -2 {
 						fmt.Println("Finished!")
-						return m, tea.Quit
+						return m, nil
 					}
 
 					// Reinitialize variables
@@ -293,9 +296,14 @@ func (m Model) View() string {
 
 	pType := m.Cfg.PromptTypeColor + "--------- " + m.Cfg.PromptType + " ---------" + RESET
 
-	return fmt.Sprintf(
-		"%s\n%s\n%s\n%s\nCompletions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.Completions, m.State.Time, m.State.Accuracy,
-	)
+	// -2 means game should quit
+	if m.PromptStrsID != -2 {
+		return fmt.Sprintf(
+			"%s\n%s\n%s\n%s\nCompletions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.Completions, m.State.Time, m.State.Accuracy,
+		)
+	}
+
+	return "\nFinished!\n"
 }
 
 func Run() {
