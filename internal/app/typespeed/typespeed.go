@@ -32,12 +32,22 @@ const (
 type TickMsg time.Time
 
 type State struct {
-	Completions int
+  // Number of prompts completed
+	PromptCompletions int
+
+  // Number of words completed
+  WordCompletions int
 
 	// As decimal
 	Accuracy float32
 
-	// Time elapsed
+  // Correct words typed/minute
+  WPM float32
+
+  //
+  CPM float32
+
+	// Time elapsed in seconds
 	Time int
 
 	// Number of incorrect presses
@@ -143,9 +153,10 @@ func typeChar(m *Model, in string) {
 		m.InputStr += in
 	}
 
-	// User typed correctly
+	// User typed word correctly
 	inputStrPlain := removeColors(m.InputStr[m.PromptIdxLowerLimit:])
 	if len(inputStrPlain) >= len(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(removeColors(inputStrPlain)) == (m.PromptSlice[m.WordIdx]) {
+    m.State.WordCompletions++
 		m.WordIdx++
 		m.PromptIdxLowerLimit = m.PromptIdx  
 		m.InputStr = ""
@@ -183,9 +194,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			if isValidChar(in) {
 				typeChar(&m, in)
+
 				// Exit if finished
 				if m.WordIdx > len(m.PromptSlice)-1 {
-					m.State.Completions++
+					m.State.PromptCompletions++
 
 					// Select next prompt
 					m.PromptStrsID = getNewPromptId(m.Cfg, m.PromptStrsID, m.State)
@@ -231,7 +243,7 @@ func getNewPromptId(cfg *Config, curID int, state *State) int {
 	cfg.SeenIDs[curID] = 1
 
 	// Exit game case
-	if cfg.ActivePromptsLen == state.Completions {
+	if cfg.ActivePromptsLen == state.PromptCompletions {
 		return -2
 	}
 
@@ -278,32 +290,62 @@ func getActivePromptsLen(pType string, prompts []Prompt) int {
 	return res
 }
 
-// View renders the UI
-func (m Model) View() string {
-
-	PromptStr := m.PromptStr
-
+func shiftCursor(m *Model) string {
 	// Updates the '|' cursor line to the prompt string
 	if m.PromptIdx+1 < len(m.PromptStr)+1 {
-		PromptStr = m.PromptStr[:m.PromptIdx] + "|" + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
+		return m.PromptStr[:m.PromptIdx] + "|" + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
 	}
 
-	m.State.Accuracy = 0
+  return m.PromptStr
+}
 
-	if m.State.Hits > 0 {
-		m.State.Accuracy = (1.0 - (float32(m.State.Errors) / float32(m.State.Hits))) * 100
-	}
+func updateWPM(s *State) {
+  timeInMinutes := float32(s.Time)/float32(60)
+
+  if timeInMinutes > 0 {
+    s.WPM = (float32(s.WordCompletions)/timeInMinutes)
+  } else {
+    s.WPM = float32(s.WordCompletions)
+  }
+} 
+
+func updateCPM(s *State) {
+  timeInMinutes := float32(s.Time)/float32(60)
+
+  if timeInMinutes > 0 {
+    s.CPM = (float32(s.Hits)/timeInMinutes)
+  } else {
+    s.CPM = float32(s.Hits)
+  }
+} 
+
+// View renders the UI
+func (m Model) View() string {
+  updateAccuracy(m.State)
+  updateWPM(m.State)
+  updateCPM(m.State)
+
+	PromptStr := shiftCursor(&m)
+
 
 	pType := m.Cfg.PromptTypeColor + "--------- " + m.Cfg.PromptType + " ---------" + RESET
 
-	// -2 means game should quit
+  var display string
+
+  display = fmt.Sprintf(
+    "%s\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM,)
+// -2 means game should quit
 	if m.PromptStrsID != -2 {
-		return fmt.Sprintf(
-			"%s\n%s\n%s\n%s\nCompletions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.Completions, m.State.Time, m.State.Accuracy,
-		)
+    return display
 	}
 
-	return "\nFinished!\n"
+	return display + GREEN+"\nFinished!\n"+RESET
+}
+
+func updateAccuracy(s *State) {
+	if s.Hits > 0 {
+		s.Accuracy = (1.0 - (float32(s.Errors) / float32(s.Hits))) * 100
+	}
 }
 
 func Run() {
@@ -377,7 +419,6 @@ func Run() {
 
 	state := State{
 		SeenIdxSet: make(map[int]int),
-		Hits:       1,
 	}
 
 	cfg.SeenIDs = make(map[int]int)
