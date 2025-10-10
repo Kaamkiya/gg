@@ -22,10 +22,11 @@ const (
 	TEAL   = "\033[36m" // cyan/teal
 	BROWN  = "\033[33m" // same as orange in basic ANSI
 	PURPLE = "\033[35m" // magenta/purple
+  CURSOR_CHAR = GREEN + "█" + RESET
 
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)
-	UNDERLINE_CHAR = "^"
+	UNDERLINE_CHAR = " "
 	CHAR_LEN       = len(RED) + 1 + len(RESET)
 )
 
@@ -293,7 +294,7 @@ func getActivePromptsLen(pType string, prompts []Prompt) int {
 func shiftCursor(m *Model) string {
 	// Updates the '|' cursor line to the prompt string
 	if m.PromptIdx+1 < len(m.PromptStr)+1 {
-		return m.PromptStr[:m.PromptIdx] + "|" + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
+		return m.PromptStr[:m.PromptIdx] + CURSOR_CHAR + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
 	}
 
   return m.PromptStr
@@ -326,7 +327,6 @@ func (m Model) View() string {
   updateCPM(m.State)
 
 	PromptStr := shiftCursor(&m)
-
 
 	pType := m.Cfg.PromptTypeColor + "--------- " + m.Cfg.PromptType + " ---------" + RESET
 
@@ -391,6 +391,7 @@ func Run() {
 	default:
 		panic("The game mode " + gameMode + " is not currently supported")
 	}
+
 
 	switch pType {
 	case "c++":
