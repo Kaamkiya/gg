@@ -348,4 +348,275 @@ prompts:
     text: "std::chrono::milliseconds ms(1000);"
     difficulty: medium
     type: c++
+  # ------------------- standard (10 more) -------------------
+  - id: 86
+    text: "Do what you can, with what you have, where you are."
+    difficulty: easy
+    type: standard
+  - id: 87
+    text: "It always seems impossible until it's done."
+    difficulty: medium
+    type: standard
+  - id: 88
+    text: "Act as if what you do makes a difference. It does."
+    difficulty: medium
+    type: standard
+  - id: 89
+    text: "Your limitation—it's only your imagination."
+    difficulty: easy
+    type: standard
+  - id: 90
+    text: "Great things never come from comfort zones."
+    difficulty: medium
+    type: standard
+  - id: 91
+    text: "The harder you work for something, the greater you'll feel when you achieve it."
+    difficulty: hard
+    type: standard
+  - id: 92
+    text: "Don't watch the clock; do what it does. Keep going."
+    difficulty: medium
+    type: standard
+  - id: 93
+    text: "Dream big and dare to fail."
+    difficulty: easy
+    type: standard
+  - id: 94
+    text: "Success usually comes to those who are too busy to be looking for it."
+    difficulty: hard
+    type: standard
+  - id: 95
+    text: "The secret of getting ahead is getting started."
+    difficulty: easy
+    type: standard
+
+  # ------------------- golang (10 more) -------------------
+  - id: 96
+    text: "var x int = 10"
+    difficulty: easy
+    type: golang
+  - id: 97
+    text: "ch := make(chan int)"
+    difficulty: medium
+    type: golang
+  - id: 98
+    text: "defer func(){ fmt.Println(\"done\") }()"
+    difficulty: medium
+    type: golang
+  - id: 99
+    text: "func factorial(n int) int { if n==0 {return 1} return n*factorial(n-1) }"
+    difficulty: hard
+    type: golang
+  - id: 100
+    text: "var wg sync.WaitGroup; wg.Add(1); go func(){ defer wg.Done() }(); wg.Wait()"
+    difficulty: hard
+    type: golang
+  - id: 101
+    text: "strings.Contains(\"hello\",\"he\")"
+    difficulty: easy
+    type: golang
+  - id: 102
+    text: "math.Sqrt(16)"
+    difficulty: easy
+    type: golang
+  - id: 103
+    text: "ioutil.ReadFile(\"file.txt\")"
+    difficulty: medium
+    type: golang
+  - id: 104
+    text: "type Employee struct { Name string; Salary int }"
+    difficulty: medium
+    type: golang
+  - id: 105
+    text: "panic(\"something went wrong\")"
+    difficulty: hard
+    type: golang
+
+  # ------------------- python (10 more) -------------------
+  - id: 106
+    text: "for i, val in enumerate(nums): print(i,val)"
+    difficulty: easy
+    type: python
+  - id: 107
+    text: "x = {}"
+    difficulty: easy
+    type: python
+  - id: 108
+    text: "def factorial(n): return 1 if n==0 else n*factorial(n-1)"
+    difficulty: medium
+    type: python
+  - id: 109
+    text: "import math; math.sqrt(16)"
+    difficulty: easy
+    type: python
+  - id: 110
+    text: "with open('file.txt','w') as f: f.write('hello')"
+    difficulty: medium
+    type: python
+  - id: 111
+    text: "from collections import defaultdict; d = defaultdict(int)"
+    difficulty: medium
+    type: python
+  - id: 112
+    text: "class Employee: def __init__(self,name,salary): self.name=name; self.salary=salary"
+    difficulty: hard
+    type: python
+  - id: 113
+    text: "import asyncio; await asyncio.sleep(1)"
+    difficulty: hard
+    type: python
+  - id: 114
+    text: "list(filter(lambda x:x%2==0,nums))"
+    difficulty: medium
+    type: python
+  - id: 115
+    text: "x = [i*2 for i in range(5)]"
+    difficulty: easy
+    type: python
+
+  # ------------------- java (10 more) -------------------
+  - id: 116
+    text: "int sum(int a,int b){ return a+b; }"
+    difficulty: easy
+    type: java
+  - id: 117
+    text: "List<Integer> nums = new ArrayList<>();"
+    difficulty: medium
+    type: java
+  - id: 118
+    text: "try(FileReader fr=new FileReader(\"file.txt\")){ }"
+    difficulty: medium
+    type: java
+  - id: 119
+    text: "Stream.generate(()->Math.random()).limit(5).forEach(System.out::println);"
+    difficulty: hard
+    type: java
+  - id: 120
+    text: "synchronized(this){ doSomething(); }"
+    difficulty: hard
+    type: java
+  - id: 121
+    text: "Optional<Integer> val = Optional.ofNullable(null);"
+    difficulty: medium
+    type: java
+  - id: 122
+    text: "int factorial(int n){ return n==0?1:n*factorial(n-1); }"
+    difficulty: medium
+    type: java
+  - id: 123
+    text: "CompletableFuture<Integer> cf = CompletableFuture.supplyAsync(()->42);"
+    difficulty: hard
+    type: java
+  - id: 124
+    text: "String s = String.format(\"Hello %s\", name);"
+    difficulty: easy
+    type: java
+  - id: 125
+    text: "Map<String,List<Integer>> map = new HashMap<>();"
+    difficulty: medium
+    type: java
+
+  # ------------------- c++ (10 more) -------------------
+  - id: 126
+    text: "std::vector<int> squares; for(int i=0;i<10;i++){ squares.push_back(i*i); }"
+    difficulty: medium
+    type: c++
+  - id: 127
+    text: "std::unique_ptr<int> p = std::make_unique<int>(10);"
+    difficulty: medium
+    type: c++
+  - id: 128
+    text: "std::thread t([](){ std::cout<<\"thread\"; }); t.join();"
+    difficulty: hard
+    type: c++
+  - id: 129
+    text: "std::lock_guard<std::mutex> g(mtx); counter++;"
+    difficulty: hard
+    type: c++
+  - id: 130
+    text: "int factorial(int n){ return n==0?1:n*factorial(n-1); }"
+    difficulty: medium
+    type: c++
+  - id: 131
+    text: "std::ifstream file(\"file.txt\");"
+    difficulty: easy
+    type: c++
+  - id: 132
+    text: "auto max_it = std::max_element(v.begin(),v.end());"
+    difficulty: medium
+    type: c++
+  - id: 133
+    text: "std::vector<int> nums={1,2,3,4}; std::reverse(nums.begin(),nums.end());"
+    difficulty: medium
+    type: c++
+  - id: 134
+    text: "class Employee{ public: std::string name; int salary; Employee(std::string n,int s):name(n),salary(s){} };"
+    difficulty: hard
+    type: c++
+  - id: 135
+    text: "std::chrono::seconds sec(5);"
+    difficulty: medium
+    type: c++
+
+  # ------------------- rust (15) -------------------
+  - id: 136
+    text: "let mut v = vec![1,2,3]; v.push(4);"
+    difficulty: easy
+    type: rust
+  - id: 137
+    text: "let x: Result<i32,&str> = Ok(5);"
+    difficulty: medium
+    type: rust
+  - id: 138
+    text: "fn factorial(n:u32)->u32 { if n==0 {1} else {n*factorial(n-1)} }"
+    difficulty: medium
+    type: rust
+  - id: 139
+    text: "let s = String::from(\"hello world\"); println!(\"{}\", s);"
+    difficulty: easy
+    type: rust
+  - id: 140
+    text: "use std::collections::HashSet; let mut set = HashSet::new(); set.insert(1);"
+    difficulty: medium
+    type: rust
+  - id: 141
+    text: "let handle = std::thread::spawn(|| println!(\"thread\")); handle.join().unwrap();"
+    difficulty: hard
+    type: rust
+  - id: 142
+    text: "let x = Some(42); if let Some(v) = x { println!(\"{}\", v); }"
+    difficulty: medium
+    type: rust
+  - id: 143
+    text: "let joined = [\"rust\",\"lang\"].join(\"-\");"
+    difficulty: medium
+    type: rust
+  - id: 144
+    text: "async fn run() { do_task().await; }"
+    difficulty: hard
+    type: rust
+  - id: 145
+    text: "let sorted: Vec<_> = v.iter().sorted().collect();"
+    difficulty: hard
+    type: rust
+  - id: 146
+    text: "let mut counter = 0; let mtx = std::sync::Mutex::new(&mut counter);"
+    difficulty: hard
+    type: rust
+  - id: 147
+    text: "let squared: Vec<i32> = v.iter().map(|x| x*x).collect();"
+    difficulty: medium
+    type: rust
+  - id: 148
+    text: "use std::fs; let content = fs::read_to_string(\"file.txt\").unwrap();"
+    difficulty: medium
+    type: rust
+  - id: 149
+    text: "let mut map = std::collections::HashMap::new(); map.insert(\"key\", 42);"
+    difficulty: medium
+    type: rust
+  - id: 150
+    text: "match x { Ok(v)=>println!(\"{}\",v), Err(e)=>println!(\"error\") }"
+    difficulty: medium
+    type: rust
 

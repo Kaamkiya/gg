@@ -14,15 +14,17 @@ import (
 
 const (
 	RESET  = "\033[0m"
-	RED    = "\033[31m"
-	GREEN  = "\033[32m"
-	YELLOW = "\033[33m"
-	BLUE   = "\033[34m"
-	ORANGE = "\033[33m" // closest standard color to orange
-	TEAL   = "\033[36m" // cyan/teal
-	BROWN  = "\033[33m" // same as orange in basic ANSI
-	PURPLE = "\033[35m" // magenta/purple
-  CURSOR_CHAR = GREEN + "█" + RESET
+	RED    = "\033[38;2;255;0;0m"
+	GREEN  = "\033[38;2;0;255;0m"
+	YELLOW = "\033[38;2;255;255;0m"
+	BLUE   = "\033[38;2;0;0;255m"
+	ORANGE = "\033[38;2;255;165;0m"
+	TEAL   = "\033[38;2;0;128;128m"
+	BROWN  = "\033[38;2;139;69;19m"
+	PURPLE = "\033[38;2;128;0;128m"
+
+	TERMINAL_GREEN  = "\033[32m"
+  CURSOR_CHAR = TERMINAL_GREEN + "█" + RESET
 
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)
@@ -379,6 +381,7 @@ func Run() {
 				huh.NewOption("golang", "golang"),
 				huh.NewOption("python", "python"),
 				huh.NewOption("java", "java"),
+				huh.NewOption("rust", "rust"),
 			).Value(&pType).Run()
 		if err != nil {
 			fmt.Println("Error: failed to run selected game mode")
