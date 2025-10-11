@@ -15,16 +15,14 @@ import (
 const (
 	RESET  = "\033[0m"
 	RED    = "\033[38;2;255;0;0m"
-	GREEN  = "\033[38;2;0;255;0m"
 	YELLOW = "\033[38;2;255;255;0m"
 	BLUE   = "\033[38;2;0;0;255m"
 	ORANGE = "\033[38;2;255;165;0m"
 	TEAL   = "\033[38;2;0;128;128m"
 	BROWN  = "\033[38;2;139;69;19m"
 	PURPLE = "\033[38;2;128;0;128m"
-
-	TERMINAL_GREEN  = "\033[32m"
-  CURSOR_CHAR = TERMINAL_GREEN + "█" + RESET
+	GREEN = "\033[32m"
+  CURSOR_CHAR = GREEN + "█" + RESET
 
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)

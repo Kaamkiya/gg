@@ -362,7 +362,7 @@ prompts:
     difficulty: medium
     type: standard
   - id: 89
-    text: "Your limitation—it's only your imagination."
+    text: "Your limitation-it's only your imagination."
     difficulty: easy
     type: standard
   - id: 90
