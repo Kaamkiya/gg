@@ -9,7 +9,7 @@ import (
 var libraryYaml string
 
 type Config struct {
-	Prompts        []Prompt `yaml:"prompts"`
+  	Prompts        []Prompt `yaml:"prompts"`
 	ActivePromptID int
 	SeenIDs        map[int]int
 
@@ -40,5 +40,4 @@ func parseYAML() (*Config, error) {
 	}
 
 	return &cfg, nil
-
 }

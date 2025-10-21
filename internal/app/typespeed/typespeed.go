@@ -22,7 +22,7 @@ const (
 	BROWN  = "\033[38;2;139;69;19m"
 	PURPLE = "\033[38;2;128;0;128m"
 	GREEN = "\033[32m"
-  CURSOR_CHAR = GREEN + "█" + RESET
+	CURSOR_CHAR = GREEN + "█" + RESET
 
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)
@@ -36,20 +36,20 @@ const (
 type TickMsg time.Time
 
 type State struct {
-  // Number of prompts completed
+    // Number of prompts completed
 	PromptCompletions int
 
-  // Number of words completed
-  WordCompletions int
+    // Number of words completed
+    WordCompletions int
 
 	// As decimal
 	Accuracy float32
 
-  // Correct words typed/minute
-  WPM float32
+	// Correct words typed/minute
+	WPM float32
 
-  //
-  CPM float32
+	// Correct chars typed/minute
+	CPM float32
 
 	// Time elapsed in seconds
 	Time int
