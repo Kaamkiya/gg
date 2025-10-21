@@ -1,15 +1,15 @@
 package typespeed
 
 import (
+	_ "embed"
 	"gopkg.in/yaml.v3"
-	_"embed"
 )
 
 //go:embed library.yaml
 var libraryYaml string
 
 type Config struct {
-  	Prompts        []Prompt `yaml:"prompts"`
+	Prompts        []Prompt `yaml:"prompts"`
 	ActivePromptID int
 	SeenIDs        map[int]int
 

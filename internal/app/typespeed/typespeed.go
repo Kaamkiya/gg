@@ -13,15 +13,15 @@ import (
 )
 
 const (
-	RESET  = "\033[0m"
-	RED    = "\033[31m"
-	YELLOW = "\033[38;2;255;255;0m"
-	BLUE   = "\033[38;2;0;0;255m"
-	ORANGE = "\033[38;2;255;165;0m"
-	TEAL   = "\033[38;2;0;128;128m"
-	BROWN  = "\033[38;2;139;69;19m"
-	PURPLE = "\033[38;2;128;0;128m"
-	GREEN = "\033[32m"
+	RESET       = "\033[0m"
+	RED         = "\033[31m"
+	YELLOW      = "\033[38;2;255;255;0m"
+	BLUE        = "\033[38;2;0;0;255m"
+	ORANGE      = "\033[38;2;255;165;0m"
+	TEAL        = "\033[38;2;0;128;128m"
+	BROWN       = "\033[38;2;139;69;19m"
+	PURPLE      = "\033[38;2;128;0;128m"
+	GREEN       = "\033[32m"
 	CURSOR_CHAR = GREEN + "█" + RESET
 
 	RESET_LEN      = len(RESET)
@@ -30,17 +30,17 @@ const (
 
 	// NOTE this is a bit jank but CHAR_LEN MUST be the same length as
 	// both the GREEN and the RED ANSI codes so that backspace functionality works properly
-	CHAR_LEN       = len(RED) + 1 + len(RESET)
+	CHAR_LEN = len(RED) + 1 + len(RESET)
 )
 
 type TickMsg time.Time
 
 type State struct {
-    // Number of prompts completed
+	// Number of prompts completed
 	PromptCompletions int
 
-    // Number of words completed
-    WordCompletions int
+	// Number of words completed
+	WordCompletions int
 
 	// As decimal
 	Accuracy float32
@@ -123,12 +123,12 @@ func backspace(m *Model) {
 
 // Types a character from the user input, and updates the underline string
 func typeChar(m *Model, in string) {
-//	lastWordIncr := 1
-//	space := " "
-//	if m.WordIdx == len(m.PromptSlice)-1 {
-//		lastWordIncr = 2
-//		space = ""
-//	}
+	//	lastWordIncr := 1
+	//	space := " "
+	//	if m.WordIdx == len(m.PromptSlice)-1 {
+	//		lastWordIncr = 2
+	//		space = ""
+	//	}
 
 	//if m.InputLen < len(m.PromptSlice[m.WordIdx])+lastWordIncr {
 	// Update underline pointer and add colors to characters for output
@@ -160,9 +160,9 @@ func typeChar(m *Model, in string) {
 	// User typed word correctly
 	inputStrPlain := removeColors(m.InputStr[m.PromptIdxLowerLimit:])
 	if len(inputStrPlain) >= len(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(removeColors(inputStrPlain)) == (m.PromptSlice[m.WordIdx]) {
-    m.State.WordCompletions++
+		m.State.WordCompletions++
 		m.WordIdx++
-		m.PromptIdxLowerLimit = m.PromptIdx  
+		m.PromptIdxLowerLimit = m.PromptIdx
 		m.InputStr = ""
 		for range m.PromptIdxLowerLimit {
 			m.InputStr += " "
@@ -300,49 +300,49 @@ func shiftCursor(m *Model) string {
 		return m.PromptStr[:m.PromptIdx] + CURSOR_CHAR + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
 	}
 
-  return m.PromptStr
+	return m.PromptStr
 }
 
 func updateWPM(s *State) {
-  timeInMinutes := float32(s.Time)/float32(60)
+	timeInMinutes := float32(s.Time) / float32(60)
 
-  if timeInMinutes > 0 {
-    s.WPM = (float32(s.WordCompletions)/timeInMinutes)
-  } else {
-    s.WPM = float32(s.WordCompletions)
-  }
-} 
+	if timeInMinutes > 0 {
+		s.WPM = (float32(s.WordCompletions) / timeInMinutes)
+	} else {
+		s.WPM = float32(s.WordCompletions)
+	}
+}
 
 func updateCPM(s *State) {
-  timeInMinutes := float32(s.Time)/float32(60)
+	timeInMinutes := float32(s.Time) / float32(60)
 
-  if timeInMinutes > 0 {
-    s.CPM = (float32(s.Hits)/timeInMinutes)
-  } else {
-    s.CPM = float32(s.Hits)
-  }
-} 
+	if timeInMinutes > 0 {
+		s.CPM = (float32(s.Hits) / timeInMinutes)
+	} else {
+		s.CPM = float32(s.Hits)
+	}
+}
 
 // View renders the UI
 func (m Model) View() string {
-  updateAccuracy(m.State)
-  updateWPM(m.State)
-  updateCPM(m.State)
+	updateAccuracy(m.State)
+	updateWPM(m.State)
+	updateCPM(m.State)
 
 	PromptStr := shiftCursor(&m)
 
 	pType := m.Cfg.PromptTypeColor + "--------- " + m.Cfg.PromptType + " ---------" + RESET
 
-  var display string
+	var display string
 
-  display = fmt.Sprintf(
-    "%s\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM,)
-// -2 means game should quit
+	display = fmt.Sprintf(
+		"%s\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM)
+	// -2 means game should quit
 	if m.PromptStrsID != -2 {
-    return display
+		return display
 	}
 
-	return display + GREEN+"\nFinished!\n"+RESET
+	return display + GREEN + "\nFinished!\n" + RESET
 }
 
 func updateAccuracy(s *State) {
@@ -396,7 +396,6 @@ func Run() {
 		panic("The game mode " + gameMode + " is not currently supported")
 	}
 
-
 	switch pType {
 	case "c++":
 		pTypeColor = BLUE
@@ -436,12 +435,12 @@ func Run() {
 	}
 
 	p := tea.NewProgram(Model{
-		Cfg:         cfg,
+		Cfg:              cfg,
 		PromptStrsID:     pStrsID,
 		PromptStr:        pStr,
 		PromptSlice:      pSlice,
 		PromptUnderlines: pUnderlines,
-		State:       &state,
+		State:            &state,
 	})
 
 	if _, err := p.Run(); err != nil {
