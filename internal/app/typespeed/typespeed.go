@@ -14,7 +14,7 @@ import (
 
 const (
 	RESET  = "\033[0m"
-	RED    = "\033[38;2;255;0;0m"
+	RED    = "\033[31m"
 	YELLOW = "\033[38;2;255;255;0m"
 	BLUE   = "\033[38;2;0;0;255m"
 	ORANGE = "\033[38;2;255;165;0m"
@@ -27,6 +27,9 @@ const (
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)
 	UNDERLINE_CHAR = " "
+
+	// NOTE this is a bit jank but CHAR_LEN MUST be the same length as
+	// both the GREEN and the RED ANSI codes so that backspace functionality works properly
 	CHAR_LEN       = len(RED) + 1 + len(RESET)
 )
 
