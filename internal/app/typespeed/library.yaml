@@ -620,3 +620,958 @@ prompts:
     difficulty: medium
     type: rust
 
+  # ------------------- standard (30 more) -------------------
+  - id: 151
+    type: standard
+    text: "Brisk winds carried whispers across the empty harbor."
+    difficulty: medium
+
+  - id: 152
+    type: standard
+    text: "Each keyboard stroke echoed through the quiet office."
+    difficulty: easy
+
+  - id: 153
+    type: standard
+    text: "Curiosity often leads to the most unexpected destinations."
+    difficulty: medium
+
+  - id: 154
+    type: standard
+    text: "Beneath the flickering light, shadows danced in rhythm."
+    difficulty: hard
+
+  - id: 155
+    type: standard
+    text: "Polished marble floors reflected the morning sun perfectly."
+    difficulty: medium
+
+  - id: 156
+    type: standard
+    text: "Typing swiftly requires rhythm, accuracy, and calm focus."
+    difficulty: easy
+
+  - id: 157
+    type: standard
+    text: "Juggling multiple tasks feels like balancing on a thin wire."
+    difficulty: medium
+
+  - id: 158
+    type: standard
+    text: "The server hummed softly, processing endless streams of data."
+    difficulty: easy
+
+  - id: 159
+    type: standard
+    text: "Crimson leaves drifted slowly across the cracked pavement."
+    difficulty: medium
+
+  - id: 160
+    type: standard
+    text: "Every shortcut learned saves a fraction of a second forever."
+    difficulty: easy
+
+  - id: 161
+    type: standard
+    text: "Without practice, precision becomes nothing more than chance."
+    difficulty: medium
+
+  - id: 162
+    type: standard
+    text: "Quietly, the old typewriter clacked out a forgotten story."
+    difficulty: medium
+
+  - id: 163
+    type: standard
+    text: "Glass towers reflected clouds drifting through the skyline."
+    difficulty: easy
+
+  - id: 164
+    type: standard
+    text: "He typed with intention, each letter striking its purpose."
+    difficulty: medium
+
+  - id: 165
+    type: standard
+    text: "Complex patterns emerge from repetition and rhythm combined."
+    difficulty: medium
+
+  - id: 166
+    type: standard
+    text: "Lightning illuminated the horizon before vanishing into silence."
+    difficulty: hard
+
+  - id: 167
+    type: standard
+    text: "The meeting stretched on endlessly, words fading into noise."
+    difficulty: easy
+
+  - id: 168
+    type: standard
+    text: "Typing tests train endurance as much as they test accuracy."
+    difficulty: easy
+
+  - id: 169
+    type: standard
+    text: "Every mistake becomes a teacher when your patience holds steady."
+    difficulty: medium
+
+  - id: 170
+    type: standard
+    text: "Raindrops scattered across the glass like static on a screen."
+    difficulty: hard
+
+  - id: 171
+    type: standard
+    text: "Hidden beneath the noise lies a rhythm waiting to be found."
+    difficulty: medium
+
+  - id: 172
+    type: standard
+    text: "He exhaled slowly before typing the first sentence of the day."
+    difficulty: easy
+
+  - id: 173
+    type: standard
+    text: "The cursor blinked impatiently, daring him to begin again."
+    difficulty: easy
+
+  - id: 174
+    type: standard
+    text: "Gentle rain pattered against the window, steady and precise."
+    difficulty: medium
+
+  - id: 175
+    type: standard
+    text: "Even chaos finds rhythm in the clatter of a fast typist."
+    difficulty: medium
+
+  - id: 176
+    type: standard
+    text: "Dust floated lazily in the afternoon light over quiet desks."
+    difficulty: easy
+
+  - id: 177
+    type: standard
+    text: "The hum of machines blended with the cadence of the keyboard."
+    difficulty: medium
+
+  - id: 178
+    type: standard
+    text: "With each keystroke, he inched closer to clarity and calm."
+    difficulty: easy
+
+  - id: 179
+    type: standard
+    text: "Patterns of thought align with rhythm when fingers keep time."
+    difficulty: hard
+
+  - id: 180
+    type: standard
+    text: "Midnight silence was broken only by the steady sound of typing."
+    difficulty: medium
+
+  # ------------------- golang (30 more) -------------------
+  - id: 181
+    type: golang
+    text: 'var names = []string{"Alice","Bob","Charlie"}'
+    difficulty: easy
+
+  - id: 182
+    type: golang
+    text: 'if val, ok := m["key"]; ok { fmt.Println(val) }'
+    difficulty: medium
+
+  - id: 183
+    type: golang
+    text: 'for _, v := range nums { fmt.Println(v) }'
+    difficulty: easy
+
+  - id: 184
+    type: golang
+    text: 'go func(msg string){ fmt.Println(msg) }("hello")'
+    difficulty: medium
+
+  - id: 185
+    type: golang
+    text: 'defer log.Println("finished")'
+    difficulty: easy
+
+  - id: 186
+    type: golang
+    text: 'ch := make(chan string, 2)'
+    difficulty: medium
+
+  - id: 187
+    type: golang
+    text: 'func multiply(a,b int) int { return a*b }'
+    difficulty: easy
+
+  - id: 188
+    type: golang
+    text: 'select { case msg := <-ch: fmt.Println(msg) default: fmt.Println("no msg") }'
+    difficulty: hard
+
+  - id: 189
+    type: golang
+    text: 'ctx, cancel := context.WithCancel(context.Background())'
+    difficulty: hard
+
+  - id: 190
+    type: golang
+    text: 'f, err := os.Create("file.txt"); if err != nil { log.Fatal(err) }'
+    difficulty: medium
+
+  - id: 191
+    type: golang
+    text: 'strings.Split("a,b,c", ",")'
+    difficulty: easy
+
+  - id: 192
+    type: golang
+    text: 'json.Unmarshal(data, &v)'
+    difficulty: medium
+
+  - id: 193
+    type: golang
+    text: 'sync.Once{}.Do(func(){ fmt.Println("run once") })'
+    difficulty: hard
+
+  - id: 194
+    type: golang
+    text: 'buf := make([]byte, 1024); n, err := f.Read(buf)'
+    difficulty: medium
+
+  - id: 195
+    type: golang
+    text: 'fmt.Sprintf("Hello %s", name)'
+    difficulty: easy
+
+  - id: 196
+    type: golang
+    text: 'var wg sync.WaitGroup; wg.Add(1); go func(){ defer wg.Done() }(); wg.Wait()'
+    difficulty: hard
+
+  - id: 197
+    type: golang
+    text: 'time.Sleep(2 * time.Second)'
+    difficulty: easy
+
+  - id: 198
+    type: golang
+    text: 'defer func(){ fmt.Println("closing") }()'
+    difficulty: medium
+
+  - id: 199
+    type: golang
+    text: 'var nums = make([]int, 5)'
+    difficulty: easy
+
+  - id: 200
+    type: golang
+    text: 'ioutil.WriteFile("out.txt", data, 0644)'
+    difficulty: medium
+
+  - id: 201
+    type: golang
+    text: 'for k, v := range m { fmt.Println(k,v) }'
+    difficulty: easy
+
+  - id: 202
+    type: golang
+    text: 'log.Printf("count: %d", count)'
+    difficulty: easy
+
+  - id: 203
+    type: golang
+    text: 'defer file.Close()'
+    difficulty: easy
+
+  - id: 204
+    type: golang
+    text: 'const Pi = 3.14159'
+    difficulty: easy
+
+  - id: 205
+    type: golang
+    text: 'func sum(nums ...int) int { total := 0; for _, n := range nums { total += n }; return total }'
+    difficulty: medium
+
+  - id: 206
+    type: golang
+    text: 'ch1 := make(chan int); ch2 := make(chan int)'
+    difficulty: medium
+
+  - id: 207
+    type: golang
+    text: 'panic("unexpected error")'
+    difficulty: hard
+
+  - id: 208
+    type: golang
+    text: 'var m = map[string]int{"x":1,"y":2}'
+    difficulty: easy
+
+  - id: 209
+    type: golang
+    text: 'func square(n int) int { return n*n }'
+    difficulty: easy
+
+  - id: 210
+    type: golang
+    text: 'ch := make(chan int, 1); ch <- 42; fmt.Println(<-ch)'
+    difficulty: medium
+
+  # ------------------- python (30 more) -------------------
+  - id: 211
+    type: python
+    text: 'for i in range(5): print(i)'
+    difficulty: easy
+
+  - id: 212
+    type: python
+    text: 'x = {"a":1,"b":2}'
+    difficulty: easy
+
+  - id: 213
+    type: python
+    text: 'nums = [n*n for n in range(10)]'
+    difficulty: medium
+
+  - id: 214
+    type: python
+    text: 'with open("file.txt") as f: data = f.read()'
+    difficulty: medium
+
+  - id: 215
+    type: python
+    text: 'import json; json.dumps({"x":1})'
+    difficulty: medium
+
+  - id: 216
+    type: python
+    text: 'try: risky() except Exception as e: print(e)'
+    difficulty: medium
+
+  - id: 217
+    type: python
+    text: 'def add(a,b): return a+b'
+    difficulty: easy
+
+  - id: 218
+    type: python
+    text: 'class Person: def __init__(self,name,age): self.name=name; self.age=age'
+    difficulty: hard
+
+  - id: 219
+    type: python
+    text: 'lambda x: x*2'
+    difficulty: easy
+
+  - id: 220
+    type: python
+    text: 'dict(zip(keys,values))'
+    difficulty: medium
+
+  - id: 221
+    type: python
+    text: 'from collections import Counter; Counter(words)'
+    difficulty: medium
+
+  - id: 222
+    type: python
+    text: 'async def main(): await do_task()'
+    difficulty: hard
+
+  - id: 223
+    type: python
+    text: 'import asyncio; asyncio.run(main())'
+    difficulty: hard
+
+  - id: 224
+    type: python
+    text: 'sorted(data,key=lambda x: x[1])'
+    difficulty: hard
+
+  - id: 225
+    type: python
+    text: 'x = [i*2 for i in range(5)]'
+    difficulty: easy
+
+  - id: 226
+    type: python
+    text: 'for i, val in enumerate(nums): print(i,val)'
+    difficulty: easy
+
+  - id: 227
+    type: python
+    text: 'with open("file.txt","w") as f: f.write("hello")'
+    difficulty: medium
+
+  - id: 228
+    type: python
+    text: 'from collections import defaultdict; d = defaultdict(int)'
+    difficulty: medium
+
+  - id: 229
+    type: python
+    text: 'def factorial(n): return 1 if n==0 else n*factorial(n-1)'
+    difficulty: medium
+
+  - id: 230
+    type: python
+    text: 'import math; math.sqrt(16)'
+    difficulty: easy
+
+  - id: 231
+    type: python
+    text: 'list(filter(lambda x:x%2==0,nums))'
+    difficulty: medium
+
+  - id: 232
+    type: python
+    text: 'class Employee: def __init__(self,name,salary): self.name=name; self.salary=salary'
+    difficulty: hard
+
+  - id: 233
+    type: python
+    text: 'import asyncio; await asyncio.sleep(1)'
+    difficulty: hard
+
+  - id: 234
+    type: python
+    text: 'sum([1,2,3,4,5])'
+    difficulty: easy
+
+  - id: 235
+    type: python
+    text: 'max(nums)'
+    difficulty: easy
+
+  # ------------------- java (30 more) -------------------
+  - id: 236
+    type: java
+    text: 'int sum(int a,int b){ return a+b; }'
+    difficulty: easy
+
+  - id: 237
+    type: java
+    text: 'List<Integer> nums = new ArrayList<>()'
+    difficulty: medium
+
+  - id: 238
+    type: java
+    text: 'try(FileReader fr = new FileReader("file.txt")){}'
+    difficulty: medium
+
+  - id: 239
+    type: java
+    text: 'Stream.generate(()->Math.random()).limit(5).forEach(System.out::println)'
+    difficulty: hard
+
+  - id: 240
+    type: java
+    text: 'synchronized(this){ doSomething(); }'
+    difficulty: hard
+
+  - id: 241
+    type: java
+    text: 'Optional<Integer> val = Optional.ofNullable(null)'
+    difficulty: medium
+
+  - id: 242
+    type: java
+    text: 'int factorial(int n){ return n==0?1:n*factorial(n-1); }'
+    difficulty: medium
+
+  - id: 243
+    type: java
+    text: 'CompletableFuture<Integer> cf = CompletableFuture.supplyAsync(()->42);'
+    difficulty: hard
+
+  - id: 244
+    type: java
+    text: 'String s = String.format("Hello %s", name);'
+    difficulty: easy
+
+  - id: 245
+    type: java
+    text: 'Map<String,List<Integer>> map = new HashMap<>()'
+    difficulty: medium
+
+  - id: 246
+    type: java
+    text: 'for(int i=0;i<10;i++){ System.out.println(i); }'
+    difficulty: easy
+
+  - id: 247
+    type: java
+    text: 'if(str==null){ throw new IllegalArgumentException(); }'
+    difficulty: easy
+
+  - id: 248
+    type: java
+    text: 'List<String> list = Arrays.asList("a","b")'
+    difficulty: medium
+
+  - id: 249
+    type: java
+    text: 'Map<String,Integer> map = new HashMap<>()'
+    difficulty: medium
+
+  - id: 250
+    type: java
+    text: 'class Person{ String name; int age; Person(String n,int a){ name=n; age=a; } }'
+    difficulty: hard
+
+  - id: 251
+    type: java
+    text: 'public static int add(int a,int b){ return a+b; }'
+    difficulty: easy
+
+  - id: 252
+    type: java
+    text: 'File f = new File("file.txt");'
+    difficulty: medium
+
+  - id: 253
+    type: java
+    text: 'Optional<String> opt = Optional.of("hi");'
+    difficulty: medium
+
+  - id: 254
+    type: java
+    text: 'Stream.of(1,2,3).map(x->x*2).forEach(System.out::println);'
+    difficulty: hard
+
+  - id: 255
+    type: java
+    text: 'synchronized(lock){ counter++; }'
+    difficulty: hard
+
+  - id: 256
+    type: java
+    text: 'CompletableFuture.runAsync(()->task());'
+    difficulty: hard
+
+  - id: 257
+    type: java
+    text: 'Integer.parseInt("123");'
+    difficulty: easy
+
+  - id: 258
+    type: java
+    text: 'String.join("-", list);'
+    difficulty: medium
+
+  - id: 259
+    type: java
+    text: 'Math.max(5,10);'
+    difficulty: easy
+
+  - id: 260
+    type: java
+    text: 'List<String> names = new ArrayList<>(Arrays.asList("Alice","Bob"));'
+    difficulty: medium
+
+  # ------------------- c++ (30 more) -------------------
+  - id: 261
+    type: c++
+    text: 'for(int i=0;i<10;i++){ std::cout << i << std::endl; }'
+    difficulty: easy
+
+  - id: 262
+    type: c++
+    text: 'if(ptr==nullptr){ throw std::runtime_error("null"); }'
+    difficulty: easy
+
+  - id: 263
+    type: c++
+    text: 'std::vector<int> v = {1,2,3,4,5};'
+    difficulty: easy
+
+  - id: 264
+    type: c++
+    text: 'std::map<std::string,int> m = {{"a",1},{"b",2}};'
+    difficulty: medium
+
+  - id: 265
+    type: c++
+    text: 'try{ risky(); }catch(const std::exception& e){ std::cerr << e.what(); }'
+    difficulty: medium
+
+  - id: 266
+    type: c++
+    text: 'class Person{ public: std::string name; int age; Person(std::string n,int a):name(n),age(a){} };'
+    difficulty: hard
+
+  - id: 267
+    type: c++
+    text: 'int add(int a,int b){ return a+b; }'
+    difficulty: easy
+
+  - id: 268
+    type: c++
+    text: 'std::unique_ptr<int> p = std::make_unique<int>(5);'
+    difficulty: medium
+
+  - id: 269
+    type: c++
+    text: 'auto it = std::find(v.begin(), v.end(), 3);'
+    difficulty: medium
+
+  - id: 270
+    type: c++
+    text: 'std::sort(v.begin(), v.end(), [](int a,int b){ return a<b; });'
+    difficulty: hard
+
+  - id: 271
+    type: c++
+    text: 'std::thread t([](){ std::cout << "hi"; }); t.join();'
+    difficulty: hard
+
+  - id: 272
+    type: c++
+    text: 'std::lock_guard<std::mutex> guard(mtx); counter++;'
+    difficulty: hard
+
+  - id: 273
+    type: c++
+    text: 'std::string s = std::to_string(42);'
+    difficulty: easy
+
+  - id: 274
+    type: c++
+    text: 'for(auto& x:v){ x*=2; }'
+    difficulty: medium
+
+  - id: 275
+    type: c++
+    text: 'std::chrono::milliseconds ms(1000);'
+    difficulty: medium
+
+  - id: 276
+    type: c++
+    text: 'std::ifstream file("file.txt");'
+    difficulty: easy
+
+  - id: 277
+    type: c++
+    text: 'std::vector<int> squares; for(int i=0;i<10;i++){ squares.push_back(i*i); }'
+    difficulty: medium
+
+  - id: 278
+    type: c++
+    text: 'std::unique_ptr<int> p = std::make_unique<int>(10);'
+    difficulty: medium
+
+  - id: 279
+    type: c++
+    text: 'std::thread t([](){ std::cout << "thread"; }); t.join();'
+    difficulty: hard
+
+  - id: 280
+    type: c++
+    text: 'std::lock_guard<std::mutex> g(mtx); counter++;'
+    difficulty: hard
+
+  - id: 281
+    type: c++
+    text: 'int factorial(int n){ return n==0?1:n*factorial(n-1); }'
+    difficulty: medium
+
+  - id: 282
+    type: c++
+    text: 'auto max_it = std::max_element(v.begin(), v.end());'
+    difficulty: medium
+
+  - id: 283
+    type: c++
+    text: 'std::vector<int> nums={1,2,3,4}; std::reverse(nums.begin(), nums.end());'
+    difficulty: medium
+
+  - id: 284
+    type: c++
+    text: 'class Employee{ public: std::string name; int salary; Employee(std::string n,int s):name(n),salary(s){} };'
+    difficulty: hard
+
+  - id: 285
+    type: c++
+    text: 'std::chrono::seconds sec(5);'
+    difficulty: medium
+
+  # ------------------- rust (30 more) -------------------
+  - id: 286
+    type: rust
+    text: 'let mut v = vec![1,2,3]; v.push(4);'
+    difficulty: easy
+
+  - id: 287
+    type: rust
+    text: 'let x: Result<i32,&str> = Ok(5);'
+    difficulty: medium
+
+  - id: 288
+    type: rust
+    text: 'fn factorial(n:u32) -> u32 { if n==0 {1} else {n*factorial(n-1)} }'
+    difficulty: medium
+
+  - id: 289
+    type: rust
+    text: 'let s = String::from("hello world"); println!("{}", s);'
+    difficulty: easy
+
+  - id: 290
+    type: rust
+    text: 'use std::collections::HashSet; let mut set = HashSet::new(); set.insert(1);'
+    difficulty: medium
+
+  - id: 291
+    type: rust
+    text: 'let handle = std::thread::spawn(|| println!("thread")); handle.join().unwrap();'
+    difficulty: hard
+
+  - id: 292
+    type: rust
+    text: 'let x = Some(42); if let Some(v) = x { println!("{}", v); }'
+    difficulty: medium
+
+  - id: 293
+    type: rust
+    text: 'let joined = ["rust","lang"].join("-");'
+    difficulty: medium
+
+  - id: 294
+    type: rust
+    text: 'async fn run() { do_task().await; }'
+    difficulty: hard
+
+  - id: 295
+    type: rust
+    text: 'let sorted: Vec<_> = v.iter().sorted().collect();'
+    difficulty: hard
+
+  - id: 296
+    type: rust
+    text: 'let mut sum = 0; for i in 0..5 { sum += i; }'
+    difficulty: easy
+
+  - id: 297
+    type: rust
+    text: 'let map: HashMap<String,i32> = HashMap::new();'
+    difficulty: medium
+
+  - id: 298
+    type: rust
+    text: 'let x = vec![1,2,3]; let y = x.iter().map(|n| n*2).collect::<Vec<_>>();'
+    difficulty: medium
+
+  - id: 299
+    type: rust
+    text: 'let v: Vec<i32> = (0..10).collect();'
+    difficulty: easy
+
+  - id: 300
+    type: rust
+    text: 'let res: Result<i32,_> = "42".parse();'
+    difficulty: medium
+
+  - id: 301
+    type: rust
+    text: 'fn add(a:i32,b:i32)->i32{a+b}'
+    difficulty: easy
+
+  - id: 302
+    type: rust
+    text: 'let mut v = vec![1,2,3]; v.retain(|x| *x % 2 == 0);'
+    difficulty: medium
+
+  - id: 303
+    type: rust
+    text: 'use std::sync::Mutex; let m = Mutex::new(0);'
+    difficulty: hard
+
+  - id: 304
+    type: rust
+    text: 'let mut s = String::new(); s.push_str("hello");'
+    difficulty: easy
+
+  - id: 305
+    type: rust
+    text: 'let val = match option { Some(x)=>x, None=>0 };'
+    difficulty: medium
+
+  - id: 306
+    type: rust
+    text: 'let nums = [1,2,3,4]; let sum: i32 = nums.iter().sum();'
+    difficulty: easy
+
+  - id: 307
+    type: rust
+    text: 'let s = vec!["a","b","c"].concat();'
+    difficulty: medium
+
+  - id: 308
+    type: rust
+    text: 'let v: Vec<_> = (0..5).map(|x| x*x).collect();'
+    difficulty: easy
+
+  - id: 309
+    type: rust
+    text: 'let handle = std::thread::spawn(|| println!("hi")); handle.join().unwrap();'
+    difficulty: hard
+
+  - id: 310
+    type: rust
+    text: 'let mut v = vec![1,2,3,4]; v.sort();'
+    difficulty: easy
+  # ------------------- standard (30 more) -------------------
+  - id: 311
+    type: standard
+    text: 'Innovation distinguishes leaders from followers in any industry.'
+    difficulty: medium
+
+  - id: 312
+    type: standard
+    text: 'A calm mind brings clarity, even in the midst of chaos.'
+    difficulty: medium
+
+  - id: 313
+    type: standard
+    text: 'The art of conversation is more about listening than speaking.'
+    difficulty: medium
+
+  - id: 314
+    type: standard
+    text: 'Mountains rise slowly over millennia, yet their impact lasts forever.'
+    difficulty: hard
+
+  - id: 315
+    type: standard
+    text: 'Even the smallest spark can ignite a roaring fire of change.'
+    difficulty: medium
+
+  - id: 316
+    type: standard
+    text: 'Life is not measured by the breaths we take but by the moments we cherish.'
+    difficulty: hard
+
+  - id: 317
+    type: standard
+    text: 'Creativity often emerges when we embrace constraints rather than resist them.'
+    difficulty: hard
+
+  - id: 318
+    type: standard
+    text: 'Courage is not the absence of fear, but the triumph over it.'
+    difficulty: medium
+
+  - id: 319
+    type: standard
+    text: 'Even a long journey begins with a single step, taken with purpose.'
+    difficulty: medium
+
+  - id: 320
+    type: standard
+    text: 'Knowledge grows when shared, and wisdom deepens when practiced.'
+    difficulty: hard
+
+  - id: 321
+    type: standard
+    text: 'The beauty of life lies in its unpredictability and constant change.'
+    difficulty: medium
+
+  - id: 322
+    type: standard
+    text: 'Patience and perseverance are the quiet forces behind every great achievement.'
+    difficulty: hard
+
+  - id: 323
+    type: standard
+    text: 'Imagination allows us to explore worlds that reality cannot contain.'
+    difficulty: medium
+
+  - id: 324
+    type: standard
+    text: 'Hard work combined with curiosity often leads to extraordinary discoveries.'
+    difficulty: medium
+
+  - id: 325
+    type: standard
+    text: 'A writer’s greatest strength is often their ability to observe details others miss.'
+    difficulty: hard
+
+  - id: 326
+    type: standard
+    text: 'Moments of solitude can reveal truths that crowded rooms often conceal.'
+    difficulty: hard
+
+  - id: 327
+    type: standard
+    text: 'Innovation requires the courage to challenge the status quo and think differently.'
+    difficulty: medium
+
+  - id: 328
+    type: standard
+    text: 'The complexity of life is best navigated with both logic and empathy.'
+    difficulty: medium
+
+  - id: 329
+    type: standard
+    text: 'Success is rarely linear; setbacks are as instructive as victories.'
+    difficulty: hard
+
+  - id: 330
+    type: standard
+    text: 'Listening is an art that demands patience, attention, and genuine curiosity.'
+    difficulty: medium
+
+  - id: 331
+    type: standard
+    text: 'Every problem has multiple solutions, but finding the best one takes effort.'
+    difficulty: medium
+
+  - id: 332
+    type: standard
+    text: 'The most profound ideas often emerge from unexpected conversations.'
+    difficulty: hard
+
+  - id: 333
+    type: standard
+    text: 'Adventure begins where comfort ends and curiosity takes the lead.'
+    difficulty: medium
+
+  - id: 334
+    type: standard
+    text: 'Empathy bridges the gaps that logic alone cannot mend.'
+    difficulty: medium
+
+  - id: 335
+    type: standard
+    text: 'Even the faintest light can illuminate the darkest path.'
+    difficulty: medium
+
+  - id: 336
+    type: standard
+    text: 'The rhythm of progress is set by consistent effort, not sudden bursts of energy.'
+    difficulty: hard
+
+  - id: 337
+    type: standard
+    text: 'Genuine creativity often hides behind layers of discipline and repetition.'
+    difficulty: hard
+
+  - id: 338
+    type: standard
+    text: 'Inspiration is fleeting; only action transforms it into achievement.'
+    difficulty: medium
+
+  - id: 339
+    type: standard
+    text: 'Reflection allows the mind to turn experience into understanding.'
+    difficulty: medium
+
+  - id: 340
+    type: standard
+    text: 'The courage to begin again is what separates those who grow from those who stagnate.'
+    difficulty: hard
