@@ -32,10 +32,6 @@ const (
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)
 	UNDERLINE_CHAR = " "
-
-	// NOTE this is a bit jank but CHAR_LEN MUST be the same length as
-	// both the GREEN and the RED ANSI codes so that backspace functionality works properly
-	CHAR_LEN = len(RED) + 1 + len(RESET)
 )
 
 var (
@@ -115,13 +111,10 @@ func doTick() tea.Cmd {
 	})
 }
 
-// Init runs when the program starts
 func (m Model) Init() tea.Cmd {
-	// No initial command
 	return doTick()
 }
 
-// Deletes a character from user input and updates the underline string
 func backspace(m *Model) {
 	if m.InputLen > 0 {
 		m.InputStr = m.InputStr[:len(m.InputStr)-m.CharLenSlice[len(m.CharLenSlice)-1]] //CHAR_LEN]
@@ -137,17 +130,7 @@ func backspace(m *Model) {
 	}
 }
 
-// Types a character from the user input, and updates the underline string
 func typeChar(m *Model, in string) {
-	//	lastWordIncr := 1
-	//	space := " "
-	//	if m.WordIdx == len(m.PromptSlice)-1 {
-	//		lastWordIncr = 2
-	//		space = ""
-	//	}
-
-	//if m.InputLen < len(m.PromptSlice[m.WordIdx])+lastWordIncr {
-	// Update underline pointer and add colors to characters for output
 	if m.PromptIdx < len(m.PromptStr) {
 		m.InputStrPlain += in
 
@@ -181,7 +164,6 @@ func typeChar(m *Model, in string) {
 	}
 
 	// User typed word correctly
-	//inputStrPlain := removeColors(m.InputStr[m.PromptIdxLowerLimit:])
 	if len(m.InputStrPlain) >= len(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(m.InputStrPlain) == (m.PromptSlice[m.WordIdx]) {
 		m.State.WordCompletions++
 		m.WordIdx++
@@ -195,13 +177,10 @@ func typeChar(m *Model, in string) {
 	}
 }
 
-// Takes an ID and returns Prompt struct
 func getPrompt(prompts []Prompt, promptID int) Prompt {
 	return prompts[promptID-1]
-
 }
 
-// Update handles messages and updates the model
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.PromptStrsID == -2 {
 		return m, tea.Quit
@@ -213,7 +192,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch in {
 		case "ctrl+c":
-			// Quit on q or ctrl+c
 			return m, tea.Quit
 		case "enter", "ctrl+w", "ctrl+h", "ctrl+backspace", "tab", "ctrl+tab":
 
@@ -223,12 +201,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if isValidChar(in) {
 				typeChar(&m, in)
 
-				// Exit if finished
 				if m.WordIdx > len(m.PromptSlice)-1 {
 					m.State.PromptCompletions++
 
-					// Select next prompt
 					m.PromptStrsID = getNewPromptId(m.Cfg, m.PromptStrsID, m.State)
+
 					// Exit the game
 					if m.PromptStrsID == -2 {
 						fmt.Println("Finished!")
@@ -267,10 +244,8 @@ func isValidChar(in string) bool {
 }
 
 func getNewPromptId(cfg *Config, curID int, state *State) int {
-	// Add the ID just completed to the seen set
 	cfg.SeenIDs[curID] = 1
 
-	// Exit game case
 	if cfg.ActivePromptsLen == state.PromptCompletions {
 		return -2
 	}
@@ -286,14 +261,6 @@ func getNewPromptId(cfg *Config, curID int, state *State) int {
 
 	return newID
 }
-
-// Removes ANSI colors from a string
-//func removeColors(s string) string {
-//	s = strings.ReplaceAll(s, RESET, "")
-//	s = strings.ReplaceAll(s, GREEN, "")
-//	s = strings.ReplaceAll(s, RED, "")
-//	return s
-//}
 
 // Takes the new idx to mark where the current pointer should point to in the string
 func updateUnderlines(newI, old int, s string) string {
@@ -319,7 +286,6 @@ func getActivePromptsLen(pType string, prompts []Prompt) int {
 }
 
 func shiftCursor(m *Model) string {
-	// Updates the '|' cursor line to the prompt string
 	if m.PromptIdx+1 < len(m.PromptStr)+1 {
 		return m.PromptStr[:m.PromptIdx] + CURSOR_CHAR + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
 	}
@@ -347,7 +313,6 @@ func updateCPM(s *State) {
 	}
 }
 
-// View renders the UI
 func (m Model) View() string {
 	updateAccuracy(m.State)
 	updateWPM(m.State)
@@ -359,6 +324,7 @@ func (m Model) View() string {
 
 	display = fmt.Sprintf(
 		"%s\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", m.Cfg.PromptFormattedPrintString, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM)
+
 	// -2 means game should quit
 	if m.PromptStrsID != -2 {
 		return display
@@ -388,7 +354,6 @@ func Run() {
 		panic(err)
 	}
 
-	// Prompt type (standard, c++, Python etc...)
 	var pType string
 	var pTypeColor string
 	var hexColor string
@@ -436,7 +401,6 @@ func Run() {
 
 	pTypeColor = lipgloss.NewStyle().Foreground(lipgloss.Color(hexColor)).Render("---------" + pType + "---------")
 
-	// Parse 'library.yaml' for a list of prompts
 	cfg, err := parseYAML()
 	if err != nil {
 		log.Fatal(err)
