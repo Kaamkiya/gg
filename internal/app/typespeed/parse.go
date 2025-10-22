@@ -23,6 +23,8 @@ type Config struct {
 
 	// Color for printing
 	PromptTypeColor string
+
+	PromptFormattedPrintString string 
 }
 
 type Prompt struct {

@@ -10,19 +10,24 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 )
+
 
 const (
 	RESET       = "\033[0m"
 	RED         = "\033[31m"
-	YELLOW      = "\033[38;2;255;255;0m"
-	BLUE        = "\033[38;2;0;0;255m"
-	ORANGE      = "\033[38;2;255;165;0m"
-	TEAL        = "\033[38;2;0;128;128m"
-	BROWN       = "\033[38;2;139;69;19m"
-	PURPLE      = "\033[38;2;128;0;128m"
-	GREEN       = "\033[32m"
-	CURSOR_CHAR = GREEN + "█" + RESET
+	RED_HEX = "#FF2900"
+	GREEN_HEX = "#00FF00"
+	DARK_BLUE_HEX = "#0011FF"
+	YELLOW_HEX = "#FFD900"
+	ORANGE_HEX = "#FF8C00"
+	TEAL_HEX = "#00D5FF"
+	BROWN_HEX = "#A34900"
+	PURPLE_HEX = "#9500FF"
+	WHITE_HEX = "#FFFFFF"
+
+	CURSOR_CHAR = "█"
 
 	RESET_LEN      = len(RESET)
 	COLOR_LEN      = len(RED)
@@ -31,6 +36,11 @@ const (
 	// NOTE this is a bit jank but CHAR_LEN MUST be the same length as
 	// both the GREEN and the RED ANSI codes so that backspace functionality works properly
 	CHAR_LEN = len(RED) + 1 + len(RESET)
+)
+
+var (
+	RED_HEX_LEN = len(lipgloss.NewStyle().Foreground(lipgloss.Color(RED_HEX)).Render("a"))
+	GREEN_HEX_LEN = len(lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX)).Render("a"))
 )
 
 type TickMsg time.Time
@@ -63,7 +73,7 @@ type State struct {
 	// Stores indexes of characters that have been attempted
 	// Ensures no double counting for Hits or Errors
 	SeenIdxSet map[int]int
-}
+} 
 
 // Define your model
 type Model struct {
@@ -89,8 +99,12 @@ type Model struct {
 
 	InputStr string
 
+	InputStrPlain string
+
 	// Length of user input string
 	InputLen int
+
+	CharLenSlice []int
 
 	State *State
 }
@@ -110,8 +124,10 @@ func (m Model) Init() tea.Cmd {
 // Deletes a character from user input and updates the underline string
 func backspace(m *Model) {
 	if m.InputLen > 0 {
-		m.InputStr = m.InputStr[:len(m.InputStr)-CHAR_LEN] //CHAR_LEN]
+		m.InputStr = m.InputStr[:len(m.InputStr)-m.CharLenSlice[len(m.CharLenSlice)-1]] //CHAR_LEN]
 		m.InputLen--
+		m.CharLenSlice = m.CharLenSlice[:len(m.CharLenSlice)-1] // pop
+		m.InputStrPlain = m.InputStrPlain[:len(m.InputStrPlain)-1]
 
 		// Decrement underline pointer if greater than lower limit
 		if m.PromptIdx > m.PromptIdxLowerLimit {
@@ -133,22 +149,29 @@ func typeChar(m *Model, in string) {
 	//if m.InputLen < len(m.PromptSlice[m.WordIdx])+lastWordIncr {
 	// Update underline pointer and add colors to characters for output
 	if m.PromptIdx < len(m.PromptStr) {
+		m.InputStrPlain += in
 
 		if in == string(m.PromptStr[m.PromptIdx]) {
+
 			if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
 				m.State.Hits++
 				m.State.SeenIdxSet[m.PromptIdx] = 1
 			}
 
-			in = GREEN + in + RESET
+			greenStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX))
+			in = greenStyle.Render(in)
+			m.CharLenSlice = append(m.CharLenSlice, GREEN_HEX_LEN)
 
 		} else {
 			if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
 				m.State.Errors++
 				m.State.SeenIdxSet[m.PromptIdx] = 1
 			}
-			in = RED + in + RESET
-		}
+			redStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(RED_HEX))
+			in = redStyle.Render(in)
+			m.CharLenSlice = append(m.CharLenSlice, RED_HEX_LEN)
+		} 
+
 		m.InputLen++
 
 		m.PromptIdx++
@@ -158,12 +181,13 @@ func typeChar(m *Model, in string) {
 	}
 
 	// User typed word correctly
-	inputStrPlain := removeColors(m.InputStr[m.PromptIdxLowerLimit:])
-	if len(inputStrPlain) >= len(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(removeColors(inputStrPlain)) == (m.PromptSlice[m.WordIdx]) {
+	//inputStrPlain := removeColors(m.InputStr[m.PromptIdxLowerLimit:])
+	if len(m.InputStrPlain) >= len(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(m.InputStrPlain) == (m.PromptSlice[m.WordIdx]) {
 		m.State.WordCompletions++
 		m.WordIdx++
 		m.PromptIdxLowerLimit = m.PromptIdx
 		m.InputStr = ""
+		m.InputStrPlain = ""
 		for range m.PromptIdxLowerLimit {
 			m.InputStr += " "
 		}
@@ -264,12 +288,12 @@ func getNewPromptId(cfg *Config, curID int, state *State) int {
 }
 
 // Removes ANSI colors from a string
-func removeColors(s string) string {
-	s = strings.ReplaceAll(s, RESET, "")
-	s = strings.ReplaceAll(s, GREEN, "")
-	s = strings.ReplaceAll(s, RED, "")
-	return s
-}
+//func removeColors(s string) string {
+//	s = strings.ReplaceAll(s, RESET, "")
+//	s = strings.ReplaceAll(s, GREEN, "")
+//	s = strings.ReplaceAll(s, RED, "")
+//	return s
+//}
 
 // Takes the new idx to mark where the current pointer should point to in the string
 func updateUnderlines(newI, old int, s string) string {
@@ -331,18 +355,16 @@ func (m Model) View() string {
 
 	PromptStr := shiftCursor(&m)
 
-	pType := m.Cfg.PromptTypeColor + "--------- " + m.Cfg.PromptType + " ---------" + RESET
-
 	var display string
 
 	display = fmt.Sprintf(
-		"%s\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", pType, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM)
+		"%s\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", m.Cfg.PromptFormattedPrintString, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM)
 	// -2 means game should quit
 	if m.PromptStrsID != -2 {
 		return display
 	}
 
-	return display + GREEN + "\nFinished!\n" + RESET
+	return display + lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX)).Render("\nFinished!\n")  
 }
 
 func updateAccuracy(s *State) {
@@ -369,6 +391,7 @@ func Run() {
 	// Prompt type (standard, c++, Python etc...)
 	var pType string
 	var pTypeColor string
+	var hexColor string
 
 	switch gameMode {
 	case "standard":
@@ -398,18 +421,20 @@ func Run() {
 
 	switch pType {
 	case "c++":
-		pTypeColor = BLUE
+		hexColor = DARK_BLUE_HEX
 	case "python":
-		pTypeColor = ORANGE
+		hexColor = ORANGE_HEX
 	case "golang":
-		pTypeColor = TEAL
+		hexColor = TEAL_HEX
 	case "rust":
-		pTypeColor = BROWN
+		hexColor = BROWN_HEX
 	case "java":
-		pTypeColor = YELLOW
+		hexColor = YELLOW_HEX
 	case "any", "standard":
-		pTypeColor = YELLOW
+		hexColor = WHITE_HEX
 	}
+
+	pTypeColor = lipgloss.NewStyle().Foreground(lipgloss.Color(hexColor)).Render("---------" + pType + "---------")
 
 	// Parse 'library.yaml' for a list of prompts
 	cfg, err := parseYAML()
@@ -418,6 +443,7 @@ func Run() {
 	}
 
 	cfg.PromptType = pType
+	cfg.PromptFormattedPrintString = pTypeColor
 	cfg.PromptTypeColor = pTypeColor
 	cfg.ActivePromptsLen = getActivePromptsLen(pType, cfg.Prompts)
 
@@ -433,6 +459,7 @@ func Run() {
 	for range pStr {
 		pUnderlines += " "
 	}
+	charLenSlice := []int{}
 
 	p := tea.NewProgram(Model{
 		Cfg:              cfg,
@@ -441,6 +468,7 @@ func Run() {
 		PromptSlice:      pSlice,
 		PromptUnderlines: pUnderlines,
 		State:            &state,
+		CharLenSlice: charLenSlice,
 	})
 
 	if _, err := p.Run(); err != nil {
