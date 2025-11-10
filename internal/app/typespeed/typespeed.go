@@ -26,6 +26,8 @@ const (
 	BROWN_HEX = "#A34900"
 	PURPLE_HEX = "#9500FF"
 	WHITE_HEX = "#FFFFFF"
+	BLACK_HEX = "#000000"
+	GREY_HEX = "#353839"
 
 	CURSOR_CHAR = "█"
 
@@ -287,7 +289,9 @@ func getActivePromptsLen(pType string, prompts []Prompt) int {
 
 func shiftCursor(m *Model) string {
 	if m.PromptIdx+1 < len(m.PromptStr)+1 {
-		return m.PromptStr[:m.PromptIdx] + CURSOR_CHAR + string(m.PromptStr[m.PromptIdx]) + m.PromptStr[m.PromptIdx+1:]
+		highlightedChar := lipgloss.NewStyle().Background(lipgloss.Color(WHITE_HEX)).Foreground(lipgloss.Color(BLACK_HEX)).Render(string(m.PromptStr[m.PromptIdx]))
+		greyedOutText := lipgloss.NewStyle().Foreground(lipgloss.Color(GREY_HEX)).Render(string(m.PromptStr[m.PromptIdx+1:]))
+		return m.PromptStr[:m.PromptIdx] + highlightedChar + greyedOutText
 	}
 
 	return m.PromptStr
@@ -323,7 +327,7 @@ func (m Model) View() string {
 	var display string
 
 	display = fmt.Sprintf(
-		"%s\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", m.Cfg.PromptFormattedPrintString, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM)
+		"%s\n\n%s\n%s\n%s\nPrompt completions: %d\nWord completions: %d\nTime elapsed (s): %vs\nAccuracy: %.0f%%\nWPM: %.02f\nCPM: %0.02f\n\n", m.Cfg.PromptFormattedPrintString, PromptStr, m.PromptUnderlines, m.InputStr, m.State.PromptCompletions, m.State.WordCompletions, m.State.Time, m.State.Accuracy, m.State.WPM, m.State.CPM)
 
 	// -2 means game should quit
 	if m.PromptStrsID != -2 {
