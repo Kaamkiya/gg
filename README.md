@@ -88,7 +88,6 @@ To contribute:
 * [ ] Simon
 * [ ] Solitaire
 * [ ] Tron
-* [ ] Typespeed
 
 ## License
 
