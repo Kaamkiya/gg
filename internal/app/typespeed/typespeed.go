@@ -27,12 +27,7 @@ const (
 	PURPLE_HEX = "#9500FF"
 	WHITE_HEX = "#FFFFFF"
 	BLACK_HEX = "#000000"
-	GREY_HEX = "#353839"
-
-	CURSOR_CHAR = "█"
-
-	RESET_LEN      = len(RESET)
-	COLOR_LEN      = len(RED)
+	GREY_HEX = "#6E7072"
 	UNDERLINE_CHAR = " "
 )
 
