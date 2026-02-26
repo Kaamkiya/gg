@@ -84,8 +84,6 @@ func (m model) View() string {
 		}
 	}
 
-	s += fmt.Sprintf("\n\norig: %v\n\ncurr: %v", m.origGrid, m.grid)
-
 	return s
 }
 
