@@ -168,14 +168,14 @@ func buildSidebar(gs *gameState) [14]string {
 				sidebarLines[i+2] = "                      "
 			} else {
 				lineBuilder := strings.Builder{}
-				spaceLength := (22 - len(grid[i])) / 2
+				spaceLength := (22 - len(grid[i])) / 2 - 1
 				lineBuilder.WriteString(strings.Repeat(" ", spaceLength))
 
 				for j := range grid[i] {
 					if grid[i][j] {
-						lineBuilder.WriteString(gs.gameBoard.Colors[gs.nextShape.GetColor()].Render(" "))
+						lineBuilder.WriteString(gs.gameBoard.Colors[gs.nextShape.GetColor()].Render("  "))
 					} else {
-						lineBuilder.WriteString(" ")
+						lineBuilder.WriteString("  ")
 					}
 				}
 				lineBuilder.WriteString(strings.Repeat(" ", spaceLength))
