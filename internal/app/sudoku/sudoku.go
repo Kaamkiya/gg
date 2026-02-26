@@ -44,6 +44,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursorx < 8 {
 				m.cursorx++
 			}
+		case "backspace", ".":
+			m.setSquare("0")
+		case "r":
+			m.resetGrid()
 		case "1", "2", "3", "4", "5", "6", "7", "8", "9", "0":
 			m.setSquare(msg.String())
 		}
@@ -84,12 +88,26 @@ func (m model) View() string {
 		}
 	}
 
+	s += "hjkl/←↓↑→ to move\n"
+	s += "1-9 to set a square\n"
+	s += "backspace or . to clear a square\n"
+	s += "r to reset the grid\n"
+	s += "q to quit"
+
 	return s
 }
 
 func (m *model) setSquare(button string) {
 	if m.origGrid[m.cursory][m.cursorx] == 0 {
 		m.grid[m.cursory][m.cursorx], _ = strconv.Atoi(button)
+	}
+}
+
+func (m *model) resetGrid() {
+	m.grid = make([][]int, 9)
+	for i := range 9 {
+		m.grid[i] = make([]int, 9)
+		copy(m.grid[i], m.origGrid[i])
 	}
 }
 
