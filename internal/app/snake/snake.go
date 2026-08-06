@@ -102,11 +102,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case moveMsg:
-		m.player.move(m, m.foodPos)
+		nextHead := m.player.body[0].add(m.player.dir)
 
-		head := m.player.body[0]
-
-		if head.x >= 20 || head.x < 0 || head.y < 0 || head.y >= 20 {
+		if nextHead.x >= 20 || nextHead.x < 0 || nextHead.y < 0 || nextHead.y >= 20 {
 			return m, tea.Quit
 		}
 
@@ -114,10 +112,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if i < 2 {
 				continue
 			}
-			if b.equals(head) {
+			if b.equals(nextHead) {
 				return m, tea.Quit
 			}
 		}
+
+		m.player.move(m, m.foodPos)
+		head := m.player.body[0]
 
 		if head.x == m.foodPos.x && head.y == m.foodPos.y {
 			m.setRandomFoodPos()
