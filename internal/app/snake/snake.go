@@ -40,7 +40,7 @@ type player struct {
 	style lipgloss.Style
 }
 
-func (p *player) move(m model, foodPos vector) {
+func (p *player) move(foodPos vector) {
 	head := p.body[0].add(p.dir)
 	p.body = append([]vector{head}, p.body...)
 	if !head.equals(foodPos) {
@@ -117,7 +117,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		m.player.move(m, m.foodPos)
+		m.player.move(m.foodPos)
 		head := m.player.body[0]
 
 		if head.x == m.foodPos.x && head.y == m.foodPos.y {
