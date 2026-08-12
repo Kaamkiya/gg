@@ -13,26 +13,25 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-
 const (
-	RESET       = "\033[0m"
-	RED         = "\033[31m"
-	RED_HEX = "#FF2900"
-	GREEN_HEX = "#00FF00"
-	DARK_BLUE_HEX = "#0011FF"
-	YELLOW_HEX = "#FFD900"
-	ORANGE_HEX = "#FF8C00"
-	TEAL_HEX = "#00D5FF"
-	BROWN_HEX = "#A34900"
-	PURPLE_HEX = "#9500FF"
-	WHITE_HEX = "#FFFFFF"
-	BLACK_HEX = "#000000"
-	GREY_HEX = "#6E7072"
+	RESET          = "\033[0m"
+	RED            = "\033[31m"
+	RED_HEX        = "#FF2900"
+	GREEN_HEX      = "#00FF00"
+	DARK_BLUE_HEX  = "#0011FF"
+	YELLOW_HEX     = "#FFD900"
+	ORANGE_HEX     = "#FF8C00"
+	TEAL_HEX       = "#00D5FF"
+	BROWN_HEX      = "#A34900"
+	PURPLE_HEX     = "#9500FF"
+	WHITE_HEX      = "#FFFFFF"
+	BLACK_HEX      = "#000000"
+	GREY_HEX       = "#6E7072"
 	UNDERLINE_CHAR = " "
 )
 
 var (
-	RED_HEX_LEN = len(lipgloss.NewStyle().Foreground(lipgloss.Color(RED_HEX)).Render("a"))
+	RED_HEX_LEN   = len(lipgloss.NewStyle().Foreground(lipgloss.Color(RED_HEX)).Render("a"))
 	GREEN_HEX_LEN = len(lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX)).Render("a"))
 )
 
@@ -66,7 +65,7 @@ type State struct {
 	// Stores indexes of characters that have been attempted
 	// Ensures no double counting for Hits or Errors
 	SeenIdxSet map[int]int
-} 
+}
 
 // Define your model
 type Model struct {
@@ -150,7 +149,7 @@ func typeChar(m *Model, in string) {
 			redStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(RED_HEX))
 			in = redStyle.Render(in)
 			m.CharLenSlice = append(m.CharLenSlice, RED_HEX_LEN)
-		} 
+		}
 
 		m.InputLen++
 
@@ -329,7 +328,7 @@ func (m Model) View() string {
 		return display
 	}
 
-	return display + lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX)).Render("\nFinished!\n")  
+	return display + lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX)).Render("\nFinished!\n")
 }
 
 func updateAccuracy(s *State) {
@@ -431,7 +430,7 @@ func Run() {
 		PromptSlice:      pSlice,
 		PromptUnderlines: pUnderlines,
 		State:            &state,
-		CharLenSlice: charLenSlice,
+		CharLenSlice:     charLenSlice,
 	})
 
 	if _, err := p.Run(); err != nil {

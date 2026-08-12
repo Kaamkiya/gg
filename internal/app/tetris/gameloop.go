@@ -168,7 +168,7 @@ func buildSidebar(gs *gameState) [14]string {
 				sidebarLines[i+2] = "                      "
 			} else {
 				lineBuilder := strings.Builder{}
-				spaceLength := (22 - len(grid[i])) / 2 - 1
+				spaceLength := (22-len(grid[i]))/2 - 1
 				lineBuilder.WriteString(strings.Repeat(" ", spaceLength))
 
 				for j := range grid[i] {
