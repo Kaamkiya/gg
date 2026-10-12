@@ -13,6 +13,7 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/sudoku"
 	"github.com/Kaamkiya/gg/internal/app/tetris"
 	"github.com/Kaamkiya/gg/internal/app/tictactoe"
+	"github.com/Kaamkiya/gg/internal/app/tron"
 	"github.com/Kaamkiya/gg/internal/app/twenty48"
 	"github.com/Kaamkiya/gg/internal/app/typespeed"
 
@@ -40,6 +41,7 @@ func main() {
 			huh.NewOption("pong (2 player)", "pong"),
 			huh.NewOption("tictactoe (2 player)", "tictactoe"),
 			huh.NewOption("tictactoe (vs AI)", "tictactoe-ai"),
+			huh.NewOption("tron", "tron"),
 		).
 		Value(&game).
 		Run()
@@ -75,7 +77,8 @@ func main() {
 		tetris.Run()
 	case "typespeed":
 		typespeed.Run()
-
+	case "tron":
+		tron.Run()
 	default:
 		panic("This game either doesn't exist or hasn't been implemented.")
 	}
