@@ -5,6 +5,8 @@ import "github.com/Kaamkiya/gg/internal/app/tron/gameboard"
 type player struct {
 	Direction gameboard.Direction
 	Color     gameboard.Color
+	Crashed   bool
+	Winner    bool
 }
 
 func (p *player) changeDirection(direction gameboard.Direction) {

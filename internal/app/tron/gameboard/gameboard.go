@@ -14,25 +14,60 @@ type Color int
 const (
 	None Color = iota
 	Red
+	LightRed
 	Blue
+	LightBlue
 	Green
 	Orange
 	Pink
 	Purple
+	LightPurple
 	Beige
 )
 
 var defaultStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#f9f6f2"))
 
 var Colors = map[Color]lipgloss.Style{
-	None:   defaultStyle.Background(lipgloss.NoColor{}),
-	Blue:   defaultStyle.Background(lipgloss.Color("#063970")),
-	Green:  defaultStyle.Background(lipgloss.Color("#4CA74F")),
-	Orange: defaultStyle.Background(lipgloss.Color("#CF6209")),
-	Pink:   defaultStyle.Background(lipgloss.Color("#D85B85")),
-	Purple: defaultStyle.Background(lipgloss.Color("#9047A3")),
-	Beige:  defaultStyle.Background(lipgloss.Color("#FFFDD0")),
-	Red:    defaultStyle.Background(lipgloss.Color("#F20032")),
+	None:        defaultStyle.Background(lipgloss.NoColor{}),
+	Blue:        defaultStyle.Background(lipgloss.Color("#063970")),
+	LightBlue:   defaultStyle.Background(lipgloss.Color("#63D4F2")),
+	Green:       defaultStyle.Background(lipgloss.Color("#4CA74F")),
+	Orange:      defaultStyle.Background(lipgloss.Color("#CF6209")),
+	Pink:        defaultStyle.Background(lipgloss.Color("#D85B85")),
+	Purple:      defaultStyle.Background(lipgloss.Color("#9047A3")),
+	LightPurple: defaultStyle.Background(lipgloss.Color("#DDB2E1")),
+	Beige:       defaultStyle.Background(lipgloss.Color("#FFFDD0")),
+	Red:         defaultStyle.Background(lipgloss.Color("#F20032")),
+	LightRed:    defaultStyle.Background(lipgloss.Color("#FFB0B2")),
+}
+
+func (c Color) animate() Color {
+	switch c {
+	case None:
+		return None
+	case Red:
+		return LightRed
+	case LightRed:
+		return Red
+	case Blue:
+		return LightBlue
+	case LightBlue:
+		return Blue
+	case Green:
+		return Green
+	case Orange:
+		return Orange
+	case Pink:
+		return Pink
+	case Purple:
+		return LightPurple
+	case LightPurple:
+		return Purple
+	case Beige:
+		return Beige
+	}
+
+	return None
 }
 
 type Direction int
@@ -60,13 +95,24 @@ func (d Direction) IsOpposite(other Direction) bool {
 }
 
 type Gameboard struct {
-	Grid            [Height][Width]Color
-	playerPositions map[Color]position
+	Grid         [Height][Width]Color
+	playerStates map[Color]*playerState
+}
+
+type playerState struct {
+	position position
+	status   status
 }
 
 type position struct {
 	width  int
 	height int
+}
+
+type status struct {
+	crashed            bool
+	animationCountdown int
+	removed            bool
 }
 
 func (gb *Gameboard) Clear() {
@@ -75,7 +121,7 @@ func (gb *Gameboard) Clear() {
 
 func NewGameboard(playerColors ...Color) Gameboard {
 	gb := Gameboard{
-		playerPositions: make(map[Color]position),
+		playerStates: make(map[Color]*playerState),
 	}
 	initialPositions := make([]position, 0)
 
@@ -94,41 +140,82 @@ func NewGameboard(playerColors ...Color) Gameboard {
 
 	for i, position := range initialPositions {
 		gb.markPositionForPlayer(position, playerColors[i])
-		gb.playerPositions[playerColors[i]] = position
+		gb.playerStates[playerColors[i]] = &playerState{
+			position: position,
+		}
 	}
 
 	return gb
 }
 
-func (gb *Gameboard) MovePlayer(playerColor Color, direction Direction, speed int) bool {
-	currentPosition, ok := gb.playerPositions[playerColor]
+func (gb *Gameboard) UpdatePlayer(playerColor Color, direction Direction, speed int) bool {
+	playerState, ok := gb.playerStates[playerColor]
 
 	if !ok {
 		panic("Unknown player Color: " + strconv.Itoa(int(playerColor)))
 	}
 
+	if playerState.status.removed {
+		return true
+	}
+
+	if playerState.status.crashed {
+		gb.animateCrashedPlayer(playerColor, playerState)
+		return true
+	} else {
+		return gb.movePlayer(playerState, playerColor, direction, speed)
+	}
+}
+
+func (gb *Gameboard) movePlayer(playerState *playerState, playerColor Color, direction Direction, speed int) bool {
 	for i := 0; i < speed; i++ {
 		var newPosition position
 		switch direction {
 		case Up:
-			newPosition = position{currentPosition.width, currentPosition.height - 1}
+			newPosition = position{playerState.position.width, playerState.position.height - 1}
 		case Down:
-			newPosition = position{currentPosition.width, currentPosition.height + 1}
+			newPosition = position{playerState.position.width, playerState.position.height + 1}
 		case Left:
-			newPosition = position{currentPosition.width - 1, currentPosition.height}
+			newPosition = position{playerState.position.width - 1, playerState.position.height}
 		case Right:
-			newPosition = position{currentPosition.width + 1, currentPosition.height}
+			newPosition = position{playerState.position.width + 1, playerState.position.height}
 		}
 		if !gb.isPositionValid(newPosition) {
+			markPlayerAsCrashed(playerState)
 			return false
 		}
-		currentPosition = newPosition
-		gb.markPositionForPlayer(currentPosition, playerColor)
+		playerState.position = newPosition
+		gb.markPositionForPlayer(playerState.position, playerColor)
 
 	}
-	gb.playerPositions[playerColor] = currentPosition
 
 	return true
+}
+
+func (gb *Gameboard) animateCrashedPlayer(playerColor Color, playerState *playerState) {
+	var newColor, oldColor Color
+	if playerState.status.animationCountdown%2 == 0 {
+		newColor = playerColor.animate()
+		oldColor = playerColor
+	} else {
+		oldColor = playerColor.animate()
+		newColor = playerColor
+	}
+
+	if playerState.status.animationCountdown == 0 {
+		newColor = None
+		playerState.status.removed = true
+	}
+
+	for y, row := range gb.Grid {
+		for x := range row {
+			if gb.Grid[y][x] == oldColor {
+				gb.Grid[y][x] = newColor
+			}
+		}
+	}
+
+	playerState.status.animationCountdown = playerState.status.animationCountdown - 1
 }
 
 func (gb *Gameboard) isPositionValid(position position) bool {
@@ -145,4 +232,9 @@ func (gb *Gameboard) isPositionValid(position position) bool {
 
 func (gb *Gameboard) markPositionForPlayer(position position, playerColor Color) {
 	gb.Grid[position.height][position.width] = playerColor
+}
+
+func markPlayerAsCrashed(playerState *playerState) {
+	playerState.status.crashed = true
+	playerState.status.animationCountdown = 4
 }
