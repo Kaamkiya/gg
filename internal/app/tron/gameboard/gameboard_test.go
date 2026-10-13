@@ -21,28 +21,20 @@ func TestWrongNumberOfPlayersPanics(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			gameboard := Gameboard{
-				playerPositions: make(map[Color]position),
-			}
-
 			defer func() {
 				if r := recover(); r == nil {
 					t.Error("should panic when a wrong number of players is used")
 				}
 			}()
 
-			gameboard.InitializePlayers(tt.in...)
+			NewGameboard(tt.in...)
 		})
 	}
 
 }
 
 func TestTwoPlayerInitilization(t *testing.T) {
-	gameboard := Gameboard{
-		playerPositions: make(map[Color]position),
-	}
-
-	gameboard.InitializePlayers(Red, Blue)
+	gameboard := NewGameboard(Red, Blue)
 
 	if gameboard.grid[20][9] != Red {
 		t.Error("expected that first player position was 9,20")
@@ -54,11 +46,7 @@ func TestTwoPlayerInitilization(t *testing.T) {
 }
 
 func TestPlayersCanCrashOneOnAnother(t *testing.T) {
-	gameboard := Gameboard{
-		playerPositions: make(map[Color]position),
-	}
-
-	gameboard.InitializePlayers(Red, Blue)
+	gameboard := NewGameboard(Red, Blue)
 
 	if !gameboard.MovePlayer(Red, Right, 10) {
 		t.Error("first player should be able to move 10 positions to the right")
@@ -141,11 +129,7 @@ func TestPlayerShouldCrashWhenGoingOutOfBounds(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			gameboard := Gameboard{
-				playerPositions: make(map[Color]position),
-			}
-
-			gameboard.InitializePlayers(Red, Blue)
+			gameboard := NewGameboard(Red, Blue)
 
 			if gameboard.MovePlayer(tt.color, tt.direction, tt.speed) != tt.want {
 				t.Errorf("Expected MovePlayer to return %t", tt.want)

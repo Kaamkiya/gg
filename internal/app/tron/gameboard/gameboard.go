@@ -2,6 +2,8 @@ package gameboard
 
 import (
 	"strconv"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 const Height = 40
@@ -14,7 +16,24 @@ const (
 	Red
 	Blue
 	Green
+	Orange
+	Pink
+	Purple
+	Beige
 )
+
+var defaultStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#f9f6f2"))
+
+var Colors = map[Color]lipgloss.Style{
+	None:   defaultStyle.Background(lipgloss.NoColor{}),
+	Blue:   defaultStyle.Background(lipgloss.Color("#063970")),
+	Green:  defaultStyle.Background(lipgloss.Color("#4CA74F")),
+	Orange: defaultStyle.Background(lipgloss.Color("#CF6209")),
+	Pink:   defaultStyle.Background(lipgloss.Color("#D85B85")),
+	Purple: defaultStyle.Background(lipgloss.Color("#9047A3")),
+	Beige:  defaultStyle.Background(lipgloss.Color("#FFFDD0")),
+	Red:    defaultStyle.Background(lipgloss.Color("#F20032")),
+}
 
 type Direction int
 
@@ -26,7 +45,7 @@ const (
 )
 
 type Gameboard struct {
-	grid            [Height][Width]Color
+	Grid            [Height][Width]Color
 	playerPositions map[Color]position
 }
 
@@ -36,10 +55,13 @@ type position struct {
 }
 
 func (gb *Gameboard) Clear() {
-	gb.grid = [Height][Width]Color{}
+	gb.Grid = [Height][Width]Color{}
 }
 
-func (gb *Gameboard) InitializePlayers(playerColors ...Color) {
+func NewGameboard(playerColors ...Color) Gameboard {
+	gb := Gameboard{
+		playerPositions: make(map[Color]position),
+	}
 	initialPositions := make([]position, 0)
 
 	switch len(playerColors) {
@@ -59,6 +81,8 @@ func (gb *Gameboard) InitializePlayers(playerColors ...Color) {
 		gb.markPositionForPlayer(position, playerColors[i])
 		gb.playerPositions[playerColors[i]] = position
 	}
+
+	return gb
 }
 
 func (gb *Gameboard) MovePlayer(playerColor Color, direction Direction, speed int) bool {
@@ -101,9 +125,9 @@ func (gb *Gameboard) isPositionValid(position position) bool {
 		return false
 	}
 
-	return gb.grid[position.height][position.width] == None
+	return gb.Grid[position.height][position.width] == None
 }
 
 func (gb *Gameboard) markPositionForPlayer(position position, playerColor Color) {
-	gb.grid[position.height][position.width] = playerColor
+	gb.Grid[position.height][position.width] = playerColor
 }
