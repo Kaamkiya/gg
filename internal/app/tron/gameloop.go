@@ -6,6 +6,7 @@ import (
 
 	"github.com/Kaamkiya/gg/internal/app/tron/gameboard"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 const tickDelay = 50 * time.Millisecond
@@ -59,7 +60,18 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View implements [tea.Model].
 func (gs *gameState) View() string {
 	viewBuilder := strings.Builder{}
-	viewBuilder.Grow((gameboard.Height + 5) * (gameboard.Width + 2) * 2)
+	viewBuilder.Grow((gameboard.Height + 8) * (gameboard.Width + 3) * 2)
+
+	message := gs.buildMessage()
+
+	for _, line := range message {
+		viewBuilder.WriteString(centerText(line, gameboard.Width*2+2))
+		viewBuilder.WriteString("\n")
+	}
+
+	for i := 0; i < 4-len(message); i++ {
+		viewBuilder.WriteString("\n")
+	}
 
 	viewBuilder.WriteString(strings.Repeat(gameboard.Colors[gameboard.Beige].Render(" "), gameboard.Width*2+2))
 	viewBuilder.WriteString("\n")
@@ -89,4 +101,29 @@ func (gs *gameState) View() string {
 	viewBuilder.WriteString("\n")
 
 	return viewBuilder.String()
+}
+
+func (gs *gameState) buildMessage() []string {
+	if gs.gameEnded {
+		if gs.winner >= 0 {
+			winningColor := gs.players[gs.winner].Color
+			return []string{
+				lipgloss.NewStyle().Foreground(lipgloss.Color(winningColor.Hex())).Render(winningColor.String()) + " wins!",
+				"Press 'R' to restart",
+			}
+		} else {
+			return []string{
+				"Draw!",
+				"Press 'R' to restart",
+			}
+		}
+	}
+
+	return []string{}
+}
+
+func centerText(text string, size int) string {
+	fillSize := (size - lipgloss.Width(text)) / 2
+	filling := strings.Repeat(gameboard.Colors[gameboard.None].Render(" "), fillSize)
+	return filling + text + filling
 }

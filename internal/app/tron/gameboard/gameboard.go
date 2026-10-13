@@ -70,6 +70,64 @@ func (c Color) animate() Color {
 	return None
 }
 
+func (c Color) String() string {
+	switch c {
+	case None:
+		return "None"
+	case Red:
+		return "Red"
+	case LightRed:
+		return "LightRed"
+	case Blue:
+		return "Blue"
+	case LightBlue:
+		return "LightBlue"
+	case Green:
+		return "Green"
+	case Orange:
+		return "Orange"
+	case Pink:
+		return "Pink"
+	case Purple:
+		return "Purple"
+	case LightPurple:
+		return "LightPurple"
+	case Beige:
+		return "Beige"
+	}
+
+	return "None"
+}
+
+func (c Color) Hex() string {
+	switch c {
+	case None:
+		return ""
+	case Red:
+		return "#F20032"
+	case LightRed:
+		return "#FFB0B2"
+	case Blue:
+		return "#063970"
+	case LightBlue:
+		return "#63D4F2"
+	case Green:
+		return "#4CA74F"
+	case Orange:
+		return "#CF6209"
+	case Pink:
+		return "#D85B85"
+	case Purple:
+		return "#9047A3"
+	case LightPurple:
+		return "#DDB2E1"
+	case Beige:
+		return "#FFFDD0"
+	}
+
+	return ""
+}
+
 type Direction int
 
 const (
