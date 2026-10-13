@@ -36,11 +36,11 @@ func TestWrongNumberOfPlayersPanics(t *testing.T) {
 func TestTwoPlayerInitilization(t *testing.T) {
 	gameboard := NewGameboard(Red, Blue)
 
-	if gameboard.grid[20][9] != Red {
+	if gameboard.Grid[20][9] != Red {
 		t.Error("expected that first player position was 9,20")
 	}
 
-	if gameboard.grid[20][70] != Blue {
+	if gameboard.Grid[20][70] != Blue {
 		t.Error("expected that second player position was 71,20")
 	}
 }

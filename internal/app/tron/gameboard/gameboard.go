@@ -44,6 +44,21 @@ const (
 	Right
 )
 
+func (d Direction) IsOpposite(other Direction) bool {
+	switch d {
+	case Up:
+		return other == Down
+	case Down:
+		return other == Up
+	case Left:
+		return other == Right
+	case Right:
+		return other == Left
+	}
+
+	return false
+}
+
 type Gameboard struct {
 	Grid            [Height][Width]Color
 	playerPositions map[Color]position
