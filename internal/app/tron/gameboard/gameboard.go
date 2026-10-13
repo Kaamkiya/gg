@@ -29,16 +29,16 @@ var defaultStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#f9f6f2"))
 
 var Colors = map[Color]lipgloss.Style{
 	None:        defaultStyle.Background(lipgloss.NoColor{}),
-	Blue:        defaultStyle.Background(lipgloss.Color("#063970")),
-	LightBlue:   defaultStyle.Background(lipgloss.Color("#63D4F2")),
-	Green:       defaultStyle.Background(lipgloss.Color("#4CA74F")),
-	Orange:      defaultStyle.Background(lipgloss.Color("#CF6209")),
-	Pink:        defaultStyle.Background(lipgloss.Color("#D85B85")),
-	Purple:      defaultStyle.Background(lipgloss.Color("#9047A3")),
-	LightPurple: defaultStyle.Background(lipgloss.Color("#DDB2E1")),
-	Beige:       defaultStyle.Background(lipgloss.Color("#FFFDD0")),
-	Red:         defaultStyle.Background(lipgloss.Color("#F20032")),
-	LightRed:    defaultStyle.Background(lipgloss.Color("#FFB0B2")),
+	Blue:        defaultStyle.Background(lipgloss.Color(Blue.Hex())),
+	LightBlue:   defaultStyle.Background(lipgloss.Color(LightBlue.Hex())),
+	Green:       defaultStyle.Background(lipgloss.Color(Green.Hex())),
+	Orange:      defaultStyle.Background(lipgloss.Color(Orange.Hex())),
+	Pink:        defaultStyle.Background(lipgloss.Color(Pink.Hex())),
+	Purple:      defaultStyle.Background(lipgloss.Color(Purple.Hex())),
+	LightPurple: defaultStyle.Background(lipgloss.Color(LightPurple.Hex())),
+	Beige:       defaultStyle.Background(lipgloss.Color(Beige.Hex())),
+	Red:         defaultStyle.Background(lipgloss.Color(Red.Hex())),
+	LightRed:    defaultStyle.Background(lipgloss.Color(LightRed.Hex())),
 }
 
 func (c Color) animate() Color {
@@ -108,7 +108,7 @@ func (c Color) Hex() string {
 	case LightRed:
 		return "#FFB0B2"
 	case Blue:
-		return "#063970"
+		return "#2F49FE"
 	case LightBlue:
 		return "#63D4F2"
 	case Green:

@@ -5,10 +5,11 @@ import (
 )
 
 type gameState struct {
-	gameboard gameboard.Gameboard
-	players   []*player
-	gameEnded bool
-	winner    int
+	gameboard      gameboard.Gameboard
+	players        []*player
+	gameEnded      bool
+	winner         int
+	startCountDown int
 }
 
 func newGameState() gameState {
@@ -18,6 +19,7 @@ func newGameState() gameState {
 			{Direction: gameboard.Right, Color: gameboard.Red},
 			{Direction: gameboard.Left, Color: gameboard.Blue},
 		},
+		startCountDown: 3,
 	}
 }
 

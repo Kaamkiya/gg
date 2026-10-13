@@ -1,6 +1,7 @@
 package tron
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -9,15 +10,17 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const tickDelay = 50 * time.Millisecond
+const tickDelay = 100 * time.Millisecond
 
 type gameProgressTick struct{}
 
+type gameStartTick struct{}
+
 // Init implements [tea.Model].
 func (gs *gameState) Init() tea.Cmd {
-	return func() tea.Msg {
-		return gameProgressTick{}
-	}
+	return tea.Tick(time.Millisecond*1500, func(time.Time) tea.Msg {
+		return gameStartTick{}
+	})
 }
 
 // Update implements [tea.Model].
@@ -26,6 +29,11 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" || msg.String() == "Q" {
 			return gs, tea.Quit
+		} else if msg.String() == "r" || msg.String() == "R" {
+			gameState := newGameState()
+			return &gameState, tea.Tick(time.Millisecond*1500, func(time.Time) tea.Msg {
+				return gameStartTick{}
+			})
 		} else {
 			switch msg.String() {
 			case "w":
@@ -47,13 +55,30 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case gameProgressTick:
+		if gs.startCountDown > 0 {
+			return gs, nil
+		}
+
 		gs.updatePlayers()
 		gs.gameEnded, gs.winner = gs.checkForWinner()
 		return gs, tea.Tick(tickDelay, func(time.Time) tea.Msg {
 			return gameProgressTick{}
 		})
+	case gameStartTick:
+		gs.startCountDown = gs.startCountDown - 1
+		if gs.startCountDown > 0 {
+			return gs, tea.Tick(time.Second, func(time.Time) tea.Msg {
+				return gameStartTick{}
+			})
+
+		} else {
+			return gs, func() tea.Msg {
+				return gameProgressTick{}
+			}
+		}
 
 	}
+
 	return gs, nil
 }
 
@@ -119,7 +144,23 @@ func (gs *gameState) buildMessage() []string {
 		}
 	}
 
-	return []string{}
+	var color, text string
+	if gs.startCountDown > 1 {
+		color = gameboard.Red.Hex()
+		text = strconv.Itoa(gs.startCountDown)
+
+	} else if gs.startCountDown == 1 {
+		color = gameboard.Orange.Hex()
+		text = strconv.Itoa(gs.startCountDown)
+	} else {
+		color = gameboard.Green.Hex()
+		text = "GO!"
+	}
+
+	return []string{
+		lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Render(text),
+	}
+
 }
 
 func centerText(text string, size int) string {
