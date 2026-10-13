@@ -46,7 +46,8 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case gameProgressTick:
-		gs.movePlayers()
+		gs.updatePlayers()
+		gs.gameEnded, gs.winner = gs.checkForWinner()
 		return gs, tea.Tick(tickDelay, func(time.Time) tea.Msg {
 			return gameProgressTick{}
 		})
@@ -58,20 +59,34 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View implements [tea.Model].
 func (gs *gameState) View() string {
 	viewBuilder := strings.Builder{}
-	viewBuilder.Grow(gameboard.Height * gameboard.Width * 2)
+	viewBuilder.Grow((gameboard.Height + 5) * (gameboard.Width + 2) * 2)
+
+	viewBuilder.WriteString(strings.Repeat(gameboard.Colors[gameboard.Beige].Render(" "), gameboard.Width*2+2))
+	viewBuilder.WriteString("\n")
 
 	for y := range gameboard.Height {
 		lineBuilder := strings.Builder{}
 		lineBuilder.Grow(gameboard.Width * 2)
 
 		for x := range gameboard.Width {
+			if x == 0 {
+				lineBuilder.WriteString(gameboard.Colors[gameboard.Beige].Render(" "))
+			}
+
 			nextChar := gameboard.Colors[gs.gameboard.Grid[y][x]].Render("  ")
 			lineBuilder.WriteString(nextChar)
+
+			if x == gameboard.Width-1 {
+				lineBuilder.WriteString(gameboard.Colors[gameboard.Beige].Render(" "))
+			}
 		}
 
 		viewBuilder.WriteString(lineBuilder.String())
 		viewBuilder.WriteString("\n")
 	}
+
+	viewBuilder.WriteString(strings.Repeat(gameboard.Colors[gameboard.Beige].Render(" "), gameboard.Width*2+2))
+	viewBuilder.WriteString("\n")
 
 	return viewBuilder.String()
 }

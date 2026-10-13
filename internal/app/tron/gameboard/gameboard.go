@@ -148,7 +148,7 @@ func NewGameboard(playerColors ...Color) Gameboard {
 	return gb
 }
 
-func (gb *Gameboard) UpdatePlayer(playerColor Color, direction Direction, speed int) bool {
+func (gb *Gameboard) UpdatePlayer(playerColor Color, direction Direction, speed int, gameFinished bool) bool {
 	playerState, ok := gb.playerStates[playerColor]
 
 	if !ok {
@@ -162,9 +162,11 @@ func (gb *Gameboard) UpdatePlayer(playerColor Color, direction Direction, speed 
 	if playerState.status.crashed {
 		gb.animateCrashedPlayer(playerColor, playerState)
 		return true
-	} else {
+	} else if !gameFinished {
 		return gb.movePlayer(playerState, playerColor, direction, speed)
 	}
+
+	return true
 }
 
 func (gb *Gameboard) movePlayer(playerState *playerState, playerColor Color, direction Direction, speed int) bool {
