@@ -139,6 +139,9 @@ func (gs *gameState) View() string {
 	viewBuilder.WriteString(strings.Repeat(gameboard.Colors[gameboard.Beige].Render(" "), gameboard.Width*2+2))
 	viewBuilder.WriteString("\n")
 
+	viewBuilder.WriteString("Controls:\n")
+	viewBuilder.WriteString("First player: w,a,s,d,space  Second player: ↑,←,↓,→,0   Q/Ctrl+c to quit\n")
+
 	return viewBuilder.String()
 }
 
