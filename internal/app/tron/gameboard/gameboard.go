@@ -1,3 +1,10 @@
+// Package gameboard maintains the game's play area.
+//
+// It is responsible for drawing the player's paths and detecting
+// collisions. The gameboard is not dependent on players and any related
+// player state is kept internally in the package. A player is represented
+// only by a [Color] and each position in the grid can either have a [Color]
+// when it is full or [lipgloss.NoColor] when empty.
 package gameboard
 
 import (
@@ -8,6 +15,7 @@ import (
 
 const Height = 40
 const Width = 80
+const crashAnimationCountdown = 4
 
 type Color int
 
@@ -41,6 +49,7 @@ var Colors = map[Color]lipgloss.Style{
 	LightRed:    defaultStyle.Background(lipgloss.Color(LightRed.Hex())),
 }
 
+// animate provides an alternate color to be used in flashy animations.
 func (c Color) animate() Color {
 	switch c {
 	case None:
@@ -152,14 +161,15 @@ func (d Direction) IsOpposite(other Direction) bool {
 	return false
 }
 
-type Gameboard struct {
+type Board struct {
 	Grid         [Height][Width]Color
 	playerStates map[Color]*playerState
 }
 
 type playerState struct {
-	position position
-	status   status
+	position           position
+	animationOngoing   bool
+	animationCountdown int
 }
 
 type position struct {
@@ -167,18 +177,13 @@ type position struct {
 	height int
 }
 
-type status struct {
-	crashed            bool
-	animationCountdown int
-	removed            bool
-}
-
-func (gb *Gameboard) Clear() {
+func (gb *Board) Clear() {
 	gb.Grid = [Height][Width]Color{}
 }
 
-func NewGameboard(playerColors ...Color) Gameboard {
-	gb := Gameboard{
+// NewBoard initializes the play area for two or three players.
+func NewBoard(playerColors ...Color) *Board {
+	gb := &Board{
 		playerStates: make(map[Color]*playerState),
 	}
 	initialPositions := make([]position, 0)
@@ -199,35 +204,24 @@ func NewGameboard(playerColors ...Color) Gameboard {
 	for i, position := range initialPositions {
 		gb.markPositionForPlayer(position, playerColors[i])
 		gb.playerStates[playerColors[i]] = &playerState{
-			position: position,
+			position:           position,
+			animationCountdown: -1,
 		}
 	}
 
 	return gb
 }
 
-func (gb *Gameboard) UpdatePlayer(playerColor Color, direction Direction, speed int, gameFinished bool) bool {
+// MovePlayer updates the player position. It should be called at each loop tick for all players while the game is not finished.
+//
+// Returns whether the player has crashed.
+func (gb *Board) MovePlayer(playerColor Color, direction Direction, speed int) (crashed bool) {
 	playerState, ok := gb.playerStates[playerColor]
 
 	if !ok {
 		panic("Unknown player Color: " + strconv.Itoa(int(playerColor)))
 	}
 
-	if playerState.status.removed {
-		return true
-	}
-
-	if playerState.status.crashed {
-		gb.animateCrashedPlayer(playerColor, playerState)
-		return true
-	} else if !gameFinished {
-		return gb.movePlayer(playerState, playerColor, direction, speed)
-	}
-
-	return true
-}
-
-func (gb *Gameboard) movePlayer(playerState *playerState, playerColor Color, direction Direction, speed int) bool {
 	for i := 0; i < speed; i++ {
 		var newPosition position
 		switch direction {
@@ -242,19 +236,31 @@ func (gb *Gameboard) movePlayer(playerState *playerState, playerColor Color, dir
 		}
 		if !gb.isPositionValid(newPosition) {
 			markPlayerAsCrashed(playerState)
-			return false
+			return true
 		}
 		playerState.position = newPosition
 		gb.markPositionForPlayer(playerState.position, playerColor)
 
 	}
 
-	return true
+	return false
 }
 
-func (gb *Gameboard) animateCrashedPlayer(playerColor Color, playerState *playerState) {
+// AnimateCrashedPlayer performs a flashy animation when the player crashes. Once the animation
+// is completed the player is removed from the player area and his spaces become empty.
+func (gb *Board) AnimatePlayer(playerColor Color) {
+	playerState, ok := gb.playerStates[playerColor]
+
+	if !ok {
+		panic("Unknown player Color: " + strconv.Itoa(int(playerColor)))
+	}
+
+	if !playerState.animationOngoing {
+		return
+	}
+
 	var newColor, oldColor Color
-	if playerState.status.animationCountdown%2 == 0 {
+	if playerState.animationCountdown%2 == 0 {
 		newColor = playerColor.animate()
 		oldColor = playerColor
 	} else {
@@ -262,9 +268,9 @@ func (gb *Gameboard) animateCrashedPlayer(playerColor Color, playerState *player
 		newColor = playerColor
 	}
 
-	if playerState.status.animationCountdown == 0 {
+	if playerState.animationCountdown == 0 {
 		newColor = None
-		playerState.status.removed = true
+		playerState.animationOngoing = false
 	}
 
 	for y, row := range gb.Grid {
@@ -275,10 +281,10 @@ func (gb *Gameboard) animateCrashedPlayer(playerColor Color, playerState *player
 		}
 	}
 
-	playerState.status.animationCountdown = playerState.status.animationCountdown - 1
+	playerState.animationCountdown -= 1
 }
 
-func (gb *Gameboard) isPositionValid(position position) bool {
+func (gb *Board) isPositionValid(position position) bool {
 	if position.height < 0 || position.width < 0 {
 		return false
 	}
@@ -290,11 +296,11 @@ func (gb *Gameboard) isPositionValid(position position) bool {
 	return gb.Grid[position.height][position.width] == None
 }
 
-func (gb *Gameboard) markPositionForPlayer(position position, playerColor Color) {
+func (gb *Board) markPositionForPlayer(position position, playerColor Color) {
 	gb.Grid[position.height][position.width] = playerColor
 }
 
 func markPlayerAsCrashed(playerState *playerState) {
-	playerState.status.crashed = true
-	playerState.status.animationCountdown = 4
+	playerState.animationOngoing = true
+	playerState.animationCountdown = crashAnimationCountdown
 }

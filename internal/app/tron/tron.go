@@ -22,7 +22,7 @@ func Run() {
 	}
 
 	initialModel := newGameState()
-	p := tea.NewProgram(&initialModel)
+	p := tea.NewProgram(initialModel)
 
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("An error: %v", err)

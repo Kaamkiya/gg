@@ -12,18 +12,22 @@ import (
 
 const tickDelay = 50 * time.Millisecond
 
+// gameProgressTick is sent at each iteration to progress the game loop.
 type gameProgressTick struct{}
 
+// gameStartTick is used during the initial countdown.
 type gameStartTick struct{}
 
-// Init implements [tea.Model].
+// Init begins the countdown process.
 func (gs *gameState) Init() tea.Cmd {
 	return tea.Tick(time.Millisecond*1500, func(time.Time) tea.Msg {
 		return gameStartTick{}
 	})
 }
 
-// Update implements [tea.Model].
+// Update has the following flow:
+// gameStartTick (initiates countdown) -> gameProgressTick (main play loop) ->
+// Game ends when at most 1 players has not crashed -> If 'R' is pressed start over.
 func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -31,7 +35,7 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return gs, tea.Quit
 		} else if gs.gameEnded && (msg.String() == "r" || msg.String() == "R") {
 			gameState := newGameState()
-			return &gameState, tea.Tick(time.Millisecond*1500, func(time.Time) tea.Msg {
+			return gameState, tea.Tick(time.Millisecond*1500, func(time.Time) tea.Msg {
 				return gameStartTick{}
 			})
 		} else {
@@ -66,12 +70,12 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		gs.updatePlayers()
-		gs.gameEnded, gs.winner = gs.checkForWinner()
+		gs.gameEnded, gs.winner = gs.checkForGameEnd()
 		return gs, tea.Tick(tickDelay, func(time.Time) tea.Msg {
 			return gameProgressTick{}
 		})
 	case gameStartTick:
-		gs.startCountDown = gs.startCountDown - 1
+		gs.startCountDown--
 		if gs.startCountDown > 0 {
 			return gs, tea.Tick(time.Second, func(time.Time) tea.Msg {
 				return gameStartTick{}
@@ -88,7 +92,8 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return gs, nil
 }
 
-// View implements [tea.Model].
+// View builds the game area. Each [gameboard.Board.Grid] location is translated to 2x1 characters in the actual view in
+// order for players to appear as rectangles.
 func (gs *gameState) View() string {
 	viewBuilder := strings.Builder{}
 	viewBuilder.Grow((gameboard.Height + 8) * (gameboard.Width + 3) * 2)
@@ -137,6 +142,7 @@ func (gs *gameState) View() string {
 	return viewBuilder.String()
 }
 
+// buildMessage builds the game messages (e.g. countdown, winner announcement etc.) by going through the game state.
 func (gs *gameState) buildMessage() []string {
 	if gs.gameEnded {
 		if gs.winner >= 0 {
@@ -172,6 +178,7 @@ func (gs *gameState) buildMessage() []string {
 
 }
 
+// buildNitrosLine builds the line that displays each player available nitros.
 func (gs *gameState) buildNitrosLine() string {
 	nitrosStrings := make([]string, len(gs.players))
 	var stringTotalSize int

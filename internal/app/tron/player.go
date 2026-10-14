@@ -6,6 +6,7 @@ type player struct {
 	Direction            gameboard.Direction
 	Color                gameboard.Color
 	Crashed              bool
+	Removed              bool
 	Nitros               int
 	nitroRoundsCountdown int
 }
@@ -32,14 +33,14 @@ func (p *player) nitroBoost() {
 	}
 
 	p.Nitros--
-	p.nitroRoundsCountdown = p.nitroRoundsCountdown + roundsPerNitroUsage
+	p.nitroRoundsCountdown += roundsPerNitroUsage
 }
 
-func (p *player) getSpeed() int {
+func (p *player) speedForNextTick() int {
 	if p.nitroRoundsCountdown > 0 {
 		p.nitroRoundsCountdown--
 		return nitroBoost
-	} else {
-		return 1
 	}
+
+	return 1
 }

@@ -27,14 +27,14 @@ func TestWrongNumberOfPlayersPanics(t *testing.T) {
 				}
 			}()
 
-			NewGameboard(tt.in...)
+			NewBoard(tt.in...)
 		})
 	}
 
 }
 
 func TestTwoPlayerInitilization(t *testing.T) {
-	gameboard := NewGameboard(Red, Blue)
+	gameboard := NewBoard(Red, Blue)
 
 	if gameboard.Grid[20][9] != Red {
 		t.Error("expected that first player position was 9,20")
@@ -46,25 +46,25 @@ func TestTwoPlayerInitilization(t *testing.T) {
 }
 
 func TestPlayersCanCrashOneOnAnother(t *testing.T) {
-	gameboard := NewGameboard(Red, Blue)
+	gameboard := NewBoard(Red, Blue)
 
-	if !gameboard.UpdatePlayer(Red, Right, 10, false) {
+	if gameboard.UpdatePlayer(Red, Right, 10, false) {
 		t.Error("first player should be able to move 10 positions to the right")
 	}
 
-	if !gameboard.UpdatePlayer(Red, Right, 50, false) {
+	if gameboard.UpdatePlayer(Red, Right, 50, false) {
 		t.Error("first player should be able to move just left of the other player")
 	}
 
-	if gameboard.UpdatePlayer(Red, Right, 1, false) {
+	if !gameboard.UpdatePlayer(Red, Right, 1, false) {
 		t.Error("first player should not be able to move on the second player")
 	}
 }
 
 func TestPlayerShouldBeMarkedAsCrashedWhenCrashes(t *testing.T) {
-	gameboard := NewGameboard(Red, Blue)
+	gameboard := NewBoard(Red, Blue)
 
-	if gameboard.UpdatePlayer(Red, Right, 1000, false) {
+	if !gameboard.UpdatePlayer(Red, Right, 1000, false) {
 		t.Error("first player should crash when moving 1000 positions to the right")
 	}
 
@@ -74,9 +74,9 @@ func TestPlayerShouldBeMarkedAsCrashedWhenCrashes(t *testing.T) {
 }
 
 func TestPlayerShouldHaveCountdownReducedAfterCrashing(t *testing.T) {
-	gameboard := NewGameboard(Red, Blue)
+	gameboard := NewBoard(Red, Blue)
 
-	if gameboard.UpdatePlayer(Red, Right, 1000, false) {
+	if !gameboard.UpdatePlayer(Red, Right, 1000, false) {
 		t.Error("first player should crash when moving 1000 positions to the right")
 	}
 
@@ -92,7 +92,7 @@ func TestPlayerShouldHaveCountdownReducedAfterCrashing(t *testing.T) {
 
 	countdown := gameboard.playerStates[Red].status.animationCountdown
 	removed := gameboard.playerStates[Red].status.removed
-	if countdown != 0 || !removed {
+	if countdown != -1 || !removed {
 		t.Errorf("first player should be removed and have the countdown to -1 after animation stops. Countdown %d status %t", countdown, removed)
 	}
 }
@@ -110,62 +110,62 @@ func TestPlayerShouldCrashWhenGoingOutOfBounds(t *testing.T) {
 			Red,
 			Up,
 			20,
-			true,
+			false,
 		},
 		{
 			"should crash when going over the top bound",
 			Red,
 			Up,
 			21,
-			false,
+			true,
 		},
 		{
 			"should be able to go before the bottom bound",
 			Red,
 			Down,
 			19,
-			true,
+			false,
 		},
 		{
 			"should crash when going over the bottom bound",
 			Red,
 			Down,
 			20,
-			false,
+			true,
 		},
 		{
 			"should be able to go before the left bound",
 			Red,
 			Left,
 			9,
-			true,
+			false,
 		},
 		{
 			"should crash when going over the left bound",
 			Red,
 			Left,
 			10,
-			false,
+			true,
 		},
 		{
 			"should be able to go before the right bound",
 			Blue,
 			Right,
 			9,
-			true,
+			false,
 		},
 		{
 			"should crash when going over the right bound",
 			Blue,
 			Right,
 			10,
-			false,
+			true,
 		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			gameboard := NewGameboard(Red, Blue)
+			gameboard := NewBoard(Red, Blue)
 
 			if gameboard.UpdatePlayer(tt.color, tt.direction, tt.speed, false) != tt.want {
 				t.Errorf("Expected UpdatePlayer to return %t", tt.want)

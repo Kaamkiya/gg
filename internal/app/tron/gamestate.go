@@ -4,39 +4,51 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/tron/gameboard"
 )
 
-const initialNitros = 3
-const roundsPerNitroUsage = 15
-const nitroBoost = 2
+const (
+	// The number of nitros each player begins with.
+	initialNitros = 3
+
+	// Each nitro usage increases the player speed for that many rounds.
+	roundsPerNitroUsage = 15
+
+	// The factor which the speed increases with each nitro usage.
+	nitroBoost = 2
+
+	startCountDown = 3
+)
 
 type gameState struct {
-	gameboard      gameboard.Gameboard
+	gameboard      *gameboard.Board
 	players        []*player
 	gameEnded      bool
 	winner         int
 	startCountDown int
 }
 
-func newGameState() gameState {
-	return gameState{
-		gameboard: gameboard.NewGameboard(gameboard.Red, gameboard.Blue),
+func newGameState() *gameState {
+	return &gameState{
+		gameboard: gameboard.NewBoard(gameboard.Red, gameboard.Blue),
 		players: []*player{
 			newPlayer(gameboard.Red, gameboard.Right, initialNitros),
 			newPlayer(gameboard.Blue, gameboard.Left, initialNitros),
 		},
-		startCountDown: 3,
+		startCountDown: startCountDown,
 	}
 }
 
 func (gs *gameState) updatePlayers() {
 	for _, player := range gs.players {
-		if !gs.gameboard.UpdatePlayer(player.Color, player.Direction, player.getSpeed(), gs.gameEnded) {
+		gs.gameboard.AnimatePlayer(player.Color)
+
+		if !gs.gameEnded && gs.gameboard.MovePlayer(player.Color, player.Direction, player.speedForNextTick()) {
 			player.Crashed = true
 		}
 	}
 }
 
-func (gs *gameState) checkForWinner() (gameEnded bool, winner int) {
+func (gs *gameState) checkForGameEnd() (gameEnded bool, winner int) {
 	var aliveIndex, aliveCount int
+	// See if at most one player is alive.
 	for i, player := range gs.players {
 		if !player.Crashed {
 			aliveCount++
@@ -47,6 +59,7 @@ func (gs *gameState) checkForWinner() (gameEnded bool, winner int) {
 		}
 	}
 
+	// In case two or more players crash on the same round it's a draw.
 	if aliveCount == 0 {
 		return true, -1
 	}
