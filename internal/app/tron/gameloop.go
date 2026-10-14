@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const tickDelay = 100 * time.Millisecond
+const tickDelay = 50 * time.Millisecond
 
 type gameProgressTick struct{}
 
@@ -29,29 +29,35 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" || msg.String() == "Q" {
 			return gs, tea.Quit
-		} else if msg.String() == "r" || msg.String() == "R" {
+		} else if gs.gameEnded && (msg.String() == "r" || msg.String() == "R") {
 			gameState := newGameState()
 			return &gameState, tea.Tick(time.Millisecond*1500, func(time.Time) tea.Msg {
 				return gameStartTick{}
 			})
 		} else {
+			firstPlayer := gs.players[0]
+			lastPlayer := gs.players[len(gs.players)-1]
 			switch msg.String() {
 			case "w":
-				gs.players[0].changeDirection(gameboard.Up)
+				firstPlayer.changeDirection(gameboard.Up)
 			case "a":
-				gs.players[0].changeDirection(gameboard.Left)
+				firstPlayer.changeDirection(gameboard.Left)
 			case "s":
-				gs.players[0].changeDirection(gameboard.Down)
+				firstPlayer.changeDirection(gameboard.Down)
 			case "d":
-				gs.players[0].changeDirection(gameboard.Right)
-			case "i":
-				gs.players[1].changeDirection(gameboard.Up)
-			case "j":
-				gs.players[1].changeDirection(gameboard.Left)
-			case "k":
-				gs.players[1].changeDirection(gameboard.Down)
-			case "l":
-				gs.players[1].changeDirection(gameboard.Right)
+				firstPlayer.changeDirection(gameboard.Right)
+			case " ":
+				firstPlayer.nitroBoost()
+			case "up":
+				lastPlayer.changeDirection(gameboard.Up)
+			case "left":
+				lastPlayer.changeDirection(gameboard.Left)
+			case "down":
+				lastPlayer.changeDirection(gameboard.Down)
+			case "right":
+				lastPlayer.changeDirection(gameboard.Right)
+			case "0":
+				lastPlayer.nitroBoost()
 			}
 		}
 	case gameProgressTick:
@@ -94,9 +100,12 @@ func (gs *gameState) View() string {
 		viewBuilder.WriteString("\n")
 	}
 
-	for i := 0; i < 4-len(message); i++ {
+	for i := 0; i < 3-len(message); i++ {
 		viewBuilder.WriteString("\n")
 	}
+
+	viewBuilder.WriteString(gs.buildNitrosLine())
+	viewBuilder.WriteString("\n")
 
 	viewBuilder.WriteString(strings.Repeat(gameboard.Colors[gameboard.Beige].Render(" "), gameboard.Width*2+2))
 	viewBuilder.WriteString("\n")
@@ -161,6 +170,42 @@ func (gs *gameState) buildMessage() []string {
 		lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Render(text),
 	}
 
+}
+
+func (gs *gameState) buildNitrosLine() string {
+	nitrosStrings := make([]string, len(gs.players))
+	var stringTotalSize int
+
+	for i, player := range gs.players {
+		label := player.Color.String() + ": "
+		nitros := strings.Repeat("🚀", player.Nitros)
+		nitrosStrings[i] = lipgloss.
+			NewStyle().
+			Foreground(lipgloss.Color(player.Color.Hex())).
+			Render(label + nitros + strings.Repeat(" ", initialNitros-player.Nitros))
+		stringTotalSize = lipgloss.Width(nitrosStrings[i]) + stringTotalSize
+	}
+
+	remainingGap := (gameboard.Width*2 + 2) - stringTotalSize
+	paddingSize := remainingGap / (len(nitrosStrings) - 1)
+	paddingRemainder := remainingGap % (len(nitrosStrings) - 1)
+
+	var nitroLine strings.Builder
+	for i := 0; i < len(nitrosStrings)-1; i++ {
+		nitroLine.WriteString(nitrosStrings[i])
+
+		if paddingRemainder > 0 {
+			paddingRemainder--
+			nitroLine.WriteString(strings.Repeat(" ", paddingSize+1))
+		} else {
+			nitroLine.WriteString(strings.Repeat(" ", paddingSize))
+		}
+
+	}
+
+	nitroLine.WriteString(nitrosStrings[len(nitrosStrings)-1])
+
+	return nitroLine.String()
 }
 
 func centerText(text string, size int) string {

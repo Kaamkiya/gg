@@ -3,9 +3,19 @@ package tron
 import "github.com/Kaamkiya/gg/internal/app/tron/gameboard"
 
 type player struct {
-	Direction gameboard.Direction
-	Color     gameboard.Color
-	Crashed   bool
+	Direction            gameboard.Direction
+	Color                gameboard.Color
+	Crashed              bool
+	Nitros               int
+	nitroRoundsCountdown int
+}
+
+func newPlayer(color gameboard.Color, direction gameboard.Direction, nitros int) *player {
+	return &player{
+		Direction: direction,
+		Color:     color,
+		Nitros:    nitros,
+	}
 }
 
 func (p *player) changeDirection(direction gameboard.Direction) {
@@ -14,4 +24,22 @@ func (p *player) changeDirection(direction gameboard.Direction) {
 	}
 
 	p.Direction = direction
+}
+
+func (p *player) nitroBoost() {
+	if p.Nitros <= 0 {
+		return
+	}
+
+	p.Nitros--
+	p.nitroRoundsCountdown = p.nitroRoundsCountdown + roundsPerNitroUsage
+}
+
+func (p *player) getSpeed() int {
+	if p.nitroRoundsCountdown > 0 {
+		p.nitroRoundsCountdown--
+		return nitroBoost
+	} else {
+		return 1
+	}
 }

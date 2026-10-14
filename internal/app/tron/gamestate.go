@@ -4,6 +4,10 @@ import (
 	"github.com/Kaamkiya/gg/internal/app/tron/gameboard"
 )
 
+const initialNitros = 3
+const roundsPerNitroUsage = 15
+const nitroBoost = 2
+
 type gameState struct {
 	gameboard      gameboard.Gameboard
 	players        []*player
@@ -16,8 +20,8 @@ func newGameState() gameState {
 	return gameState{
 		gameboard: gameboard.NewGameboard(gameboard.Red, gameboard.Blue),
 		players: []*player{
-			{Direction: gameboard.Right, Color: gameboard.Red},
-			{Direction: gameboard.Left, Color: gameboard.Blue},
+			newPlayer(gameboard.Red, gameboard.Right, initialNitros),
+			newPlayer(gameboard.Blue, gameboard.Left, initialNitros),
 		},
 		startCountDown: 3,
 	}
@@ -25,7 +29,7 @@ func newGameState() gameState {
 
 func (gs *gameState) updatePlayers() {
 	for _, player := range gs.players {
-		if !gs.gameboard.UpdatePlayer(player.Color, player.Direction, 1, gs.gameEnded) {
+		if !gs.gameboard.UpdatePlayer(player.Color, player.Direction, player.getSpeed(), gs.gameEnded) {
 			player.Crashed = true
 		}
 	}
@@ -35,7 +39,7 @@ func (gs *gameState) checkForWinner() (gameEnded bool, winner int) {
 	var aliveIndex, aliveCount int
 	for i, player := range gs.players {
 		if !player.Crashed {
-			aliveCount = aliveCount + 1
+			aliveCount++
 			aliveIndex = i
 		}
 		if aliveCount > 1 {
