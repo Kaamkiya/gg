@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
@@ -28,11 +30,6 @@ const (
 	BLACK_HEX      = "#000000"
 	GREY_HEX       = "#6E7072"
 	UNDERLINE_CHAR = " "
-)
-
-var (
-	RED_HEX_LEN   = len(lipgloss.NewStyle().Foreground(lipgloss.Color(RED_HEX)).Render("a"))
-	GREEN_HEX_LEN = len(lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX)).Render("a"))
 )
 
 type TickMsg time.Time
@@ -113,10 +110,12 @@ func (m Model) Init() tea.Cmd {
 
 func backspace(m *Model) {
 	if m.InputLen > 0 {
-		m.InputStr = m.InputStr[:len(m.InputStr)-m.CharLenSlice[len(m.CharLenSlice)-1]] //CHAR_LEN]
+		m.InputStr = m.InputStr[:len(m.InputStr)-m.CharLenSlice[len(m.CharLenSlice)-1]]
 		m.InputLen--
-		m.CharLenSlice = m.CharLenSlice[:len(m.CharLenSlice)-1] // pop
-		m.InputStrPlain = m.InputStrPlain[:len(m.InputStrPlain)-1]
+		m.CharLenSlice = m.CharLenSlice[:len(m.CharLenSlice)-1]
+
+		inputRunes := []rune(m.InputStrPlain)
+		m.InputStrPlain = string(inputRunes[:len(inputRunes)-1])
 
 		// Decrement underline pointer if greater than lower limit
 		if m.PromptIdx > m.PromptIdxLowerLimit {
@@ -127,11 +126,11 @@ func backspace(m *Model) {
 }
 
 func typeChar(m *Model, in string) {
-	if m.PromptIdx < len(m.PromptStr) {
+	promptRunes := []rune(m.PromptStr)
+	if m.PromptIdx < len(promptRunes) {
 		m.InputStrPlain += in
 
-		if in == string(m.PromptStr[m.PromptIdx]) {
-
+		if in == string(promptRunes[m.PromptIdx]) {
 			if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
 				m.State.Hits++
 				m.State.SeenIdxSet[m.PromptIdx] = 1
@@ -139,8 +138,6 @@ func typeChar(m *Model, in string) {
 
 			greenStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(GREEN_HEX))
 			in = greenStyle.Render(in)
-			m.CharLenSlice = append(m.CharLenSlice, GREEN_HEX_LEN)
-
 		} else {
 			if _, ok := m.State.SeenIdxSet[m.PromptIdx]; !ok && in != " " {
 				m.State.Errors++
@@ -148,9 +145,9 @@ func typeChar(m *Model, in string) {
 			}
 			redStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(RED_HEX))
 			in = redStyle.Render(in)
-			m.CharLenSlice = append(m.CharLenSlice, RED_HEX_LEN)
 		}
 
+		m.CharLenSlice = append(m.CharLenSlice, len(in))
 		m.InputLen++
 
 		m.PromptIdx++
@@ -160,7 +157,7 @@ func typeChar(m *Model, in string) {
 	}
 
 	// User typed word correctly
-	if len(m.InputStrPlain) >= len(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(m.InputStrPlain) == (m.PromptSlice[m.WordIdx]) {
+	if utf8.RuneCountInString(m.InputStrPlain) >= utf8.RuneCountInString(m.PromptSlice[m.WordIdx]) && strings.TrimSpace(m.InputStrPlain) == (m.PromptSlice[m.WordIdx]) {
 		m.State.WordCompletions++
 		m.WordIdx++
 		m.PromptIdxLowerLimit = m.PromptIdx
@@ -235,8 +232,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func isValidChar(in string) bool {
-	r := rune(in[0])
-	return len(in) == 1 && r >= 32 && r <= 126
+	if utf8.RuneCountInString(in) != 1 {
+		return false
+	}
+
+	r, size := utf8.DecodeRuneInString(in)
+	if r == utf8.RuneError && size == 1 {
+		return false
+	}
+
+	return unicode.IsPrint(r) && !unicode.IsControl(r)
 }
 
 func getNewPromptId(cfg *Config, curID int, state *State) int {
@@ -282,10 +287,11 @@ func getActivePromptsLen(pType string, prompts []Prompt) int {
 }
 
 func shiftCursor(m *Model) string {
-	if m.PromptIdx+1 < len(m.PromptStr)+1 {
-		highlightedChar := lipgloss.NewStyle().Background(lipgloss.Color(WHITE_HEX)).Foreground(lipgloss.Color(BLACK_HEX)).Render(string(m.PromptStr[m.PromptIdx]))
-		greyedOutText := lipgloss.NewStyle().Foreground(lipgloss.Color(GREY_HEX)).Render(string(m.PromptStr[m.PromptIdx+1:]))
-		return m.PromptStr[:m.PromptIdx] + highlightedChar + greyedOutText
+	promptRunes := []rune(m.PromptStr)
+	if m.PromptIdx < len(promptRunes) {
+		highlightedChar := lipgloss.NewStyle().Background(lipgloss.Color(WHITE_HEX)).Foreground(lipgloss.Color(BLACK_HEX)).Render(string(promptRunes[m.PromptIdx]))
+		greyedOutText := lipgloss.NewStyle().Foreground(lipgloss.Color(GREY_HEX)).Render(string(promptRunes[m.PromptIdx+1:]))
+		return string(promptRunes[:m.PromptIdx]) + highlightedChar + greyedOutText
 	}
 
 	return m.PromptStr
