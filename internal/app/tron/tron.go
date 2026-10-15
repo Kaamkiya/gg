@@ -4,9 +4,31 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Kaamkiya/gg/internal/app/tron/gameboard"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/x/term"
 )
+
+type gameConfig struct {
+	playerConfigs []playerConfig
+}
+
+type playerConfig struct {
+	color gameboard.Color
+}
+
+func newGameConfig(numOfPlayers int) gameConfig {
+	playerConfigs := []playerConfig{{gameboard.Red}, {gameboard.Blue}}
+
+	if numOfPlayers == 3 {
+		playerConfigs = append(playerConfigs, playerConfig{gameboard.Purple})
+	}
+
+	return gameConfig{
+		playerConfigs,
+	}
+}
 
 func Run() {
 	width, height, err := term.GetSize(os.Stdout.Fd())
@@ -21,7 +43,32 @@ func Run() {
 		os.Exit(0)
 	}
 
-	initialModel := newGameState()
+	var playerCount int
+
+	err = huh.NewSelect[int]().
+		Title("How many players?").
+		Options(
+			huh.NewOption("2 players", 2),
+			huh.NewOption("3 players", 3),
+		).
+		Value(&playerCount).
+		Run()
+
+	if err != nil {
+		fmt.Println("Error: failed to get number of players.")
+		panic(err)
+	}
+
+	playerConfigs := []playerConfig{
+		{gameboard.Blue},
+		{gameboard.Red},
+	}
+
+	if playerCount == 3 {
+		playerConfigs = append(playerConfigs, playerConfig{gameboard.Purple})
+	}
+	initialModel := newGameState(gameConfig{playerConfigs: playerConfigs})
+
 	p := tea.NewProgram(initialModel)
 
 	if _, err := p.Run(); err != nil {
