@@ -34,13 +34,13 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "ctrl+c" || msg.String() == "q" || msg.String() == "Q" {
 			return gs, tea.Quit
 		} else if gs.gameEnded && (msg.String() == "r" || msg.String() == "R") {
-			gameState := newGameState()
+			gameState := newGameState(gs.gameConfig)
 			return gameState, tea.Tick(time.Millisecond*1500, func(time.Time) tea.Msg {
 				return gameStartTick{}
 			})
 		} else {
-			firstPlayer := gs.players[0]
-			lastPlayer := gs.players[len(gs.players)-1]
+			firstPlayer := &gs.players[0]
+			lastPlayer := &gs.players[len(gs.players)-1]
 			switch msg.String() {
 			case "w":
 				firstPlayer.changeDirection(gameboard.Up)
@@ -62,6 +62,22 @@ func (gs *gameState) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				lastPlayer.changeDirection(gameboard.Right)
 			case "0":
 				lastPlayer.nitroBoost()
+			}
+
+			if len(gs.players) == 3 {
+				middlePlayer := &gs.players[1]
+				switch msg.String() {
+				case "i":
+					middlePlayer.changeDirection(gameboard.Up)
+				case "j":
+					middlePlayer.changeDirection(gameboard.Left)
+				case "k":
+					middlePlayer.changeDirection(gameboard.Down)
+				case "l":
+					middlePlayer.changeDirection(gameboard.Right)
+				case "\\":
+					middlePlayer.nitroBoost()
+				}
 			}
 		}
 	case gameProgressTick:
@@ -140,7 +156,11 @@ func (gs *gameState) View() string {
 	viewBuilder.WriteString("\n")
 
 	viewBuilder.WriteString("Controls:\n")
-	viewBuilder.WriteString("First player: w,a,s,d,space  Second player: ↑,←,↓,→,0   Q/Ctrl+c to quit\n")
+	if len(gs.players) == 2 {
+		viewBuilder.WriteString("First player: w,a,s,d,space  Second player: ↑,←,↓,→,0   Q/Ctrl+c to quit\n")
+	} else {
+		viewBuilder.WriteString("First player: w,a,s,d,space  Second player: i,j,k,l,\\  Third player: ↑,←,↓,→,0   Q/Ctrl+c to quit\n")
+	}
 
 	return viewBuilder.String()
 }
