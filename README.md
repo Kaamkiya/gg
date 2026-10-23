@@ -21,8 +21,15 @@ games you can play in your terminal!
 
 <!--![A recording of a maze game being played, then the dodger game.](assets/gg.gif)-->
 ![A screenshot of 2048.](assets/gameplay_2048.png)
-![A screenshot of the snake game.](assets/gameplay_snake.png)
-![A screenshot of Tetris.](assets/gameplay_tetris.png)
+
+<details>
+  <summary>More screenshots</summary>
+
+  ![A screenshot of the snake game.](assets/gameplay_snake.png)
+
+  ![A screenshot of Tetris.](assets/gameplay_tetris.png)
+
+</details>
 
 I like to play video games, probably like you. But I prefer smaller, more minimal games. And I figured the best way to keep games minimal is to play them from the CLI!
 
