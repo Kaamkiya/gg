@@ -19,29 +19,45 @@ const (
 
 type gameState struct {
 	gameboard      *gameboard.Board
-	players        []*player
+	players        []player
 	gameEnded      bool
 	winner         int
 	startCountDown int
+	gameConfig     gameConfig
 }
 
-func newGameState() *gameState {
+func newGameState(gameConfig gameConfig) *gameState {
+	players := make([]player, len(gameConfig.playerConfigs))
+	playerColors := make([]gameboard.Color, len(gameConfig.playerConfigs))
+
+	players[0] = newPlayer(gameConfig.playerConfigs[0].color, gameboard.Right)
+	playerColors[0] = gameConfig.playerConfigs[0].color
+	players[1] = newPlayer(gameConfig.playerConfigs[1].color, gameboard.Left)
+	playerColors[1] = gameConfig.playerConfigs[1].color
+
+	if len(gameConfig.playerConfigs) == 3 {
+		players[2] = newPlayer(gameConfig.playerConfigs[2].color, gameboard.Up)
+		playerColors[2] = gameConfig.playerConfigs[2].color
+	}
+
 	return &gameState{
-		gameboard: gameboard.NewBoard(gameboard.Red, gameboard.Blue),
-		players: []*player{
-			newPlayer(gameboard.Red, gameboard.Right, initialNitros),
-			newPlayer(gameboard.Blue, gameboard.Left, initialNitros),
-		},
+		gameboard:      gameboard.NewBoard(playerColors...),
+		players:        players,
 		startCountDown: startCountDown,
+		gameConfig:     gameConfig,
 	}
 }
 
 func (gs *gameState) updatePlayers() {
-	for _, player := range gs.players {
+	for i, player := range gs.players {
 		gs.gameboard.AnimatePlayer(player.Color)
 
-		if !gs.gameEnded && gs.gameboard.MovePlayer(player.Color, player.Direction, player.speedForNextTick()) {
-			player.Crashed = true
+		if gs.gameEnded || player.Crashed {
+			continue
+		}
+
+		if gs.gameboard.MovePlayer(player.Color, player.Direction, gs.players[i].speedForNextTick()) {
+			gs.players[i].Crashed = true
 		}
 	}
 }

@@ -11,11 +11,11 @@ type player struct {
 	nitroRoundsCountdown int
 }
 
-func newPlayer(color gameboard.Color, direction gameboard.Direction, nitros int) *player {
-	return &player{
+func newPlayer(color gameboard.Color, direction gameboard.Direction) player {
+	return player{
 		Direction: direction,
 		Color:     color,
-		Nitros:    nitros,
+		Nitros:    initialNitros,
 	}
 }
 
