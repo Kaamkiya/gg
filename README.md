@@ -19,8 +19,10 @@ games you can play in your terminal!
 
 ## About The Project
 
-![A recording of a maze game being played, then the dodger game.](assets/gg.gif)
-![A screenshot of 2048, dodger, and a maze running in separate windows.](assets/gameplay.png)
+<!--![A recording of a maze game being played, then the dodger game.](assets/gg.gif)-->
+![A screenshot of 2048.](assets/gameplay_2048.png)
+![A screenshot of the snake game.](assets/gameplay_snake.png)
+![A screenshot of Tetris.](assets/gameplay_tetris.png)
 
 I like to play video games, probably like you. But I prefer smaller, more minimal games. And I figured the best way to keep games minimal is to play them from the CLI!
 
@@ -55,6 +57,7 @@ This section is about installation and usage.
   * Go to the [releases page](https://github.com/Kaamkiya/gg/releases)
   * Download the one for your platform
   * Make it executable (`chmod +x ./<file>`)
+  * Optional: add it to path: `PATH="/path/to/gg:$PATH"`
   * Run it!
 
 ## Usage
@@ -94,6 +97,4 @@ Distributed under the Unlicense. See [Unlicense License](https://unlicense.org) 
 
 ## Acknowledgments
 
-
 * [Al Sweigart's list of games to clone](https://inventwithpython.com/blog/2012/02/20/i-need-practice-programming-49-ideas-for-game-clones-to-code/)
-
